@@ -1,0 +1,2332 @@
+
+debugvar = false
+if os.getenv('USERNAME') == "mauri" then
+	debugvar = true --only turn on debugvar if it's burnts computer
+end
+
+if debugvar then print("hi burnt") end
+--debugvar = true
+--
+superdebugvar = false
+
+
+--skip symbol loading thing
+local mvf = getMemoryViewForm()
+if mvf.Showsymbols1.Checked then
+	mvf.Showsymbols1.doClick()
+end
+if mvf.Showmoduleaddresses1.Checked then
+	mvf.Showmoduleaddresses1.doClick()
+end
+
+debugvar = false
+
+
+
+
+
+----
+---- FORM: CEER
+------------------------------
+CEER = createForm()
+CEER.Tag = 0
+CEER.AnchorSideLeft.Side = asrTop
+CEER.AnchorSideTop.Side = asrTop
+CEER.AnchorSideRight.Side = asrTop
+CEER.AnchorSideBottom.Side = asrTop
+CEER.Left = 602
+CEER.Height = 250
+CEER.Hint = ''
+CEER.Top = 161
+CEER.Width = 400
+CEER.HelpType = htContext
+CEER.HelpKeyword = ''
+CEER.HelpContext = 0
+CEER.HorzScrollBar.Page = 80
+CEER.HorzScrollBar.Smooth = false
+CEER.HorzScrollBar.Position = 0
+CEER.HorzScrollBar.Range = 0
+CEER.HorzScrollBar.Tracking = false
+CEER.HorzScrollBar.Visible = true
+CEER.VertScrollBar.Page = 80
+CEER.VertScrollBar.Smooth = false
+CEER.VertScrollBar.Position = 0
+CEER.VertScrollBar.Range = 0
+CEER.VertScrollBar.Tracking = false
+CEER.VertScrollBar.Visible = true
+CEER.Align = alNone
+CEER.AllowDropFiles = false
+CEER.AlphaBlend = false
+CEER.AlphaBlendValue = 255
+CEER.Anchors = '[akTop,akLeft]'
+CEER.AutoScroll = false
+CEER.AutoSize = false
+CEER.BiDiMode = bdLeftToRight
+CEER.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
+CEER.BorderStyle = bsSizeable
+CEER.BorderWidth = 0
+CEER.Caption = 'CE Enemy Randomiser v0.1'
+CEER.ClientHeight = 250
+CEER.ClientWidth = 400
+CEER.Color = 2368548
+CEER.Constraints.MaxWidth = 0
+CEER.Constraints.MinHeight = 0
+CEER.Constraints.MinWidth = 0
+CEER.DefaultMonitor = dmActiveForm
+CEER.DockSite = false
+CEER.DragKind = dkDrag
+CEER.DragMode = dmManual
+CEER.Enabled = true
+CEER.Font.Color = 16777215
+CEER.Font.Height = 0
+CEER.Font.Name = 'default'
+CEER.Font.Orientation = 0
+CEER.Font.Pitch = fpDefault
+CEER.Font.Quality = fqDefault
+CEER.Font.Size = 0
+CEER.Font.Style = '[]'
+CEER.FormStyle = 'fsNormal'
+CEER.KeyPreview = false
+CEER.ParentBiDiMode = true
+CEER.ParentFont = false
+CEER.PixelsPerInch = 96
+CEER.Position = poDesigned
+CEER.ShowHint = false
+CEER.ShowInTaskBar = 'stAlways'
+CEER.UseDockManager = false
+CEER.Visible = true
+CEER.WindowState = 'wsNormal'
+CEER.DoNotSaveInTable = false
+------------------------------
+---- CEER : Components
+------------------------------
+--
+---- MainPanel
+--------------------
+MainPanel = createPanel(CEER)
+MainPanel.Tag = 0
+MainPanel.AnchorSideLeft.Side = asrTop
+MainPanel.AnchorSideTop.Side = asrTop
+MainPanel.AnchorSideRight.Side = asrTop
+MainPanel.AnchorSideBottom.Side = asrTop
+MainPanel.Left = 0
+MainPanel.Height = 250
+MainPanel.Hint = ''
+MainPanel.Top = 0
+MainPanel.Width = 400
+MainPanel.HelpType = htContext
+MainPanel.HelpKeyword = ''
+MainPanel.HelpContext = 0
+MainPanel.Align = alNone
+MainPanel.Alignment = 2
+MainPanel.Anchors = '[akTop,akLeft]'
+MainPanel.AutoSize = false
+MainPanel.BorderSpacing.Top = 0
+MainPanel.BevelInner = 0
+MainPanel.BevelOuter = 2
+MainPanel.BevelWidth = 1
+MainPanel.BidiMode = bdLeftToRight
+MainPanel.BorderWidth = 0
+MainPanel.BorderStyle = bsNone
+MainPanel.Caption = ''
+MainPanel.ClientHeight = 250
+MainPanel.ClientWidth = 400
+MainPanel.Color = 2368548
+MainPanel.Constraints.MaxWidth = 0
+MainPanel.Constraints.MinHeight = 0
+MainPanel.Constraints.MinWidth = 0
+MainPanel.DockSite = false
+MainPanel.DragCursor = -12
+MainPanel.DragKind = dkDrag
+MainPanel.DragMode = dmManual
+MainPanel.Enabled = true
+MainPanel.Font.Color = 16777215
+MainPanel.Font.Height = 0
+MainPanel.Font.Name = 'default'
+MainPanel.Font.Orientation = 0
+MainPanel.Font.Pitch = fpDefault
+MainPanel.Font.Quality = fqDefault
+MainPanel.Font.Size = 0
+MainPanel.Font.Style = '[]'
+MainPanel.FullRepaint = true
+MainPanel.ParentBidiMode = true
+MainPanel.ParentColor = true
+MainPanel.ParentFont = true
+MainPanel.ParentShowHint = true
+MainPanel.ShowHint = false
+MainPanel.TabOrder = 0
+MainPanel.TabStop = false
+MainPanel.UseDockManager = true
+MainPanel.Visible = true
+--------------------
+--
+---- AboutButton
+--------------------
+AboutButton = createButton(MainPanel)
+AboutButton.Tag = 0
+AboutButton.AnchorSideLeft.Side = asrTop
+AboutButton.AnchorSideTop.Side = asrTop
+AboutButton.AnchorSideRight.Side = asrTop
+AboutButton.AnchorSideBottom.Side = asrTop
+AboutButton.Left = 266
+AboutButton.Height = 25
+AboutButton.Hint = ''
+AboutButton.Top = 182 + 20
+AboutButton.Width = 75
+AboutButton.HelpType = htContext
+AboutButton.HelpKeyword = ''
+AboutButton.HelpContext = 0
+AboutButton.Align = alNone
+AboutButton.Anchors = '[akTop,akLeft]'
+AboutButton.AutoSize = false
+AboutButton.BidiMode = bdLeftToRight
+AboutButton.BorderSpacing.Top = 0
+AboutButton.Cancel = false
+AboutButton.Caption = 'About'
+AboutButton.Color = 536870912
+AboutButton.Constraints.MaxWidth = 0
+AboutButton.Constraints.MinHeight = 0
+AboutButton.Constraints.MinWidth = 0
+AboutButton.Default = false
+AboutButton.DragCursor = -12
+AboutButton.DragKind = dkDrag
+AboutButton.DragMode = dmManual
+AboutButton.Enabled = true
+AboutButton.Font.Color = 16777215
+AboutButton.Font.Height = 0
+AboutButton.Font.Name = 'default'
+AboutButton.Font.Orientation = 0
+AboutButton.Font.Pitch = fpDefault
+AboutButton.Font.Quality = fqDefault
+AboutButton.Font.Size = 0
+AboutButton.Font.Style = '[]'
+AboutButton.ParentBidiMode = true
+AboutButton.ModalResult = 0
+AboutButton.ParentFont = true
+AboutButton.ParentShowHint = true
+AboutButton.ShowHint = false
+AboutButton.TabOrder = 0
+AboutButton.TabStop = true
+AboutButton.Visible = true
+--------------------
+--
+
+
+function createRadioButton(Parent)
+	local rb = createComponentClass('TRadioButton', Parent)
+	rb.Parent = Parent
+	return rb
+end 
+---- RB_setseed
+--------------------
+RB_setseed = createRadioButton(MainPanel)
+RB_setseed.Tag = 0
+RB_setseed.AnchorSideLeft.Side = asrTop
+RB_setseed.AnchorSideTop.Side = asrTop
+RB_setseed.AnchorSideRight.Side = asrTop
+RB_setseed.AnchorSideBottom.Side = asrTop
+RB_setseed.Left = 184
+RB_setseed.Height = 19
+RB_setseed.Hint = 'Decide whether to use your manually inputted set seed, or to have the randomiser randomly generate a random seed for you.'
+RB_setseed.Top = 44
+RB_setseed.Width = 64
+RB_setseed.HelpType = htContext
+RB_setseed.HelpKeyword = ''
+RB_setseed.HelpContext = 0
+RB_setseed.Align = alNone
+RB_setseed.Alignment = taRightJustify
+RB_setseed.Anchors = '[akTop,akLeft]'
+RB_setseed.AutoSize = true
+RB_setseed.BidiMode = bdLeftToRight
+RB_setseed.BorderSpacing.Top = 0
+RB_setseed.Caption = 'Set Seed'
+RB_setseed.Checked = false
+RB_setseed.Color = 2368548
+RB_setseed.Constraints.MaxWidth = 0
+RB_setseed.Constraints.MinHeight = 0
+RB_setseed.Constraints.MinWidth = 0
+RB_setseed.DragCursor = -12
+RB_setseed.DragKind = dkDrag
+RB_setseed.DragMode = dmManual
+RB_setseed.Enabled = true
+RB_setseed.Font.Color = 16777215
+RB_setseed.Font.Height = 0
+RB_setseed.Font.Name = 'default'
+RB_setseed.Font.Orientation = 0
+RB_setseed.Font.Pitch = fpDefault
+RB_setseed.Font.Quality = fqDefault
+RB_setseed.Font.Size = 0
+RB_setseed.Font.Style = '[]'
+RB_setseed.ParentBidiMode = true
+RB_setseed.ParentColor = true
+RB_setseed.ParentFont = true
+RB_setseed.ParentShowHint = true
+RB_setseed.ShowHint = false
+RB_setseed.TabOrder = 2
+RB_setseed.TabStop = false
+RB_setseed.Visible = true
+--------------------
+--
+---- RB_randomseed
+--------------------
+RB_randomseed = createRadioButton(MainPanel)
+RB_randomseed.Tag = 0
+RB_randomseed.AnchorSideLeft.Side = asrTop
+RB_randomseed.AnchorSideTop.Side = asrTop
+RB_randomseed.AnchorSideRight.Side = asrTop
+RB_randomseed.AnchorSideBottom.Side = asrTop
+RB_randomseed.Left = 264
+RB_randomseed.Height = 19
+RB_randomseed.Hint = 'Decide whether to use your manually inputted set seed, or to have the randomiser randomly generate a random seed for you.'
+RB_randomseed.Top = 44
+RB_randomseed.Width = 93
+RB_randomseed.HelpType = htContext
+RB_randomseed.HelpKeyword = ''
+RB_randomseed.HelpContext = 0
+RB_randomseed.Align = alNone
+RB_randomseed.Alignment = taRightJustify
+RB_randomseed.Anchors = '[akTop,akLeft]'
+RB_randomseed.AutoSize = true
+RB_randomseed.BidiMode = bdLeftToRight
+RB_randomseed.BorderSpacing.Top = 0
+RB_randomseed.Caption = 'Random Seed'
+RB_randomseed.Checked = true
+RB_randomseed.Color = 2368548
+RB_randomseed.Constraints.MaxWidth = 0
+RB_randomseed.Constraints.MinHeight = 0
+RB_randomseed.Constraints.MinWidth = 0
+RB_randomseed.DragCursor = -12
+RB_randomseed.DragKind = dkDrag
+RB_randomseed.DragMode = dmManual
+RB_randomseed.Enabled = true
+RB_randomseed.Font.Color = 16777215
+RB_randomseed.Font.Height = 0
+RB_randomseed.Font.Name = 'default'
+RB_randomseed.Font.Orientation = 0
+RB_randomseed.Font.Pitch = fpDefault
+RB_randomseed.Font.Quality = fqDefault
+RB_randomseed.Font.Size = 0
+RB_randomseed.Font.Style = '[]'
+RB_randomseed.ParentBidiMode = true
+RB_randomseed.ParentColor = true
+RB_randomseed.ParentFont = true
+RB_randomseed.ParentShowHint = true
+RB_randomseed.ShowHint = false
+RB_randomseed.TabOrder = 1
+RB_randomseed.TabStop = true
+RB_randomseed.Visible = true
+--------------------
+--
+---- Edit_Seed
+--------------------
+Edit_Seed = createEdit(MainPanel)
+Edit_Seed.Tag = 0
+Edit_Seed.AnchorSideLeft.Side = asrTop
+Edit_Seed.AnchorSideTop.Side = asrTop
+Edit_Seed.AnchorSideRight.Side = asrTop
+Edit_Seed.AnchorSideBottom.Side = asrTop
+Edit_Seed.Left = 20
+Edit_Seed.Height = 23
+Edit_Seed.Hint = 'Enter your seed as an alphanumeric string of any length. Capilitisation matters, spaces and non-alphanumeric characters will be ignored.'
+Edit_Seed.Top = 42
+Edit_Seed.Width = 148
+Edit_Seed.HelpType = htContext
+Edit_Seed.HelpKeyword = ''
+Edit_Seed.HelpContext = 0
+Edit_Seed.Align = alNone
+Edit_Seed.Alignment = taLeftJustify
+Edit_Seed.Anchors = '[akTop,akLeft]'
+Edit_Seed.AutoSize = true
+Edit_Seed.AutoSelect = true
+Edit_Seed.BidiMode = bdLeftToRight
+Edit_Seed.BorderSpacing.Top = 0
+Edit_Seed.BorderStyle = bsSingle
+Edit_Seed.CharCase = ecNormal
+Edit_Seed.Color = 2105376
+Edit_Seed.Constraints.MaxWidth = 0
+Edit_Seed.Constraints.MinHeight = 0
+Edit_Seed.Constraints.MinWidth = 0
+Edit_Seed.DragCursor = -12
+Edit_Seed.DragKind = dkDrag
+Edit_Seed.DragMode = dmManual
+Edit_Seed.Enabled = false
+Edit_Seed.Font.Color = 16777215
+Edit_Seed.Font.Height = 0
+Edit_Seed.Font.Name = 'default'
+Edit_Seed.Font.Orientation = 0
+Edit_Seed.Font.Pitch = fpDefault
+Edit_Seed.Font.Quality = fqDefault
+Edit_Seed.Font.Size = 0
+Edit_Seed.Font.Style = '[]'
+Edit_Seed.HideSelection = true
+Edit_Seed.MaxLength = 0
+Edit_Seed.ParentBidiMode = true
+Edit_Seed.ParentColor = false
+Edit_Seed.ParentFont = true
+Edit_Seed.ParentShowHint = true
+Edit_Seed.ReadOnly = false
+Edit_Seed.ShowHint = false
+Edit_Seed.TabStop = true
+Edit_Seed.TabOrder = 3
+Edit_Seed.Text = "Enter Seed..."
+Edit_Seed.Visible = true
+Edit_Seed.SelStart = 0
+--------------------
+--
+---- CELabel1
+--------------------
+CELabel1 = createLabel(MainPanel)
+CELabel1.Tag = 0
+CELabel1.AnchorSideLeft.Side = asrTop
+CELabel1.AnchorSideTop.Side = asrTop
+CELabel1.AnchorSideRight.Side = asrTop
+CELabel1.AnchorSideBottom.Side = asrTop
+CELabel1.Left = 22
+CELabel1.Height = 15
+CELabel1.Hint = 'Enter your seed as an alphanumeric string of any length. Capilitisation matters, spaces and non-alphanumeric characters will be ignored.'
+CELabel1.Top = 24
+CELabel1.Width = 28
+CELabel1.HelpType = htContext
+CELabel1.HelpKeyword = ''
+CELabel1.HelpContext = 0
+CELabel1.Align = alNone
+CELabel1.Alignment = taLeftJustify
+CELabel1.Anchors = '[akTop,akLeft]'
+CELabel1.AutoSize = true
+CELabel1.BidiMode = bdLeftToRight
+CELabel1.BorderSpacing.Top = 0
+CELabel1.Caption = 'Seed:'
+CELabel1.Color = 536870911
+CELabel1.Constraints.MaxWidth = 0
+CELabel1.Constraints.MinHeight = 0
+CELabel1.Constraints.MinWidth = 0
+CELabel1.DragCursor = -12
+CELabel1.DragKind = dkDrag
+CELabel1.DragMode = dmManual
+CELabel1.Enabled = true
+CELabel1.Font.Color = 16777215
+CELabel1.Font.Height = 0
+CELabel1.Font.Name = 'default'
+CELabel1.Font.Orientation = 0
+CELabel1.Font.Pitch = fpDefault
+CELabel1.Font.Quality = fqDefault
+CELabel1.Font.Size = 0
+CELabel1.Font.Style = '[]'
+CELabel1.Layout = tlTop
+CELabel1.ParentBidiMode = true
+CELabel1.ParentColor = false
+CELabel1.ParentFont = true
+CELabel1.ParentShowHint = true
+CELabel1.ShowAccelChar = true
+CELabel1.ShowHint = false
+CELabel1.Transparent = true
+CELabel1.Visible = true
+CELabel1.WordWrap = false
+CELabel1.OptimalFill = false
+--------------------
+--
+---- CELabel2
+--------------------
+CELabel2 = createLabel(MainPanel)
+CELabel2.Tag = 0
+CELabel2.AnchorSideLeft.Side = asrTop
+CELabel2.AnchorSideTop.Side = asrTop
+CELabel2.AnchorSideRight.Side = asrTop
+CELabel2.AnchorSideBottom.Side = asrTop
+CELabel2.Left = 186
+CELabel2.Height = 15
+CELabel2.Hint = 'Decide whether to use your manually inputted set seed, or to have the randomiser randomly generate a random seed for you.'
+CELabel2.Top = 24
+CELabel2.Width = 34
+CELabel2.HelpType = htContext
+CELabel2.HelpKeyword = ''
+CELabel2.HelpContext = 0
+CELabel2.Align = alNone
+CELabel2.Alignment = taLeftJustify
+CELabel2.Anchors = '[akTop,akLeft]'
+CELabel2.AutoSize = true
+CELabel2.BidiMode = bdLeftToRight
+CELabel2.BorderSpacing.Top = 0
+CELabel2.Caption = 'Mode:'
+CELabel2.Color = 536870911
+CELabel2.Constraints.MaxWidth = 0
+CELabel2.Constraints.MinHeight = 0
+CELabel2.Constraints.MinWidth = 0
+CELabel2.DragCursor = -12
+CELabel2.DragKind = dkDrag
+CELabel2.DragMode = dmManual
+CELabel2.Enabled = true
+CELabel2.Font.Color = 16777215
+CELabel2.Font.Height = 0
+CELabel2.Font.Name = 'default'
+CELabel2.Font.Orientation = 0
+CELabel2.Font.Pitch = fpDefault
+CELabel2.Font.Quality = fqDefault
+CELabel2.Font.Size = 0
+CELabel2.Font.Style = '[]'
+CELabel2.Layout = tlTop
+CELabel2.ParentBidiMode = true
+CELabel2.ParentColor = false
+CELabel2.ParentFont = true
+CELabel2.ParentShowHint = true
+CELabel2.ShowAccelChar = true
+CELabel2.ShowHint = false
+CELabel2.Transparent = true
+CELabel2.Visible = true
+CELabel2.WordWrap = false
+CELabel2.OptimalFill = false
+
+
+PopcornCheckbox = createCheckBox(MainPanel)
+PopcornCheckbox.Tag = 0
+PopcornCheckbox.AnchorSideLeft.Side = asrTop
+PopcornCheckbox.AnchorSideTop.Side = asrTop
+PopcornCheckbox.AnchorSideRight.Side = asrTop
+PopcornCheckbox.AnchorSideBottom.Side = asrTop
+PopcornCheckbox.Left = 60
+PopcornCheckbox.Height = 15
+PopcornCheckbox.Hint = ''
+PopcornCheckbox.Top = 78
+PopcornCheckbox.Width = 112
+PopcornCheckbox.HelpType = htContext
+PopcornCheckbox.HelpKeyword = ''
+PopcornCheckbox.HelpContext = 0
+PopcornCheckbox.Align = alNone
+PopcornCheckbox.Alignment = taLeftJustify
+PopcornCheckbox.Anchors = '[akTop,akLeft]'
+PopcornCheckbox.AutoSize = true
+PopcornCheckbox.BidiMode = bdLeftToRight
+PopcornCheckbox.BorderSpacing.Top = 0
+PopcornCheckbox.Caption = "Don't Randomise Popcorn"
+PopcornCheckbox.Color = 536870911
+PopcornCheckbox.Constraints.MaxWidth = 0
+PopcornCheckbox.Constraints.MinHeight = 0
+PopcornCheckbox.Constraints.MinWidth = 0
+PopcornCheckbox.Enabled = true
+PopcornCheckbox.Font.Color = 536870912
+PopcornCheckbox.Font.Height = 0
+PopcornCheckbox.Font.Name = 'default'
+PopcornCheckbox.Font.Orientation = 0
+PopcornCheckbox.Font.Pitch = fpDefault
+PopcornCheckbox.Font.Quality = fqDefault
+PopcornCheckbox.Font.Size = 0
+PopcornCheckbox.Font.Style = '[]'
+PopcornCheckbox.Layout = tlTop
+PopcornCheckbox.ParentBidiMode = true
+PopcornCheckbox.ParentColor = false
+PopcornCheckbox.ParentFont = true
+PopcornCheckbox.ParentShowHint = true
+PopcornCheckbox.ShowAccelChar = true
+PopcornCheckbox.ShowHint = false
+PopcornCheckbox.Transparent = true
+PopcornCheckbox.Visible = true
+PopcornCheckbox.WordWrap = false
+PopcornCheckbox.OptimalFill = false
+
+
+
+--------------------
+--
+---- ActivateButton
+--------------------
+ActivateButton = createButton(MainPanel)
+ActivateButton.Tag = 0
+ActivateButton.AnchorSideLeft.Side = asrTop
+ActivateButton.AnchorSideTop.Side = asrTop
+ActivateButton.AnchorSideRight.Side = asrTop
+ActivateButton.AnchorSideBottom.Side = asrTop
+ActivateButton.Left = 58
+ActivateButton.Height = 53
+ActivateButton.Hint = 'It is recommended that you activate the randomiser while either in the main menu, or in the PoA cutscene, for full-game runs.'
+ActivateButton.Top = 91 + 20
+ActivateButton.Width = 287
+ActivateButton.HelpType = htContext
+ActivateButton.HelpKeyword = ''
+ActivateButton.HelpContext = 0
+ActivateButton.Align = alNone
+ActivateButton.Anchors = '[akTop,akLeft]'
+ActivateButton.AutoSize = false
+ActivateButton.BidiMode = bdLeftToRight
+ActivateButton.BorderSpacing.Top = 0
+ActivateButton.Cancel = false
+ActivateButton.Caption = 'Activate Randomiser'
+ActivateButton.Color = 536870912
+ActivateButton.Constraints.MaxWidth = 0
+ActivateButton.Constraints.MinHeight = 0
+ActivateButton.Constraints.MinWidth = 0
+ActivateButton.Default = false
+ActivateButton.DragCursor = -12
+ActivateButton.DragKind = dkDrag
+ActivateButton.DragMode = dmManual
+ActivateButton.Enabled = true
+ActivateButton.Font.Color = 16777215
+ActivateButton.Font.Height = 0
+ActivateButton.Font.Name = 'default'
+ActivateButton.Font.Orientation = 0
+ActivateButton.Font.Pitch = fpDefault
+ActivateButton.Font.Quality = fqDefault
+ActivateButton.Font.Size = 0
+ActivateButton.Font.Style = '[]'
+ActivateButton.ParentBidiMode = true
+ActivateButton.ModalResult = 0
+ActivateButton.ParentFont = true
+ActivateButton.ParentShowHint = true
+ActivateButton.ShowHint = false
+ActivateButton.TabOrder = 4
+ActivateButton.TabStop = true
+ActivateButton.Visible = true
+--------------------
+--
+---- CELabel3
+--------------------
+CELabel3 = createLabel(MainPanel)
+CELabel3.Tag = 0
+CELabel3.AnchorSideLeft.Side = asrTop
+CELabel3.AnchorSideTop.Side = asrTop
+CELabel3.AnchorSideRight.Side = asrTop
+CELabel3.AnchorSideBottom.Side = asrTop
+CELabel3.Left = 139
+CELabel3.Height = 15
+CELabel3.Hint = ''
+CELabel3.Top = 153  + 20
+CELabel3.Width = 35
+CELabel3.HelpType = htContext
+CELabel3.HelpKeyword = ''
+CELabel3.HelpContext = 0
+CELabel3.Align = alNone
+CELabel3.Alignment = taLeftJustify
+CELabel3.Anchors = '[akTop,akLeft]'
+CELabel3.AutoSize = true
+CELabel3.BidiMode = bdLeftToRight
+CELabel3.BorderSpacing.Top = 0
+CELabel3.Caption = 'Status:'
+CELabel3.Color = 536870911
+CELabel3.Constraints.MaxWidth = 0
+CELabel3.Constraints.MinHeight = 0
+CELabel3.Constraints.MinWidth = 0
+CELabel3.DragCursor = -12
+CELabel3.DragKind = dkDrag
+CELabel3.DragMode = dmManual
+CELabel3.Enabled = true
+CELabel3.Font.Color = 16777215
+CELabel3.Font.Height = 0
+CELabel3.Font.Name = 'default'
+CELabel3.Font.Orientation = 0
+CELabel3.Font.Pitch = fpDefault
+CELabel3.Font.Quality = fqDefault
+CELabel3.Font.Size = 0
+CELabel3.Font.Style = '[]'
+CELabel3.Layout = tlTop
+CELabel3.ParentBidiMode = true
+CELabel3.ParentColor = false
+CELabel3.ParentFont = true
+CELabel3.ParentShowHint = true
+CELabel3.ShowAccelChar = true
+CELabel3.ShowHint = false
+CELabel3.Transparent = true
+CELabel3.Visible = true
+CELabel3.WordWrap = false
+CELabel3.OptimalFill = false
+--------------------
+--
+---- StatusLabel
+--------------------
+StatusLabel = createLabel(MainPanel)
+StatusLabel.Tag = 0
+StatusLabel.AnchorSideLeft.Side = asrTop
+StatusLabel.AnchorSideTop.Side = asrTop
+StatusLabel.AnchorSideRight.Side = asrTop
+StatusLabel.AnchorSideBottom.Side = asrTop
+StatusLabel.Left = 179
+StatusLabel.Height = 15
+StatusLabel.Hint = ''
+StatusLabel.Top = 153 + 20
+StatusLabel.Width = 95
+StatusLabel.HelpType = htContext
+StatusLabel.HelpKeyword = ''
+StatusLabel.HelpContext = 0
+StatusLabel.Align = alNone
+StatusLabel.Alignment = taLeftJustify
+StatusLabel.Anchors = '[akTop,akLeft]'
+StatusLabel.AutoSize = true
+StatusLabel.BidiMode = bdLeftToRight
+StatusLabel.BorderSpacing.Top = 0
+StatusLabel.Caption = 'Deactivated'
+StatusLabel.Color = 536870911
+StatusLabel.Constraints.MaxWidth = 0
+StatusLabel.Constraints.MinHeight = 0
+StatusLabel.Constraints.MinWidth = 0
+StatusLabel.DragCursor = -12
+StatusLabel.DragKind = dkDrag
+StatusLabel.DragMode = dmManual
+StatusLabel.Enabled = true
+StatusLabel.Font.Color = 128
+StatusLabel.Font.Height = -12
+StatusLabel.Font.Name = 'Segoe UI'
+StatusLabel.Font.Orientation = 0
+StatusLabel.Font.Pitch = fpVariable
+StatusLabel.Font.Quality = fqDraft
+StatusLabel.Font.Size = 9
+StatusLabel.Font.Style = '[fsBold]'
+StatusLabel.Layout = tlTop
+StatusLabel.ParentBidiMode = true
+StatusLabel.ParentColor = false
+StatusLabel.ParentFont = false
+StatusLabel.ParentShowHint = true
+StatusLabel.ShowAccelChar = true
+StatusLabel.ShowHint = false
+StatusLabel.Transparent = true
+StatusLabel.Visible = true
+StatusLabel.WordWrap = false
+StatusLabel.OptimalFill = false
+--------------------
+------------------------------
+---- END FORM: CEER
+---- 
+--
+
+------- VAR INIT
+activation_state = 0
+ingameflag = false
+
+steam_flag = nil
+game_version = nil
+seed_evaluated = false
+seed_string = nil
+seed_number = nil
+last_unit = 0
+last_faction = nil
+need_to_print_message = false
+message_to_print = ""
+
+OffsetLevels = nil 
+OffsetHaloDLL = nil
+OffsetSpawnerRNG = nil
+OffsetLevelChangeBreakpoint = nil
+OffsetNopBytes1Addy = nil
+OffsetNopBytes1Value = {}
+OffsetNopBytes2Addy = nil
+OffsetNopBytes2Value = {}
+OffsetMainBreakpoint1 = nil
+OffsetMainBreakpoint2 = nil
+OffsetMainBreakpoint3 = nil
+OffsetMainBreakpoint4 = nil
+OffsetMainBreakpoint5 = nil
+OffsetMenuIndicator = nil
+OffsetStateIndicator = nil
+OffsetGameIndicator = nil
+OffsetVar1 = nil
+OffsetVar2 = nil
+OffsetVar3 = nil
+			OffsetMessageTC = nil
+			OffsetTickcount = nil
+			OffsetCinematic = nil
+
+
+
+CachedOffsetLevels = nil
+CachedOffsetHaloDLL = nil
+CachedOffsetSpawnerRNG = nil
+CachedOffsetLevelChangeBreakpoint = nil
+CachedOffsetMainBreakpoint1 = nil
+CachedOffsetMainBreakpoint2 = nil
+CachedOffsetMainBreakpoint3 = nil
+CachedOffsetMainBreakpoint4 = nil
+CachedOffsetMainBreakpoint5 = nil
+CachedOffsetHaloDLLChangeBreakpoint = nil
+CachedOffsetVar1 = nil
+CachedOffsetVar2 = nil
+CachedOffsetVar3 = nil
+CachedOffsetMessageTC = nil
+CachedOffsetTickcount = nil
+CachedOffsetCinematic = nil
+
+number_of_valid_actors = 0
+allActorsTable = {}
+validActorsTable = {}
+invalidActorsTable = {}
+validActorsDatumTable = {}
+
+number_of_valid_bipeds = 0
+allBipedsTable = {}
+validBipedsTable = {}
+invalidBipedsTable = {}
+
+
+invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "infection"}
+invalidUnitStrings = {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}} --arranged by level, with 11th level for "unknown level"
+level_index = 11
+debugtdatum = false
+if debugvar then debugtdatum = true end
+need_to_set_faction = false
+need_to_evaluate_bipeds = true
+need_to_evaluate_actors = true
+spawn_incrementer = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function DEC_HEX(IN)
+	
+	
+	if IN == 0 or IN == nil then
+		return "0"
+	end
+	
+	local B,K,OUT,I,D=16,"0123456789ABCDEF","",0
+	while IN&gt;0 do
+		I=I+1
+		IN,D=math.floor(IN/B),math.mod(IN,B)+1
+		OUT=string.sub(K,D,D)..OUT
+	end
+	return OUT
+end
+
+function setOffsets()
+	
+	if steam_flag then
+		if debugvar then print ("we're on Steam version") end
+		game_version = getVersion()
+		
+		if game_version == 2645 then
+
+		
+		
+		
+			if debugvar then print ("loading offsets for 2645") end
+			OffsetCinematic = {0x2af89b8, 0x0A}
+					OffsetMessageTC = {0x2A54C98, 0x0}
+			OffsetTickcount = {0x2B5FCE8}
+			OffsetLevels = {0x2AF8281}
+			OffsetHaloDLL = {0x03B80E98, 0x8} 
+			OffsetSpawnerRNG = { 0x02879388, 0x764 }
+			OffsetLevelChangeBreakpoint  = {0xAA07D5}
+			OffsetNopBytes1Addy = {0xC51BA6}
+			OffsetNopBytes2Addy = {0xB4B6D8}
+			OffsetMainBreakpoint1 = {0xC51DD7}
+			OffsetMainBreakpoint2 = {0xC540B5}
+			OffsetMainBreakpoint3 = {0xB3DBD4}
+			OffsetMainBreakpoint4 = {0xB4D54E}
+			OffsetMainBreakpoint5 = {0xB0478E}
+			OffsetMenuIndicator = {0x3A4A7C9}
+			OffsetStateIndicator = {0x3B40D69}
+			OffsetGameIndicator = {0x03B81270, 0x0}
+			OffsetVar1 = {0x1AC8A30}
+			OffsetVar2 = {0x2B5BB80}
+			OffsetVar3 = {0x2A60400}
+			
+			
+			elseif game_version == 2904 then
+			if debugvar then print ("loading offsets for 2904") end
+			OffsetCinematic = {0x2E773D8, 0x0A}
+						OffsetMessageTC = {0x02D68A08, 0x0}
+			OffsetTickcount = {0x2B88764}
+			
+			OffsetLevels = {0x2B611E5}
+			OffsetHaloDLL = {0x3F7BA50, 0x8} 
+			
+			--scan for non-write 48 C1 F8 05 41 D3 E0. take second of three halo1.dll results.
+			--check what "test [rdi + rax*4+04],r8d" writes to on restarting keys. correct one should be third result. 
+			OffsetSpawnerRNG = { 0x02A1E940, 0x764 }
+			
+			
+			--just whatever writes to offsetvar1 (but put it on the instruction after; mov byte ptr [halo1.dll+2A52D80], 01)
+			OffsetLevelChangeBreakpoint  = {0xA9C455}
+			
+			--same process as offsetspawner rng but at test instrution, just scroll down a bit to the imul randy thing. 10 bytes long.
+			OffsetNopBytes1Addy = {0xC77C26}
+			
+			
+			--scan nonwrite 44 0f b7 74 24 32, take first halo dll result. it's the JE just below
+			OffsetNopBytes2Addy = {0xB37B88}
+			
+			--scan non write 88000000 ** ** ** ** ** ** ** ** 00 00 ** ** ** 84 00 00 00
+			--take second of 2 halodll results.
+			--bp needs to go on "mov rcx, r9" just below the end of the last instruction with the r14 + 8400000 thing.
+			OffsetMainBreakpoint1 = {0xC77E57}
+			
+			
+			--scan nonw 4c 8b d8 4c 2b df 4c 03 de. take second of three halodll results. 
+			--bp goes on movsx rsi, cx that's inbetween the adds
+			OffsetMainBreakpoint2 = {0xC7A135}
+			
+			
+			--scan nw 0f b7 97 80010000
+			--bp on mov[rbx+74], ax that's just below
+			OffsetMainBreakpoint3 = {0xB299C5}
+			
+			
+			--scan nw 48 8b c1 49 2b c0 49 03 c2
+			--take second of 3 results
+			--bp goes on cmp bp, -01
+			OffsetMainBreakpoint4 = {0xB399EE}
+			
+			--scan nw 48 8b d0 48 2b d3 48 03 , 
+			--take first of 6 results
+			--bp goes on lea rcx,[rax + rax*2]
+			OffsetMainBreakpoint5 = {0xB8BD2E}
+			
+			
+			OffsetMenuIndicator = {0x3E45529}
+			OffsetStateIndicator = {0x3F2FBC9}
+			OffsetGameIndicator = {0x03F7C380, 0x0}
+			
+			
+			OffsetVar1 = {0x1C77BE8}
+			--scan for writeable 8 bytes with value of offset3 + 0x28 (for keyes)
+			
+			--scan for writeable 8byte 0x0000000050000000. take second of two halo1dll results
+			OffsetVar2 = {0x2E7A588}
+			
+			--check what accesses offset2 as you load into keyes. choose one of the many counted subs. near it should be an add, that's offset3.
+			OffsetVar3 = {0x2D741E0}
+			
+			
+		end
+		
+		
+		else
+		--WinStore, so assume current version (1.2904)
+		if debugvar then print ("we're on Winstore version") end
+		game_version = 2904
+		OffsetCinematic = {0x2E773D8, 0x0A}
+			OffsetMessageTC = {0x02D68A08, 0x0}
+			OffsetTickcount = {0x2B88764}
+		
+		if debugvar then print ("loading offsets for 2904 winstore") end
+		OffsetLevels = {0x2B611E5}
+		OffsetHaloDLL = {0x03E1F540, 0x8} 
+		
+		--scan for non-write 48 C1 F8 05 41 D3 E0. take second of three halo1.dll results.
+		--check what "test [rdi + rax*4+04],r8d" writes to on restarting keys. correct one should be third result. 
+		OffsetSpawnerRNG = { 0x02A1E940, 0x764 }
+		
+		
+		--just whatever writes to offsetvar1 (but put it on the instruction after; mov byte ptr [halo1.dll+2A52D80], 01)
+		OffsetLevelChangeBreakpoint  = {0xA9C455}
+		
+		--same process as offsetspawner rng but at test instrution, just scroll down a bit to the imul randy thing. 10 bytes long.
+		OffsetNopBytes1Addy = {0xC77C26}
+		
+		
+		--scan nonwrite 44 0f b7 74 24 32, take first halo dll result. it's the JE just below
+		OffsetNopBytes2Addy = {0xB37B88}
+		
+		--scan non write 88000000 ** ** ** ** ** ** ** ** 00 00 ** ** ** 84 00 00 00
+		--take second of 2 halodll results.
+		--bp needs to go on "mov rcx, r9" just below the end of the last instruction with the r14 + 8400000 thing.
+		OffsetMainBreakpoint1 = {0xC77E57}
+		
+		
+		--scan nonw 4c 8b d8 4c 2b df 4c 03 de. take second of three halodll results. 
+		--bp goes on movsx rsi, cx that's inbetween the adds
+		OffsetMainBreakpoint2 = {0xC7A135}
+		
+		
+		--scan nw 0f b7 97 80010000
+		--bp on mov[rbx+74], ax that's just below
+		OffsetMainBreakpoint3 = {0xB299C5}
+		
+		
+		--scan nw 48 8b c1 49 2b c0 49 03 c2
+		--take second of 3 results
+		--bp goes on cmp bp, -01
+		OffsetMainBreakpoint4 = {0xB399EE}
+		
+		--scan nw 48 8b d0 48 2b d3 48 03 , 
+		--take first of 6 results
+		--bp goes on lea rcx,[rax + rax*2]
+		OffsetMainBreakpoint5 = {0xB8BD2E}
+		
+		
+		OffsetMenuIndicator = {0x3CE9329}
+		OffsetStateIndicator = {0x3DD36E9}
+		OffsetGameIndicator = {0x03E1FE60, 0x0}
+		
+		
+		OffsetVar1 = {0x1C77BE8}
+		--scan for writeable 8 bytes with value of offset3 + 0x28 (for keyes)
+		
+		--scan for writeable 8byte 0x0000000050000000. take second of two halo1dll results
+		OffsetVar2 = {0x2E7A588}
+		
+		--check what accesses offset2 as you load into keyes. choose one of the many counted subs. near it should be an add, that's offset3.
+		OffsetVar3 = {0x2D741E0}
+		
+		--don't forget to change process name in OffsetHaloDLL
+	end
+	
+	
+end
+
+function tableConcat(t1,t2)
+    for i=1,#t2 do
+        t1[#t1+1] = t2[i]
+	end
+    return t1
+end
+
+
+function evalDLL(pointer_table)
+	return getAddress("[[" .. process .. "+" .. DEC_HEX(pointer_table[1]) .. "]+" .. DEC_HEX(pointer_table[2]) .. "]+0")
+end
+
+function evalPointer(pointer_table)
+	eval_string = nil
+	
+	for index, value in ipairs(pointer_table) do
+		if index == 1 then
+			eval_string = DEC_HEX(value)
+			elseif index == 2 then
+            eval_string = eval_string .. "+" .. DEC_HEX(value)
+            else
+			eval_string = "[" .. eval_string .. "]+" .. DEC_HEX(value)
+		end
+	end
+	
+    return getAddress(eval_string)
+end
+
+function evalAllPointers()
+	if debugvar then print("starting pointer eval") end
+	local nClock = os.clock()
+	CachedOffsetHaloDLL = evalDLL(OffsetHaloDLL)
+	CachedOffsetLevels = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetLevels))
+	CachedOffsetSpawnerRNG = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetSpawnerRNG))
+	
+	
+	CachedOffsetVar1 = readQword(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetVar1[1]))
+	CachedOffsetVar2 = readQword(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetVar2[1]))
+	CachedOffsetVar3 = readQword(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetVar3[1]))
+	
+CachedOffsetMessageTC = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetMessageTC))
+CachedOffsetTickcount = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetTickcount))
+CachedOffsetCinematic = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetCinematic))
+
+	
+	
+	
+	if debugvar then print("finished pointer eval, took " .. os.clock()-nClock .. " seconds.") end
+end
+
+------- FUNCTIONS
+
+--converts decimal integer to hex string, nicked from http://lua-users.org/lists/lua-l/2004-09/msg00054.html
+
+
+
+function getVersion()
+	if checkAttached() then
+		local exe_path = enumModules()[1].PathToFile 
+		file_ver, file_ver_table = getFileVersion(exe_path) 
+		
+		return file_ver_table.minor
+		else
+		return nil
+	end
+	
+end
+
+function openProcesses()
+	
+	local success = false
+	
+	
+	openProcess("MCC-Win64-Shipping.exe")
+	openProcess("MCCWinStore-Win64-Shipping.exe")
+	
+	
+	if getProcessIDFromProcessName(process) == nil then
+		if debugvar then print ("nulling process via processID (game was probably closed)") end
+		process = nil
+	end
+	
+	
+	
+	if process == "MCC-Win64-Shipping.exe" then
+		if debugvar then print ("steam detected") end
+		success = true
+		steam_flag = true
+		elseif process == "MCCWinStore-Win64-Shipping.exe" then
+		if debugvar then print ("winstore detected") end
+		success = true
+		steam_flag = false
+	end
+	
+	
+	if debugvar then print("success?" .. tostring(success)) end
+	return (success)
+end
+
+
+function sanityCheck()
+	
+	if getProcessIDFromProcessName(process) ~= nil then
+		return readString(process .. "+4E", 4)
+		else
+		return nil
+	end
+end
+
+function DLLCheck()
+	if not (process == nil) then
+		if process == "MCC-Win64-Shipping.exe" then
+			return evalDLL(OffsetHaloDLL)
+			elseif "MCCWinStore-Win64-Shipping.exe" then
+			return evalDLL(OffsetHaloDLL)
+			else
+			return nil
+			
+		end
+		else
+		return nil
+	end
+end
+
+function checkAttached2()
+	local y, check = pcall(DLLcheck)
+	if debugvar then 
+		if check == nil then print("CHECK WAS NIL") else
+		print("check: ", tostring(check)) end 
+	end
+	if check == nil then
+		if debugvar then print("failed level check") end
+		
+		return false
+		else
+		return true
+	end
+	
+end
+
+
+--sanity checking to make sure that we're still in-level and attached
+function checkAttached()
+	local x, sanity = pcall(sanityCheck)
+	--if debugvar then print("sanity: ", tostring(sanity)) end
+	if not (sanity == "This")  then
+		if debugvar then print("failed sanity check") end
+		return false
+		else
+		return true
+	end
+	
+	
+	
+end
+
+function stringtablecontains(list, x)
+	if list == {} then
+		return false
+	end
+	for _, v in pairs(list) do
+		--print ("v: " .. v .. ", x: " .. x)
+		
+		if not (v == "infection" and PopcornCheckbox.Checked == false) then
+		
+		if string.find(x, v) then 
+			
+			return true 
+			
+		end
+		end
+	end
+	return false
+end
+
+function contains(list, x)
+	if list == {} then
+		return false
+	end
+	for _, v in pairs(list) do
+		if v == x then return true end
+	end
+	return false
+end
+
+
+
+function getTagString(datum)
+	
+	
+	local tdatum = datum
+	
+	
+	--take lower 4 bytes of tdatum
+	tdatum = tdatum % 0x10000
+	--then left.bitshift tdatum by 5
+	tdatum = tdatum &lt;&lt; 5
+	--get pointer
+	tdatum = tdatum + CachedOffsetVar1 + 0x10
+	
+	tdatum = readInteger(tdatum)
+	
+	--if debugvar then print ("actorstring1: " .. tdatum) end
+	tdatum = tdatum - CachedOffsetVar2 + CachedOffsetVar3
+	--if debugvar then print ("actorstring2: 0x" .. DEC_HEX(tdatum)) end
+	tdatum = readString(DEC_HEX(tdatum), 0x100) --string should always have a zero terminator
+	--if debugvar then print ("actorstring3: " .. tdatum) end
+	return tdatum
+end
+
+
+--takes biped datum and returns faction index
+function getFaction(datum)
+	--if debugvar then print ("evaluating faction with datum: " .. DEC_HEX(datum)) end
+	
+	
+	
+	local tdatum = datum
+	
+	--then repeat that whole process basically
+	tdatum = tdatum % 0x10000
+	tdatum = tdatum &lt;&lt; 5
+	--then reuse CachedOffsetVar1
+	tdatum = tdatum + CachedOffsetVar1 + 0x14
+	tdatum = readInteger(tdatum) --got "memloc" of biped
+	tdatum = tdatum - CachedOffsetVar2 + CachedOffsetVar3 + 0x180 --0x180 is offset of default faction info
+	--then just got to figure out where in biped the faction data is located.
+	tdatum = readBytes(tdatum, 1)
+	--if debugvar then print ("evaluatED faction with datum: " .. DEC_HEX(tdatum)) end
+	return tdatum
+	
+end
+
+function getBipedDatum(datum)
+	--if debugvar then print ("evaluating biped with datum: " .. DEC_HEX(datum)) end
+	
+	--note: we could totally cache the results of these var reads in levelchange
+	
+	local tdatum = datum
+	
+	--take lower 4 bytes of tdatum
+	tdatum = tdatum % 0x10000
+	--then left.bitshift tdatum by 5
+	tdatum = tdatum &lt;&lt; 5
+	--get pointer
+	tdatum = tdatum + CachedOffsetVar1 + 0x14
+	--pointer
+	tdatum = readInteger(tdatum)
+	--get new pointer and read datum of biped
+	tdatum = tdatum - CachedOffsetVar2 + CachedOffsetVar3 + 0x20 --now tdatum is equal to the datum of the biped
+	
+	tdatum = readInteger(tdatum)
+	
+	
+	
+	
+	if debugtdatum then debugtdatum = false end
+	--if debugvar then print ("evaluatED biped with datum: " .. DEC_HEX(tdatum)) end
+	return tdatum
+	
+	
+	
+end
+
+
+function actorDatum(actor_table_addy, enemy_index)
+	return readInteger(actor_table_addy + (enemy_index * 0x10) + 0x0C)
+end
+
+
+function evaluateBipeds(biped_table_addy)
+	if debugvar then print ("evaluating bipeds") end
+	number_of_valid_bipeds = 0
+	allBipedsTable = {}
+	validBipedsTable = {}
+	invalidBipedsTable = {}
+	
+	local datum = nil
+	local faction = nil
+	local bipedstring = nil
+	
+	local biped_index = 0
+	local addy = nil
+	while (readString((biped_table_addy + (biped_index * 0x30)), 4) == "dpib") do
+		datum = readInteger((biped_table_addy + (biped_index * 0x30)) + 0x0C)
+		faction = getFaction(datum)
+		bipedstring = getTagString(datum)
+		
+		table.insert(allBipedsTable, faction)
+		if stringtablecontains(invalidUnitStrings_AllLevels, bipedstring) then
+			table.insert(invalidBipedsTable, biped_index)
+			if debugvar then print ("invalid biped with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. biped_index .. ", faction: " .. faction .. ", string: " .. bipedstring) end
+			else
+			table.insert(validBipedsTable, biped_index)
+			if debugvar then print ("valid biped with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. biped_index .. ", faction: " .. faction .. ", string: " .. bipedstring) end
+			number_of_valid_bipeds = number_of_valid_bipeds + 1
+		end
+		
+		biped_index = biped_index + 1 
+		
+	end
+end
+
+
+function evaluateActors(actor_table_addy)
+	if debugvar then print ("evaluating actors") end
+	local nClock = os.clock()
+	validActorsTable = {}
+	validActorsDatumTable = {}
+	invalidActorsTable = {}
+	allActorsTable = {}
+	number_of_valid_actors = 0
+	local datum = nil
+	local faction = nil
+	local actorstring = nil
+	
+	local actv_index = 0
+	local addy = nil
+	while (readString((actor_table_addy + (actv_index * 0x10)), 4) == "vtca") do
+		datum = readInteger((actor_table_addy + (actv_index * 0x10)) + 0x0C)
+		--if datum is invalid, add the index to invalidActors, otherwise to Actors.
+		
+		faction = getFaction(getBipedDatum(datum))
+		actorstring = getTagString(datum)
+		
+		table.insert(allActorsTable, faction)
+		if stringtablecontains(invalidUnitStrings_AllLevels, actorstring) then
+			table.insert(invalidActorsTable, actv_index)
+			if debugvar then print ("invalid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index) end
+			else
+			table.insert(validActorsTable, actv_index)
+			table.insert(validActorsDatumTable, datum)
+			if debugvar then print ("valid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. ", faction: " .. faction) end
+			number_of_valid_actors = number_of_valid_actors + 1
+		end
+		
+		actv_index = actv_index + 1 
+		
+	end
+	
+	if debugvar then print("actors evalutated. took " .. os.clock()-nClock .. "seconds. valid actors: " .. number_of_valid_actors .. "/" .. #validActorsTable .. ", invalid actors: " .. #invalidActorsTable) end
+	
+end
+
+function parseSeedString(init)
+	local init_string = string.lower(init)
+	local temp_string = ""
+	
+	for i = 1, #init_string do
+		local c = init_string:sub(i,i)
+		if (string.byte(c) &gt; 96 and string.byte(c) &lt; 123) or (string.byte(c) &gt; 47 and string.byte(c) &lt; 58) then
+			temp_string = temp_string .. c
+		end
+	end
+	print ("parsed string: " .. temp_string)
+	return temp_string
+end
+
+function randomlyGenerateSeedString()
+	local consonants = "abcdfhjklmnpqrstvwyxz"
+	local vowels = "aeiuo"
+	local temp_string = ""
+	
+	math.randomseed(os.time())
+	local wordlength = math.random(4, 11)
+	local rint = 0
+	
+	--generate word
+	for i=1, wordlength do
+		if (i % 2 == 0) then -- even letter
+			--make vowel
+			if debugvar then print("making vowel") end
+			rint = math.random(1, #vowels)
+			temp_string = temp_string .. vowels:sub(rint, rint)
+			else --odd letter
+			--make consonant
+			if debugvar then print("making con") end
+			rint = math.random(1, #consonants)
+			temp_string = temp_string .. consonants:sub(rint, rint)
+		end
+	end
+	if debugvar then print ("randomly generated string: " .. temp_string) end
+	return temp_string
+	
+end
+
+
+function seedString_toNumber(o)
+	
+	local len = #o
+	local h = len
+	local step = (len &gt;&gt; 5) + 1
+	
+	for i=len, step, -step do
+		
+		
+		h = h ~ ((h &lt;&lt; 5) + (h &gt;&gt; 2) + string.byte(o, i))
+	end
+	if debugvar then print ("seed_number: " .. math.abs(h)) end
+	return math.abs(h) % 0xFFFFFFFF
+	
+	
+end
+
+function debugPrintList(list)
+	for index, value in ipairs(list) do
+		print(index, ". ", value)
+	end
+end
+
+
+function evaluateLevel()
+	
+	local temp_level_index = 11
+	
+	local levelstring = readString((DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetLevels[1] + 7)), 3)
+	
+	if levelstring == "a10" then
+		temp_level_index = 1
+		elseif levelstring == "a30" then
+		temp_level_index = 2
+		elseif levelstring == "a50" then
+		temp_level_index = 3
+		elseif levelstring == "b30" then
+		temp_level_index = 4
+		elseif levelstring == "b40" then
+		temp_level_index = 5
+		elseif levelstring == "c10" then
+		temp_level_index = 6
+		elseif levelstring == "c20" then
+		temp_level_index = 7
+		elseif levelstring == "c40" then
+		temp_level_index = 8
+		elseif levelstring == "d20" then
+		temp_level_index = 9
+		elseif levelstring == "d40" then
+		temp_level_index = 10
+	end
+	
+	return temp_level_index
+	
+end
+
+
+
+	--prints custom hud message
+	function printMessage(message)
+		
+		if string.len(message) &gt; 62 then
+			--trim it
+			message = string.sub(message, 0, 61)
+		end
+		
+		if string.len(message) &lt; 62 then
+			--add whitespace
+			message = message .. string.rep(" ", 62 - string.len(message))
+		end
+		
+		
+		WriteInteger(CachedOffsetMessageTC, (ReadInteger(CachedOffsetTickcount) + 500)) --set message tc to current tc (minus 70 is good val for faded look)
+		WriteString(CachedOffsetMessageTC+0x4, message, true) --set message text
+		WriteBytes(CachedOffsetMessageTC+0x80, 0x00, 0x00, 0x01, 0x00) --set show message flag to true
+		WriteBytes(CachedOffsetMessageTC+0x84, 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
+		
+		--WriteInteger("[" .. halo1pointer .. OffsetMessageTC .. "]+0", (ReadInteger(halo1pointer .. OffsetTickcount))) --set message tc to current tc (minus 70 is good val for faded look)
+		--WriteString("[" .. halo1pointer .. OffsetMessageTC .. "]+4", message, true) --set message text
+		--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+80", 0x00, 0x00, 0x01, 0x00) --set show message flag to true
+		--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+84", 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
+	end
+
+
+
+function PrintMessageTimerLoop()
+	
+	if activation_state ~= 4 then
+	return
+	end
+		
+				local state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
+		local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
+		local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
+		if (game == nil or menu == nil or state == nil) or (not (state == 0xFF and menu == 7 and game == 0)) then
+			if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. PrintMessageTimer") end
+				return
+		end
+		
+		--just need to check that we're not in a cutscene
+		if readBytes(CachedOffsetCinematic, 1) == 1 then
+		return
+		end
+		
+		printMessage(message_to_print)
+		need_to_print_message = false
+		
+		
+		
+	end
+	
+
+
+
+function evaluateSeed()
+	--here we parse the string (if set seed) and make a random number from it to use for math.abs
+	--if random seed we'll have to generate a seed string of our own first.
+	local temp_seed_string = nil
+	
+	
+	if RB_setseed.Checked then
+		temp_seed_string = parseSeedString(Edit_Seed.Text)
+		else
+		temp_seed_string = randomlyGenerateSeedString()
+		needtoupdateUI = true
+	end
+	
+	if temp_seed_string == nil then
+		temp_seed_string = randomlyGenerateSeedString()
+		needtoupdateUI = true
+	end
+	
+	
+	Edit_Seed.Text = temp_seed_string
+	
+	seed_string = temp_seed_string
+	
+	seed_number = seedString_toNumber(seed_string)
+	seed_evaluated = true
+	
+			
+		
+		local popcornstring = "."
+		if PopcornCheckbox.Checked then
+		popcornstring = ", popcorn exempt."
+		end
+		
+		
+		if RB_randomseed.Checked then
+		message_to_print = "Random Seed: " .. seed_string .. popcornstring
+		else
+		message_to_print = "Set Seed: " .. seed_string .. popcornstring
+		end
+		need_to_print_message = true
+		
+	
+end
+
+function restoreNopBytes()
+	local addy = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes1Addy[1]))
+	
+	if not readBytes(addy, 1) == 0x90 then
+		if debugvar then print ("tried to restore bytes but they were already restored") end
+		return
+	end
+	
+	for i=1, 10, 1 do
+		writeBytes(addy, OffsetNopBytes1Value[i])
+		addy = addy + 1
+	end
+	OffsetNopBytes1Value = {}
+	
+	local addy2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes2Addy[1]))
+	for i=1, 2, 1 do
+		writeBytes(addy2, OffsetNopBytes2Value[i])
+		addy2 = addy2 + 1
+	end
+	OffsetNopBytes2Value = {}
+end
+
+function nopBytes()
+	if debugvar then print("nopBytes is being run at least") end
+	--needed to unrandomise spawn positions in combination with mainBreakpoint1
+	
+	local addy = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes1Addy[1]))
+	--if debugvar then print("nopBytes offset 1: " .. DEC_HEX(OffsetNopBytes1Addy[1])) end
+	--if debugvar then print("nopBytes addy 1: " .. DEC_HEX(addy)) end
+	
+	if readBytes(addy, 1) == 0x90 then
+		if debugvar then print ("tried to nop bytes but they were already nopped") end
+		return
+	end
+	
+	OffsetNopBytes1Value = {}
+	for i=1, 10, 1 do
+		--if debugvar then print ("nopbytes for loop actually being run..") end
+		table.insert(OffsetNopBytes1Value, readBytes(addy, 1))
+		writeBytes(addy, 0x90)
+		addy = addy + 1
+	end
+	
+	
+	--let's units get vehicle_load_magic'd into vehicles that they don't have a proper animation for (otherwise they'd just deload)
+	OffsetNopBytes2Value = {}
+	local addy2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes2Addy[1]))
+	for i=1, 2, 1 do
+		table.insert(OffsetNopBytes2Value, readBytes(addy2, 1))
+		writeBytes(addy2, 0x90)
+		addy2 = addy2 + 1
+	end
+end
+
+function mainBreakpoint1Action_2904()
+	if not ingameflag then
+		return
+	end
+	local encounter_index = R12
+	local squad_index = RSI
+	math.randomseed(seed_number + encounter_index + (100 * squad_index))
+	writeInteger(CachedOffsetSpawnerRNG, math.random(0, 0xFF))
+	spawn_incrementer = 0
+end
+
+function mainBreakpoint1Action_2645()
+	if not ingameflag then
+		return
+	end
+	local encounter_index = R11
+	local squad_index = RSI
+	math.randomseed(seed_number + encounter_index + (100 * squad_index))
+	writeInteger(CachedOffsetSpawnerRNG, math.random(0, 0xFF))
+	spawn_incrementer = 0
+end
+
+--this function unrandomises spawn positions by using our own evaluated seed. It runs once per encounter-squad spawn.
+--SOFTWARE breakopint
+function setMainBreakpoint1()
+	
+	if CachedOffsetMainBreakpoint1 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint1)
+	end
+	
+	CachedOffsetMainBreakpoint1 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint1[1]))
+	
+	
+	if game_version == 2645 then
+		debug_setBreakpoint(CachedOffsetMainBreakpoint1,function()
+			mainBreakpoint1Action_2645()
+			return 0
+		end)
+		elseif game_version == 2904 then
+		--blah blah, different registeers
+		debug_setBreakpoint(CachedOffsetMainBreakpoint1,function()
+			mainBreakpoint1Action_2904()
+			return 0
+		end)
+		else
+		--error, deactivate
+		deactivate()
+	end
+	
+	
+	
+	
+	
+	
+end
+
+
+
+
+
+function mainBreakpoint2Action()
+	if not ingameflag then
+		return
+	end
+	last_unit = RCX
+	last_faction = allActorsTable[RCX + 1]
+	if contains(invalidActorsTable, RCX) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
+		return
+	end
+	
+	
+	
+	math.randomseed(seed_number + R12 + (50 * R13) + spawn_incrementer)
+	
+	
+	
+	RCX = validActorsTable[math.random(1, number_of_valid_actors)]
+	
+	if superdebugvar then
+		print ("seed_number: " .. seed_number)
+		print ("r12: " .. R12)
+		print ("R13: " .. R13)
+		print ("spawn_incrementer: " .. spawn_incrementer)
+	end
+	
+	spawn_incrementer = spawn_incrementer + 1
+	
+	--problem; same enemy types in encounter always converted to same random enemy type..
+	--add incrementer that resets in mainbreakpoint1
+	
+	
+end
+
+--this function randomises the enemies! here's where the real magic happens
+--also evaluates actv list for faction/invalids if this is the first time getting hit this level
+----SOFTWARE breakpoint
+function setMainBreakpoint2()
+	
+	
+	if CachedOffsetMainBreakpoint2 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint2)
+	end
+	
+	CachedOffsetMainBreakpoint2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint2[1]))
+	
+	if game_version == 2645 then
+		debug_setBreakpoint(CachedOffsetMainBreakpoint2,function()
+			if need_to_evaluate_actors then
+				need_to_evaluate_actors = false
+				evaluateActors(R11)
+			end
+			
+			mainBreakpoint2Action()
+			return 0
+		end)
+		elseif game_version == 2904 then
+		--blah blah, different registeers
+		debug_setBreakpoint(CachedOffsetMainBreakpoint2,function()
+			if need_to_evaluate_actors then
+				need_to_evaluate_actors = false
+				evaluateActors(RAX)
+			end
+			
+			mainBreakpoint2Action()
+			return 0
+		end)
+		else
+		--error, deactivate
+		print ("major error, this should never happen cos of safety checks elsewhere")
+	end
+	
+	
+end
+
+
+--fixes faction allegiance
+function mainBreakpoint3Action()
+	if not ingameflag then
+		return
+	end
+	
+	if last_faction ~= nil then
+		RAX = last_faction
+		last_faction = nil
+	end
+end
+
+--fixes encounters being the wrong faction
+--HARDWARE breakpoint (improves performance a bit)
+function setMainBreakpoint3()
+	
+	
+	if CachedOffsetMainBreakpoint3 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint3)
+	end
+	
+	CachedOffsetMainBreakpoint3 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint3[1]))
+	if debugvar then print ("setting breakpoint3 at: " .. DEC_HEX(CachedOffsetMainBreakpoint3)) end
+	
+	debug_setBreakpoint(CachedOffsetMainBreakpoint3, 4, 0, 1,function()
+		mainBreakpoint3Action()
+		return 0
+	end)
+	
+	
+	
+end
+
+
+
+function mainBreakpoint4Action()
+	if not ingameflag then
+		return
+	end
+	if RBP == 0xFFFF then --FFFF means no valid animation for exiting vehicle
+		RBP = 0 --change it to the animation at index zero so units can exit vehicles
+	end
+end
+
+--fixes ai not being able to exit vehicles (ie dropships) if they don't have a valid animation for exiting (ie marines in cov dropships)
+--SOFTWARE breakpoint
+function setMainBreakpoint4() 
+	
+	if CachedOffsetMainBreakpoint4 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint4)
+	end
+	
+	CachedOffsetMainBreakpoint4 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint4[1]))
+	if debugvar then print ("setting breakpoint4 at: " .. DEC_HEX(CachedOffsetMainBreakpoint4)) end
+	
+	debug_setBreakpoint(CachedOffsetMainBreakpoint4, 4, 0, 0,function()
+		mainBreakpoint4Action()
+		return 0
+	end)
+	
+	
+	
+end
+
+
+
+function mainBreakpoint5Action_2645()
+	
+	if not ingameflag then
+		return
+	end
+	
+	
+	if readString(RDX, 4) ~= "dpib" then 
+		return
+	end
+	
+	--if debugvar then print ("randomising bipeds") end
+	
+	if need_to_evaluate_bipeds then
+		if debugvar then print ("OH DEAR GOD WHY IS THIS HAPPENING") end
+	end
+	
+	last_faction = allBipedsTable[RAX + 1]
+	
+	
+	if contains(invalidBipedsTable, RAX) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
+		return
+	end
+	
+	
+	if number_of_valid_bipeds &lt;= 1 then
+		if debugvar then print ("UH OHHHHHHHH " .. number_of_valid_bipeds) end
+		return
+	end
+	
+	math.randomseed(seed_number + (RDX - RDI)) --I don't even know what RDI is here but it seems to be different every time so hopefully unique
+	if debugvar then print ("RCX on randomising bipeds: " .. RCX) end
+	--TODO: MAKE THIS BETTER. CURRENTLY RCX OR R8 sometimes are addys which won't be consistent between playthrus. 
+	
+	local randy = math.random(1, number_of_valid_bipeds)
+	RAX = validBipedsTable[randy]
+	--RAC = validBipedsTable[math.random(0, number_of_valid_bipeds) + 1]
+	
+	if randy == nil then 
+		if debugvar then print ("randy was nil somehow, number_of_valid_bipeds == " .. number_of_valid_bipeds .. " debug print list: ") end
+		debugPrintList(validBipedsTable)
+	end
+	
+	if debugvar and validBipedsTable[randy] == nil then
+		print ("validBipedsTable[randy] was nil on randy == " .. randy)
+	end
+	if debugvar then print ("randomized biped index: " .. validBipedsTable[randy] .. ", via randy: " .. randy) end
+	
+	
+end
+
+--HARDWARE breakpoint (improves performance cos this object_create function gets hit a lot)
+function setMainBreakpoint5()
+	
+	if CachedOffsetMainBreakpoint5 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint5)
+	end
+	
+	CachedOffsetMainBreakpoint5 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint5[1]))
+	if debugvar then print ("setting breakpoint5 at: " .. DEC_HEX(CachedOffsetMainBreakpoint5)) end
+	if game_version == 2645 then
+		debug_setBreakpoint(CachedOffsetMainBreakpoint5, 4, 0, 1,function()
+			if need_to_evaluate_bipeds and readString(RDX, 4) == "dpib" then
+				need_to_evaluate_bipeds = false
+				evaluateBipeds(RDX)
+			end
+			
+			mainBreakpoint5Action_2645()
+			return 0
+		end)
+		elseif game_version == 2904 then
+		--i'm not sure but it might use the same registers, need to double check behaviour but assuming so for now
+		debug_setBreakpoint(CachedOffsetMainBreakpoint5, 4, 0, 1,function()
+			if need_to_evaluate_bipeds and readString(RDX, 4) == "dpib" then
+				need_to_evaluate_bipeds = false
+				evaluateBipeds(RDX)
+			end
+			
+			mainBreakpoint5Action_2645()
+			return 0
+		end)
+		--blah blah, different registeers
+		else
+		--error, deactivate
+		print ("major error, this should never happen cos of safety checks elsewhere")
+	end
+end
+
+
+
+
+function LevelChangeBreakpointAction()
+	if debugvar then print("LevelChangeBreakpoint HIT!") end
+	if not seed_evaluated then
+		evaluateSeed()
+	end
+	
+	if not (checkAttached() and checkAttached2) then
+		ingameflag = false
+		activation_state = 3
+		tryToActivate("checkattached conditions not met")
+	end
+	
+	--check if valid game state
+	local state = nil
+	local menu = nil
+	local game = nil
+	
+	if OffsetStateIndicator[1] ~= nil then
+		state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
+		menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
+		game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
+	end
+	
+	
+	
+	if (game == nil or menu == nil or state == nil) or (not (menu == 7 and game == 0)) then
+		if game == nil then game = "nil" end
+		if menu == nil then menu = "nil" end
+		if state == nil then state = "nil" end
+		if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. LevelChangeBreakpointAction") end
+		ingameflag = false
+		activation_state = 3
+		tryToActivate("state condition not met")
+		
+		return
+	end
+	
+	
+	if activation_state == 3 or activation_state == 2 then
+		if debugvar then print("backup plan") end
+		activation_state = 4
+		tryToActivate("levelchangebreakpoint")
+		ingameflag = true
+	end
+	
+	if debugvar then print ("levelchangebreakpoint successful, evaling pointers and setting bp's") end
+	
+	ingameflag = true
+	
+	--woah we're actually in game probably! let's eval pointers for caching purposes
+	--evalAllPointers()
+	
+	--level_index = evaluateLevel()
+	
+	--nop bytes related to vanilla spawn rng as we want consistent positions per our seed
+	
+	
+	--set flag so we evaluate actor list for this level and make table of valid actv indexes to randomize into
+	need_to_evaluate_actors = true
+	need_to_evaluate_bipeds = true
+	
+	evalAllPointers()
+	--set our breakpoints
+	--setLevelChangeBreakpoint()
+	setMainBreakpoint1()
+	setMainBreakpoint2()
+	setMainBreakpoint3()
+	setMainBreakpoint4()
+	setMainBreakpoint5()
+	nopBytes()
+	
+	
+end
+
+
+
+
+-- HARDWARE breakpoint
+function setLevelChangeBreakpoint()
+	if debugvar then print ("made it to setLevelChangeBreakpoint start") end
+	if CachedOffsetLevelChangeBreakpoint ~= nil then
+		debug_removeBreakpoint(CachedOffsetLevelChangeBreakpoint)
+	end
+	--CachedOffsetMainBreakpoint2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint2[1]))
+	if debugvar then print ("huh?" .. CachedOffsetHaloDLL) end
+	if debugvar then print ("huh?2 .. OffsetLevelChangeBreakpoint[1]") end
+	CachedOffsetLevelChangeBreakpoint = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetLevelChangeBreakpoint[1]))
+	
+	if debugvar then print("levelchangebreakpoint set at: " .. DEC_HEX(CachedOffsetLevelChangeBreakpoint)) end
+	
+	debug_setBreakpoint(CachedOffsetLevelChangeBreakpoint, 1, 0, 1, function()
+		LevelChangeBreakpointAction()
+		return 0
+	end)
+	
+	--o
+	
+	
+	
+	LevelChangeBreakpointAction() --call onceoff
+	
+	--TODO need to check if we're already in-game, if so run LevelChangeBreakpointAction()
+	
+	
+	
+end
+
+function DLLsafetycheck()
+	if not (process == nil) then
+		if process == "MCC-Win64-Shipping.exe" then
+			return readString(readString("[[" .. process .. "+" .. DEC_HEX(pointer_table[1]) .. "]+" .. DEC_HEX(pointer_table[2]) .. "]+4E", 4))
+			elseif "MCCWinStore-Win64-Shipping.exe" then
+			return readString(readString("[[" .. process .. "+" .. DEC_HEX(pointer_table[1]) .. "]+" .. DEC_HEX(pointer_table[2]) .. "]+4E", 4))
+			else
+			return 0
+			
+		end
+		else
+		return 0
+	end
+end
+
+
+function HaloDLLChangeBreakpointAction()
+	if debugvar then print ("HALODLLCHANGE breakpoint hit!! ") end
+	
+	
+	if readQword(CachedOffsetHaloDLLChangeBreakpoint) == 0 then
+		if debugvar then print("HALO DLL IS NULL") end
+		return
+	end
+	
+	local y, check = pcall(DLLsafetycheck)
+	
+	if not check == "This" then
+		return
+	end
+	
+	
+	evalAllPointers()
+	--set our breakpoints
+	setLevelChangeBreakpoint()
+	setMainBreakpoint1()
+	setMainBreakpoint2()
+	setMainBreakpoint3()
+	setMainBreakpoint4()
+	setMainBreakpoint5()
+	nopBytes()
+	
+	--if already in-game, run levelchangebreakpoint (check happens in there)
+	LevelChangeBreakpointAction()
+	
+	
+end
+
+--HARDWARE breakpoint (has to be for write check)
+function setHaloDLLChangeBreakpoint()
+	
+	
+	
+	
+	
+	if debugvar then print ("made it to setLevelChangeBreakpoint start") end
+	if CachedOffsetHaloDLLChangeBreakpoint ~= nil then
+		debug_removeBreakpoint(CachedOffsetHaloDLLChangeBreakpoint)
+	end
+	
+	CachedOffsetHaloDLLChangeBreakpoint = getAddress(process .. "+" .. DEC_HEX(OffsetHaloDLL[1]))
+	if debugvar then print("HaloDLLChangeBreakpoint set at: " .. DEC_HEX(CachedOffsetHaloDLLChangeBreakpoint)) end
+	
+	debug_setBreakpoint(CachedOffsetHaloDLLChangeBreakpoint, 1, 2, function()
+		HaloDLLChangeBreakpointAction()
+		return 0
+	end)
+	
+end
+
+
+
+
+
+if not lowerActivationTimer == nil then
+	if debugvar then print ("destroyed old lowerActivationTimer") end
+	lowerActivationTimer.Destroy()
+end
+lowerActivationTimer = createTimer()
+lowerActivationTimer.Interval = 2000
+
+lowerActivationTimer.Enabled = false
+
+function lowerActivationTimerLoop()
+	
+	if activation_state &gt; 1 then
+		if not checkAttached() then
+			--process wasn't even open
+			activation_state = 1
+			tryToActivate("loweractivationtimerloop 1")
+			return
+		end
+	end
+	
+	if activation_state &gt; 3 then
+		local state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
+		local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
+		local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
+		
+		if (game == nil or menu == nil or state == nil) or (not (menu == 7 and game == 0)) then
+			if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. lowerActivationTimer") end
+			ingameflag = false
+			
+			activation_state = 3
+			tryToActivate("state condition not met - loweractivationtimerloop")
+			return
+		end
+	end
+	
+	if need_to_print_message then
+	PrintMessageTimerLoop()
+	end
+	
+	
+	
+	
+end
+
+lowerActivationTimer.OnTimer = lowerActivationTimerLoop
+
+if not reOpenProcessesTimer == nil then
+	if debugvar then print ("destroyed old reOpenProcessesTimer") end
+	reOpenProcessesTimer.Destroy()
+end
+reOpenProcessesTimer = createTimer()
+reOpenProcessesTimer.Interval = 2000
+
+reOpenProcessesTimer.Enabled = false
+
+function reOpenProcessesTimerLoop()
+	if openProcesses() then
+		if debugvar then print("reoppening processes") end
+		reOpenProcessesTimer.Enabled = false
+		activation_state = 2
+		tryToActivate("reoopening processes timer")
+	end
+end
+reOpenProcessesTimer.OnTimer = reOpenProcessesTimerLoop
+
+
+
+
+function lockUI(flag)
+	if flag then
+		RB_randomseed.Enabled = false
+		RB_setseed.Enabled = false
+		Edit_Seed.Enabled = false
+		PopcornCheckbox.Enabled = false
+		else
+		RB_randomseed.Enabled = true
+		RB_setseed.Enabled = true
+		Edit_Seed.Enabled = RB_setseed.Checked
+		PopcornCheckbox.Enabled = true
+		
+	end
+end
+
+function deactivate()
+	if debugvar then print ("DEACTIVATING!!") end
+	activation_state = 0
+	seed_evaluated = false
+	lowerActivationTimer.Enabled = false
+	--TODO update ui, unlock radio buttons etc
+	--turn off openProcesses timer thing
+	StatusLabel.Caption = 'Deactivated'
+	StatusLabel.Font.Color = 128
+	reOpenProcessesTimer.Enabled = false
+	ActivateButton.Caption = "Activate Randomiser"
+	lockUI(false)
+	
+	
+	
+	
+	if getProcessIDFromProcessName(process) ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint1)
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint2)
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint3)
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint4)
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint5)
+		debug_removeBreakpoint(CachedOffsetLevelChangeBreakpoint)
+		debug_removeBreakpoint(CachedOffsetHaloDLLChangeBreakpoint)
+		
+		
+		if checkAttached2() and OffsetNopBytes1Addy ~= nil then
+			restoreNopBytes()
+		end
+	end
+	
+	
+	--TODO remove any set breakpoints, restore spawn rng code bytes
+end
+
+function tryToActivate(callingfunc)
+	
+	if activation_state == 0 then --trainer was completely inactive
+		if debugvar then print ("processing activation state 0") end
+		--TODO update UI, lock radio buttons/seed input
+		activation_state = 1 
+		StatusLabel.Caption = "Opening MCC process"
+		ActivateButton.Caption = "Deactivate Randomiser"
+		StatusLabel.Font.Color = 65535
+		lockUI(true)
+		
+		
+		
+	end
+	
+	if activation_state == 1 then --trying to attach to process
+		if debugvar then print ("processing activation state 1") end
+		if openProcesses() then
+			activation_state = 2
+			reOpenProcessesTimer.Enabled = false
+			else
+			StatusLabel.Caption = "Waiting for MCC to start"
+			StatusLabel.Font.Color = 65535
+			--a timer that periodicly trys to advance from 1 to 2 (must turn off on success or deactivate)
+			reOpenProcessesTimer.Enabled = true
+		end
+		
+		
+	end
+	
+	if activation_state == 2 then
+		if debugvar then print ("processing activation state 2") end
+		if checkAttached() then
+			--here we can run our version checking stuff, and set a breakpoint that will re_eval pointers on levelchange (and get actor list etc)
+			StatusLabel.Caption = "Checking version and creating hooks"
+			StatusLabel.Font.Color = 65535
+			
+			
+			
+			if steam_flag then
+			game_version = getVersion()
+			else
+			game_version = 2904
+			end
+			
+			
+			if game_version ~= 2645 and game_version ~= 2904 then
+				--uh oh! invalid version!
+				game_version = nil
+				deactivate()
+				if debugvar then 
+					if getVersion() == nil then
+						print("got nil version")
+						else
+						print("version got: " .. getVersion()) 
+					end
+				end
+				messageDialog("Looks like you're using an unsupported version of MCC. \n Probably MCC recieved a patch that broke this trainer. \n Check on the github for an updated version of the trainer.",mtError, mbOK) 
+				else
+				--we cool
+				if debugvar then print("running setOffsets()") end
+				setOffsets() --load offsets for the current version
+				if debugvar then print("running setHALOCHANGEChangeBreakpoint()") end
+				--setLevelChangeBreakpoint(game_version)
+				setHaloDLLChangeBreakpoint()
+				HaloDLLChangeBreakpointAction()
+				activation_state = 3
+				
+			end
+			else
+			activation_state = 1
+			reOpenProcessesTimer.Enabled = true
+			StatusLabel.Caption = "Waiting for MCC to start"
+			StatusLabel.Font.Color = 65535
+		end
+		
+	end
+	
+	if activation_state == 3 then
+		if debugvar then print ("processing activation state 3") end
+		StatusLabel.Caption = "Waiting to get in-game"
+		StatusLabel.Font.Color = 65535
+		if debugvar then print("EEEEEE: " .. callingfunc) end
+		--check if we're currently in game or not
+		--if so, set activation to 4; fully activated. run our breakpoint once.
+		--if not we'll wait for our level-change breakpoint to get hit, and set activation to 4 there.
+		if ingameflag then
+			activation_state = 4
+		end
+		
+		
+		
+	end
+	
+	if activation_state == 4 then
+
+		
+		
+		
+		if debugvar then print ("processing activation state 4") end
+		control_setCaption(StatusLabel, "Activated")
+		StatusLabel.Font.Color = 65280
+		if debugvar then print("AAAAAAAA: " .. callingfunc) end
+		
+		
+	end
+	
+end
+
+function activateButtonClicked()
+	
+	if activation_state == 0 then
+		tryToActivate("activatebuttonclicked")
+		lowerActivationTimer.Enabled = true
+		else
+		deactivate()
+		
+		
+		
+	end
+end
+
+
+function setRandomSeed()
+	RB_setseed.Checked = false
+	Edit_Seed.Enabled = false
+	
+end
+
+function setSetSeed()
+	RB_randomseed.Checked = false
+	Edit_Seed.Enabled = true
+	
+end
+
+
+function aboutButtonClicked()
+	
+	messageDialog("Here's where my about \n" ..
+		"text would go, \n" ..
+		"IF I HAD ANY."
+	,mtInformation, mbOK) 
+				
+	
+end
+
+
+
+
+------- Assign function activation to form stuff
+ActivateButton.OnClick = activateButtonClicked
+RB_randomseed.OnClick = setRandomSeed
+RB_setseed.OnClick = setSetSeed
+AboutButton.OnClick = aboutButtonClicked
+
+CEER.OnClose = function(sender)
+	
+	--TODO - check if attached, if so remove breakpoints, restore spawn rng code bytes
+	
+	pcall(deactivate)
+	
+	
+	
+	closeCE()
+	return caFree
+end
