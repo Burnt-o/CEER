@@ -1,8 +1,8 @@
 
 debugvar = false
-if os.getenv('USERNAME') == "mauri" then
-	debugvar = true --only turn on debugvar if it's burnts computer
-end
+--if os.getenv('USERNAME') == "mauri" then
+--	debugvar = true --only turn on debugvar if it's burnts computer
+--end
 
 if debugvar then print("hi burnt") end
 --debugvar = true
@@ -19,7 +19,7 @@ if mvf.Showmoduleaddresses1.Checked then
 	mvf.Showmoduleaddresses1.doClick()
 end
 
-debugvar = false
+--debugvar = false
 
 
 
@@ -65,13 +65,14 @@ CEER.BiDiMode = bdLeftToRight
 CEER.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
 CEER.BorderStyle = bsSizeable
 CEER.BorderWidth = 0
-CEER.Caption = 'CE Enemy Randomiser v0.1'
+CEER.Caption = 'CE Enemy Randomiser v1.0'
 CEER.ClientHeight = 250
 CEER.ClientWidth = 400
 CEER.Color = 2368548
-CEER.Constraints.MaxWidth = 0
-CEER.Constraints.MinHeight = 0
-CEER.Constraints.MinWidth = 0
+CEER.Constraints.MaxWidth = 400
+CEER.Constraints.MinHeight = 250
+CEER.Constraints.MinWidth = 400
+CEER.Constraints.MinHeight = 250
 CEER.DefaultMonitor = dmActiveForm
 CEER.DockSite = false
 CEER.DragKind = dkDrag
@@ -753,7 +754,7 @@ validBipedsTable = {}
 invalidBipedsTable = {}
 
 
-invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "infection"}
+invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "infection", "detector"}
 invalidUnitStrings = {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}} --arranged by level, with 11th level for "unknown level"
 level_index = 11
 debugtdatum = false
@@ -1650,18 +1651,10 @@ function mainBreakpoint2Action()
 	
 	
 	RCX = validActorsTable[math.random(1, number_of_valid_actors)]
-	
-	if superdebugvar then
-		print ("seed_number: " .. seed_number)
-		print ("r12: " .. R12)
-		print ("R13: " .. R13)
-		print ("spawn_incrementer: " .. spawn_incrementer)
-	end
-	
+
 	spawn_incrementer = spawn_incrementer + 1
 	
-	--problem; same enemy types in encounter always converted to same random enemy type..
-	--add incrementer that resets in mainbreakpoint1
+
 	
 	
 end
@@ -1975,9 +1968,9 @@ end
 function DLLsafetycheck()
 	if not (process == nil) then
 		if process == "MCC-Win64-Shipping.exe" then
-			return readString(readString("[[" .. process .. "+" .. DEC_HEX(pointer_table[1]) .. "]+" .. DEC_HEX(pointer_table[2]) .. "]+4E", 4))
+		return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
 			elseif "MCCWinStore-Win64-Shipping.exe" then
-			return readString(readString("[[" .. process .. "+" .. DEC_HEX(pointer_table[1]) .. "]+" .. DEC_HEX(pointer_table[2]) .. "]+4E", 4))
+		return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
 			else
 			return 0
 			
@@ -1986,6 +1979,22 @@ function DLLsafetycheck()
 		return 0
 	end
 end
+
+
+
+if not retryHaloDLLChangeBreakpointActionTimer == nil then
+	if debugvar then print ("destroyed old retryHaloDLLChangeBreakpointActionTimer") end
+	retryHaloDLLChangeBreakpointActionTimer.Destroy()
+end
+retryHaloDLLChangeBreakpointActionTimer = createTimer()
+retryHaloDLLChangeBreakpointActionTimer.Interval = 2000
+
+retryHaloDLLChangeBreakpointActionTimer.Enabled = false
+
+
+
+
+
 
 
 function HaloDLLChangeBreakpointAction()
@@ -1999,10 +2008,14 @@ function HaloDLLChangeBreakpointAction()
 	
 	local y, check = pcall(DLLsafetycheck)
 	
-	if not check == "This" then
+	if check ~= "This" then
+	if debugvar then print("bailing on halodllchange breakpoint") end
+	retryHaloDLLChangeBreakpointActionTimer.Enabled = true
 		return
 	end
+	if debugvar then print("not bailing, check = " .. check) end
 	
+	retryHaloDLLChangeBreakpointActionTimer.Enabled = false
 	
 	evalAllPointers()
 	--set our breakpoints
@@ -2019,6 +2032,19 @@ function HaloDLLChangeBreakpointAction()
 	
 	
 end
+
+
+function retryHaloDLLChangeBreakpointActionTimerLoop()
+if checkAttached() then
+	HaloDLLChangeBreakpointAction()
+	
+	else
+	retryHaloDLLChangeBreakpointActionTimer.Enabled = false
+end
+end
+retryHaloDLLChangeBreakpointActionTimer.OnTimer = retryHaloDLLChangeBreakpointActionTimerLoop
+
+
 
 --HARDWARE breakpoint (has to be for write check)
 function setHaloDLLChangeBreakpoint()
@@ -2300,12 +2326,485 @@ function setSetSeed()
 end
 
 
+
+
+
+
+
+--
+----
+---- FORM: AboutWindow
+------------------------------
+AboutWindow = createForm()
+AboutWindow.Tag = 0
+AboutWindow.AnchorSideLeft.Side = asrTop
+AboutWindow.AnchorSideTop.Side = asrTop
+AboutWindow.AnchorSideRight.Side = asrTop
+AboutWindow.AnchorSideBottom.Side = asrTop
+AboutWindow.Left = 581
+AboutWindow.Height = 356
+AboutWindow.Hint = ''
+AboutWindow.Top = 348
+AboutWindow.Width = 464
+AboutWindow.HelpType = htContext
+AboutWindow.HelpKeyword = ''
+AboutWindow.HelpContext = 0
+AboutWindow.HorzScrollBar.Page = 80
+AboutWindow.HorzScrollBar.Smooth = false
+AboutWindow.HorzScrollBar.Position = 0
+AboutWindow.HorzScrollBar.Range = 0
+AboutWindow.HorzScrollBar.Tracking = false
+AboutWindow.HorzScrollBar.Visible = true
+AboutWindow.VertScrollBar.Page = 80
+AboutWindow.VertScrollBar.Smooth = false
+AboutWindow.VertScrollBar.Position = 0
+AboutWindow.VertScrollBar.Range = 0
+AboutWindow.VertScrollBar.Tracking = false
+AboutWindow.VertScrollBar.Visible = true
+AboutWindow.Align = alNone
+AboutWindow.AllowDropFiles = false
+AboutWindow.AlphaBlend = false
+AboutWindow.AlphaBlendValue = 255
+AboutWindow.Anchors = '[akTop,akLeft]'
+AboutWindow.AutoScroll = false
+AboutWindow.AutoSize = false
+AboutWindow.BiDiMode = bdLeftToRight
+AboutWindow.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
+AboutWindow.BorderStyle = bsSizeable
+AboutWindow.BorderWidth = 0
+AboutWindow.Caption = 'About CEER'
+AboutWindow.ClientHeight = 356
+AboutWindow.ClientWidth = 464
+AboutWindow.Color = 2368548
+AboutWindow.Constraints.MaxWidth = 464
+AboutWindow.Constraints.MinHeight = 356
+AboutWindow.Constraints.MinWidth = 464
+AboutWindow.Constraints.MinHeight = 356
+AboutWindow.DefaultMonitor = dmActiveForm
+AboutWindow.DockSite = false
+AboutWindow.DragKind = dkDrag
+AboutWindow.DragMode = dmManual
+AboutWindow.Enabled = true
+AboutWindow.Font.Color = 16777215
+AboutWindow.Font.Height = 0
+AboutWindow.Font.Name = 'default'
+AboutWindow.Font.Orientation = 0
+AboutWindow.Font.Pitch = fpDefault
+AboutWindow.Font.Quality = fqDefault
+AboutWindow.Font.Size = 0
+AboutWindow.Font.Style = '[]'
+AboutWindow.FormStyle = fsNormal
+AboutWindow.KeyPreview = false
+AboutWindow.ParentBiDiMode = true
+AboutWindow.ParentFont = false
+AboutWindow.PixelsPerInch = 96
+AboutWindow.Position = poDesigned
+AboutWindow.ShowHint = false
+AboutWindow.ShowInTaskBar = 'stAlways'
+AboutWindow.UseDockManager = false
+AboutWindow.Visible = false
+AboutWindow.WindowState = 'wsNormal'
+AboutWindow.DoNotSaveInTable = false
+------------------------------
+---- AboutWindow : Components
+------------------------------
+--
+---- CEPanel1
+--------------------
+CEPanel1 = createPanel(AboutWindow)
+CEPanel1.Tag = 0
+CEPanel1.AnchorSideLeft.Side = asrTop
+CEPanel1.AnchorSideTop.Side = asrTop
+CEPanel1.AnchorSideRight.Side = asrTop
+CEPanel1.AnchorSideBottom.Side = asrTop
+CEPanel1.Left = 2
+CEPanel1.Height = 353
+CEPanel1.Hint = ''
+CEPanel1.Top = 2
+CEPanel1.Width = 462
+CEPanel1.HelpType = htContext
+CEPanel1.HelpKeyword = ''
+CEPanel1.HelpContext = 0
+CEPanel1.Align = alNone
+CEPanel1.Alignment = 2
+CEPanel1.Anchors = '[akTop,akLeft]'
+CEPanel1.AutoSize = false
+CEPanel1.BorderSpacing.Top = 0
+CEPanel1.BevelInner = 0
+CEPanel1.BevelOuter = 2
+CEPanel1.BevelWidth = 1
+CEPanel1.BidiMode = bdLeftToRight
+CEPanel1.BorderWidth = 0
+CEPanel1.BorderStyle = bsNone
+CEPanel1.Caption = ''
+CEPanel1.ClientHeight = 353
+CEPanel1.ClientWidth = 462
+CEPanel1.Color = 2368548
+CEPanel1.Constraints.MaxWidth = 0
+CEPanel1.Constraints.MinHeight = 0
+CEPanel1.Constraints.MinWidth = 0
+CEPanel1.DockSite = false
+CEPanel1.DragCursor = -12
+CEPanel1.DragKind = dkDrag
+CEPanel1.DragMode = dmManual
+CEPanel1.Enabled = true
+CEPanel1.Font.Color = 16777215
+CEPanel1.Font.Height = 0
+CEPanel1.Font.Name = 'default'
+CEPanel1.Font.Orientation = 0
+CEPanel1.Font.Pitch = fpDefault
+CEPanel1.Font.Quality = fqDefault
+CEPanel1.Font.Size = 0
+CEPanel1.Font.Style = '[]'
+CEPanel1.FullRepaint = true
+CEPanel1.ParentBidiMode = true
+CEPanel1.ParentColor = true
+CEPanel1.ParentFont = true
+CEPanel1.ParentShowHint = true
+CEPanel1.ShowHint = false
+CEPanel1.TabOrder = 0
+CEPanel1.TabStop = false
+CEPanel1.UseDockManager = true
+CEPanel1.Visible = true
+--------------------
+--
+---- CELabel1
+--------------------
+CELabel1 = createLabel(CEPanel1)
+CELabel1.Tag = 0
+CELabel1.AnchorSideLeft.Side = asrTop
+CELabel1.AnchorSideTop.Side = asrTop
+CELabel1.AnchorSideRight.Side = asrTop
+CELabel1.AnchorSideBottom.Side = asrTop
+CELabel1.Left = 36
+CELabel1.Height = 15
+CELabel1.Hint = ''
+CELabel1.Top = 29
+CELabel1.Width = 220
+CELabel1.HelpType = htContext
+CELabel1.HelpKeyword = ''
+CELabel1.HelpContext = 0
+CELabel1.Align = alNone
+CELabel1.Alignment = taLeftJustify
+CELabel1.Anchors = '[akTop,akLeft]'
+CELabel1.AutoSize = true
+CELabel1.BidiMode = bdLeftToRight
+CELabel1.BorderSpacing.Top = 0
+CELabel1.Caption = 'Randomises enemies in Halo CE for MCC.'
+CELabel1.Color = 536870911
+CELabel1.Constraints.MaxWidth = 0
+CELabel1.Constraints.MinHeight = 0
+CELabel1.Constraints.MinWidth = 0
+CELabel1.DragCursor = -12
+CELabel1.DragKind = dkDrag
+CELabel1.DragMode = dmManual
+CELabel1.Enabled = true
+CELabel1.Font.Color = 16777215
+CELabel1.Font.Height = 0
+CELabel1.Font.Name = 'default'
+CELabel1.Font.Orientation = 0
+CELabel1.Font.Pitch = fpDefault
+CELabel1.Font.Quality = fqDefault
+CELabel1.Font.Size = 0
+CELabel1.Font.Style = '[]'
+CELabel1.Layout = tlTop
+CELabel1.ParentBidiMode = true
+CELabel1.ParentColor = false
+CELabel1.ParentFont = true
+CELabel1.ParentShowHint = true
+CELabel1.ShowAccelChar = true
+CELabel1.ShowHint = false
+CELabel1.Transparent = true
+CELabel1.Visible = true
+CELabel1.WordWrap = false
+CELabel1.OptimalFill = false
+--------------------
+--
+---- CELabel2
+--------------------
+CELabel2 = createLabel(CEPanel1)
+CELabel2.Tag = 0
+CELabel2.AnchorSideLeft.Side = asrTop
+CELabel2.AnchorSideTop.Side = asrTop
+CELabel2.AnchorSideRight.Side = asrTop
+CELabel2.AnchorSideBottom.Side = asrTop
+CELabel2.Left = 36
+CELabel2.Height = 15
+CELabel2.Hint = ''
+CELabel2.Top = 63
+CELabel2.Width = 238
+CELabel2.HelpType = htContext
+CELabel2.HelpKeyword = ''
+CELabel2.HelpContext = 0
+CELabel2.Align = alNone
+CELabel2.Alignment = taLeftJustify
+CELabel2.Anchors = '[akTop,akLeft]'
+CELabel2.AutoSize = true
+CELabel2.BidiMode = bdLeftToRight
+CELabel2.BorderSpacing.Top = 0
+CELabel2.Caption = 'Grab the latest release from the               page.'
+CELabel2.Color = 536870911
+CELabel2.Constraints.MaxWidth = 0
+CELabel2.Constraints.MinHeight = 0
+CELabel2.Constraints.MinWidth = 0
+CELabel2.DragCursor = -12
+CELabel2.DragKind = dkDrag
+CELabel2.DragMode = dmManual
+CELabel2.Enabled = true
+CELabel2.Font.Color = 16777215
+CELabel2.Font.Height = 0
+CELabel2.Font.Name = 'default'
+CELabel2.Font.Orientation = 0
+CELabel2.Font.Pitch = fpDefault
+CELabel2.Font.Quality = fqDefault
+CELabel2.Font.Size = 0
+CELabel2.Font.Style = '[]'
+CELabel2.Layout = tlTop
+CELabel2.ParentBidiMode = true
+CELabel2.ParentColor = false
+CELabel2.ParentFont = true
+CELabel2.ParentShowHint = true
+CELabel2.ShowAccelChar = true
+CELabel2.ShowHint = false
+CELabel2.Transparent = true
+CELabel2.Visible = true
+CELabel2.WordWrap = false
+CELabel2.OptimalFill = false
+--------------------
+--
+---- CELabel3
+--------------------
+CELabel3 = createLabel(CEPanel1)
+CELabel3.Tag = 0
+CELabel3.AnchorSideLeft.Side = asrTop
+CELabel3.AnchorSideTop.Side = asrTop
+CELabel3.AnchorSideRight.Side = asrTop
+CELabel3.AnchorSideBottom.Side = asrTop
+CELabel3.Left = 204
+CELabel3.Height = 15
+CELabel3.Hint = ''
+CELabel3.Top = 63
+CELabel3.Width = 36
+CELabel3.HelpType = htContext
+CELabel3.HelpKeyword = ''
+CELabel3.HelpContext = 0
+CELabel3.Align = alNone
+CELabel3.Alignment = taLeftJustify
+CELabel3.Anchors = '[akTop,akLeft]'
+CELabel3.AutoSize = true
+CELabel3.BidiMode = bdLeftToRight
+CELabel3.BorderSpacing.Top = 0
+CELabel3.Caption = 'Github'
+CELabel3.Color = 536870911
+CELabel3.Constraints.MaxWidth = 0
+CELabel3.Constraints.MinHeight = 0
+CELabel3.Constraints.MinWidth = 0
+CELabel3.DragCursor = -12
+CELabel3.DragKind = dkDrag
+CELabel3.DragMode = dmManual
+CELabel3.Enabled = true
+CELabel3.Font.Color = 16711680
+CELabel3.Font.Height = -12
+CELabel3.Font.Name = 'Segoe UI'
+CELabel3.Font.Orientation = 0
+CELabel3.Font.Pitch = fpVariable
+CELabel3.Font.Quality = fqDraft
+CELabel3.Font.Size = 9
+CELabel3.Font.Style = '[fsUnderline]'
+CELabel3.Layout = tlTop
+CELabel3.ParentBidiMode = true
+CELabel3.ParentColor = false
+CELabel3.ParentFont = false
+CELabel3.ParentShowHint = true
+CELabel3.ShowAccelChar = true
+CELabel3.ShowHint = false
+CELabel3.Transparent = true
+CELabel3.Visible = true
+CELabel3.WordWrap = false
+CELabel3.OptimalFill = false
+--------------------
+--
+---- CELabel4
+--------------------
+CELabel4 = createLabel(CEPanel1)
+CELabel4.Tag = 0
+CELabel4.AnchorSideLeft.Side = asrTop
+CELabel4.AnchorSideTop.Side = asrTop
+CELabel4.AnchorSideRight.Side = asrTop
+CELabel4.AnchorSideBottom.Side = asrTop
+CELabel4.Left = 36
+CELabel4.Height = 15
+CELabel4.Hint = ''
+CELabel4.Top = 95
+CELabel4.Width = 122
+CELabel4.HelpType = htContext
+CELabel4.HelpKeyword = ''
+CELabel4.HelpContext = 0
+CELabel4.Align = alNone
+CELabel4.Alignment = taLeftJustify
+CELabel4.Anchors = '[akTop,akLeft]'
+CELabel4.AutoSize = true
+CELabel4.BidiMode = bdLeftToRight
+CELabel4.BorderSpacing.Top = 0
+CELabel4.Caption = 'More info in this video '
+CELabel4.Color = 536870911
+CELabel4.Constraints.MaxWidth = 0
+CELabel4.Constraints.MinHeight = 0
+CELabel4.Constraints.MinWidth = 0
+CELabel4.DragCursor = -12
+CELabel4.DragKind = dkDrag
+CELabel4.DragMode = dmManual
+CELabel4.Enabled = true
+CELabel4.Font.Color = 16777215
+CELabel4.Font.Height = 0
+CELabel4.Font.Name = 'default'
+CELabel4.Font.Orientation = 0
+CELabel4.Font.Pitch = fpDefault
+CELabel4.Font.Quality = fqDefault
+CELabel4.Font.Size = 0
+CELabel4.Font.Style = '[]'
+CELabel4.Layout = tlTop
+CELabel4.ParentBidiMode = true
+CELabel4.ParentColor = false
+CELabel4.ParentFont = true
+CELabel4.ParentShowHint = true
+CELabel4.ShowAccelChar = true
+CELabel4.ShowHint = false
+CELabel4.Transparent = true
+CELabel4.Visible = true
+CELabel4.WordWrap = false
+CELabel4.OptimalFill = false
+--------------------
+--
+---- CELabel5
+--------------------
+CELabel5 = createLabel(CEPanel1)
+CELabel5.Tag = 0
+CELabel5.AnchorSideLeft.Side = asrTop
+CELabel5.AnchorSideTop.Side = asrTop
+CELabel5.AnchorSideRight.Side = asrTop
+CELabel5.AnchorSideBottom.Side = asrTop
+CELabel5.Left = 160
+CELabel5.Height = 15
+CELabel5.Hint = ''
+CELabel5.Top = 95
+CELabel5.Width = 26
+CELabel5.HelpType = htContext
+CELabel5.HelpKeyword = ''
+CELabel5.HelpContext = 0
+CELabel5.Align = alNone
+CELabel5.Alignment = taLeftJustify
+CELabel5.Anchors = '[akTop,akLeft]'
+CELabel5.AutoSize = true
+CELabel5.BidiMode = bdLeftToRight
+CELabel5.BorderSpacing.Top = 0
+CELabel5.Caption = 'here.'
+CELabel5.Color = 536870911
+CELabel5.Constraints.MaxWidth = 0
+CELabel5.Constraints.MinHeight = 0
+CELabel5.Constraints.MinWidth = 0
+CELabel5.DragCursor = -12
+CELabel5.DragKind = dkDrag
+CELabel5.DragMode = dmManual
+CELabel5.Enabled = true
+CELabel5.Font.Color = 16711680
+CELabel5.Font.Height = -12
+CELabel5.Font.Name = 'Segoe UI'
+CELabel5.Font.Orientation = 0
+CELabel5.Font.Pitch = fpVariable
+CELabel5.Font.Quality = fqDraft
+CELabel5.Font.Size = 9
+CELabel5.Font.Style = '[fsUnderline]'
+CELabel5.Layout = tlTop
+CELabel5.ParentBidiMode = true
+CELabel5.ParentColor = false
+CELabel5.ParentFont = false
+CELabel5.ParentShowHint = true
+CELabel5.ShowAccelChar = true
+CELabel5.ShowHint = false
+CELabel5.Transparent = true
+CELabel5.Visible = true
+CELabel5.WordWrap = false
+CELabel5.OptimalFill = false
+
+--------------------
+--
+---- CELabel6
+--------------------
+CELabel6 = createLabel(CEPanel1)
+CELabel6.Tag = 0
+CELabel6.AnchorSideLeft.Side = asrTop
+CELabel6.AnchorSideTop.Side = asrTop
+CELabel6.AnchorSideRight.Side = asrTop
+CELabel6.AnchorSideBottom.Side = asrTop
+CELabel6.Left = 36
+CELabel6.Height = 15
+CELabel6.Hint = ''
+CELabel6.Top = 129
+CELabel6.Width = 449
+CELabel6.HelpType = htContext
+CELabel6.HelpKeyword = ''
+CELabel6.HelpContext = 0
+CELabel6.Align = alNone
+CELabel6.Alignment = taLeftJustify
+CELabel6.Anchors = '[akTop,akLeft]'
+CELabel6.AutoSize = true
+CELabel6.BidiMode = bdLeftToRight
+CELabel6.BorderSpacing.Top = 0
+CELabel6.Caption = "Requires Cheatengine to be installed. \nRemember to run MCC with anticheat disabled. \n" ..
+		"Supports current patch (v2904) as of 19th of August, 2022, \nas well as Season 8 (v2645). \n\n" ..
+		"The 'Don't Randomise Popcorn' setting makes it so popcorn (infection forms) \ncan't get randomised into other enemies. \nI recommend leaving this option disabled to make for a more fun \n(and chaotic, and challenging) experience, but YMMV. \n\n" ..
+		"COOP: To play coop, both players must use the 'Set Seed' setting, \nand use the exact same seed. \nPreferably activate the randomiser while still in the lobby menu. "
+CELabel6.Color = 536870911
+CELabel6.Constraints.MaxWidth = 0
+CELabel6.Constraints.MinHeight = 0
+CELabel6.Constraints.MinWidth = 0
+CELabel6.DragCursor = -12
+CELabel6.DragKind = dkDrag
+CELabel6.DragMode = dmManual
+CELabel6.Enabled = true
+CELabel6.Font.Color = 16777215
+CELabel6.Font.Height = 0
+CELabel6.Font.Name = 'default'
+CELabel6.Font.Orientation = 0
+CELabel6.Font.Pitch = fpDefault
+CELabel6.Font.Quality = fqDefault
+CELabel6.Font.Size = 0
+CELabel6.Font.Style = '[]'
+CELabel6.Layout = tlTop
+CELabel6.ParentBidiMode = true
+CELabel6.ParentColor = false
+CELabel6.ParentFont = true
+CELabel6.ParentShowHint = true
+CELabel6.ShowAccelChar = true
+CELabel6.ShowHint = false
+CELabel6.Transparent = true
+CELabel6.Visible = true
+CELabel6.WordWrap = false
+CELabel6.OptimalFill = false
+--------------------
+------------------------------
+---- END FORM: AboutWindow
+---- 
+--
+CELabel3.Cursor = crHandPoint
+CELabel5.Cursor = crHandPoint
+
+CELabel3.OnClick = function(sender)
+	 shellExecute("https://github.com/Burnt-o/CEER/releases")
+	
+end
+
+CELabel5.OnClick = function(sender)
+	 shellExecute("https://youtu.be/wyf0qTXs3Xo")
+	
+end
+
+
+
 function aboutButtonClicked()
 	
-	messageDialog("Here's where my about \n" ..
-		"text would go, \n" ..
-		"IF I HAD ANY."
-	,mtInformation, mbOK) 
+AboutWindow.Visible = true
 				
 	
 end
@@ -2317,6 +2816,13 @@ end
 ActivateButton.OnClick = activateButtonClicked
 RB_randomseed.OnClick = setRandomSeed
 RB_setseed.OnClick = setSetSeed
+
+
+
+
+AboutWindow.OnClose = function(sender)
+	AboutWindow.Visible = false
+end
 AboutButton.OnClick = aboutButtonClicked
 
 CEER.OnClose = function(sender)
