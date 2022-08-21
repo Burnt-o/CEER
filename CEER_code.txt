@@ -21,7 +21,7 @@ end
 
 --debugvar = false
 
-
+--test_actor = 0
 
 
 
@@ -713,6 +713,7 @@ OffsetMainBreakpoint2 = nil
 OffsetMainBreakpoint3 = nil
 OffsetMainBreakpoint4 = nil
 OffsetMainBreakpoint5 = nil
+OffsetMainBreakpoint6 = nil
 OffsetMenuIndicator = nil
 OffsetStateIndicator = nil
 OffsetGameIndicator = nil
@@ -734,6 +735,7 @@ CachedOffsetMainBreakpoint2 = nil
 CachedOffsetMainBreakpoint3 = nil
 CachedOffsetMainBreakpoint4 = nil
 CachedOffsetMainBreakpoint5 = nil
+CachedOffsetMainBreakpoint6 = nil
 CachedOffsetHaloDLLChangeBreakpoint = nil
 CachedOffsetVar1 = nil
 CachedOffsetVar2 = nil
@@ -817,13 +819,14 @@ function setOffsets()
 			OffsetHaloDLL = {0x03B80E98, 0x8} 
 			OffsetSpawnerRNG = { 0x02879388, 0x764 }
 			OffsetLevelChangeBreakpoint  = {0xAA07D5}
-			OffsetNopBytes1Addy = {0xC51BA6}
+			OffsetNopBytes1Addy = {0xC51BCA}
 			OffsetNopBytes2Addy = {0xB4B6D8}
 			OffsetMainBreakpoint1 = {0xC51DD7}
 			OffsetMainBreakpoint2 = {0xC540B5}
 			OffsetMainBreakpoint3 = {0xB3DBD4}
 			OffsetMainBreakpoint4 = {0xB4D54E}
 			OffsetMainBreakpoint5 = {0xB0478E}
+						OffsetMainBreakpoint6 = {0xD27E09}
 			OffsetMenuIndicator = {0x3A4A7C9}
 			OffsetStateIndicator = {0x3B40D69}
 			OffsetGameIndicator = {0x03B81270, 0x0}
@@ -850,7 +853,7 @@ function setOffsets()
 			OffsetLevelChangeBreakpoint  = {0xA9C455}
 			
 			--same process as offsetspawner rng but at test instrution, just scroll down a bit to the imul randy thing. 10 bytes long.
-			OffsetNopBytes1Addy = {0xC77C26}
+			OffsetNopBytes1Addy = {0xC77C4A}
 			
 			
 			--scan nonwrite 44 0f b7 74 24 32, take first halo dll result. it's the JE just below
@@ -881,6 +884,11 @@ function setOffsets()
 			--take first of 6 results
 			--bp goes on lea rcx,[rax + rax*2]
 			OffsetMainBreakpoint5 = {0xB8BD2E}
+			
+			
+			--goes on cmp di, -1, below is je, below is mov ecx,[rcx+10] (we're checking that value in advance and setting edi to 0xFFFF if [rcx+10] is 0xFFFFFFFF
+			--scan nw 66 83 FF FF ** ** ** ** ** ** 8B 49 10
+			OffsetMainBreakpoint6 = {0xDEFBB9}
 			
 			
 			OffsetMenuIndicator = {0x3E45529}
@@ -922,7 +930,7 @@ function setOffsets()
 		OffsetLevelChangeBreakpoint  = {0xA9C455}
 		
 		--same process as offsetspawner rng but at test instrution, just scroll down a bit to the imul randy thing. 10 bytes long.
-		OffsetNopBytes1Addy = {0xC77C26}
+		OffsetNopBytes1Addy = {0xC77C4A}
 		
 		
 		--scan nonwrite 44 0f b7 74 24 32, take first halo dll result. it's the JE just below
@@ -953,6 +961,8 @@ function setOffsets()
 		--take first of 6 results
 		--bp goes on lea rcx,[rax + rax*2]
 		OffsetMainBreakpoint5 = {0xB8BD2E}
+		
+		OffsetMainBreakpoint6 = {0xDEFBB9}
 		
 		
 		OffsetMenuIndicator = {0x3CE9329}
@@ -1303,11 +1313,11 @@ function evaluateActors(actor_table_addy)
 		table.insert(allActorsTable, faction)
 		if stringtablecontains(invalidUnitStrings_AllLevels, actorstring) then
 			table.insert(invalidActorsTable, actv_index)
-			if debugvar then print ("invalid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index) end
+			if debugvar then print ("invalid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. " name: " .. actorstring) end
 			else
 			table.insert(validActorsTable, actv_index)
 			table.insert(validActorsDatumTable, datum)
-			if debugvar then print ("valid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. ", faction: " .. faction) end
+			if debugvar then print ("valid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. " name: " .. actorstring) end
 			number_of_valid_actors = number_of_valid_actors + 1
 		end
 		
@@ -1329,7 +1339,7 @@ function parseSeedString(init)
 			temp_string = temp_string .. c
 		end
 	end
-	print ("parsed string: " .. temp_string)
+	--print ("parsed string: " .. temp_string)
 	return temp_string
 end
 
@@ -1528,7 +1538,7 @@ function restoreNopBytes()
 		return
 	end
 	
-	for i=1, 10, 1 do
+	for i=1, 3, 1 do
 		writeBytes(addy, OffsetNopBytes1Value[i])
 		addy = addy + 1
 	end
@@ -1556,7 +1566,7 @@ function nopBytes()
 	end
 	
 	OffsetNopBytes1Value = {}
-	for i=1, 10, 1 do
+	for i=1, 3, 1 do
 		--if debugvar then print ("nopbytes for loop actually being run..") end
 		table.insert(OffsetNopBytes1Value, readBytes(addy, 1))
 		writeBytes(addy, 0x90)
@@ -1645,14 +1655,15 @@ function mainBreakpoint2Action()
 	end
 	
 	
-	
 	math.randomseed(seed_number + R12 + (50 * R13) + spawn_incrementer)
 	
 	
 	
 	RCX = validActorsTable[math.random(1, number_of_valid_actors)]
-
+--if debugvar then print ("rerolling " .. last_unit .. "into " .. RCX) end
 	spawn_incrementer = spawn_incrementer + 1
+	
+	--RCX = test_actor
 	
 
 	
@@ -1858,6 +1869,41 @@ end
 
 
 
+function mainBreakpoint6Action()
+--if debugvar then print ("mb6action hit, RCX == " .. tostring(RCX) .. " [RCX + 10 == " .. readInteger(RCX+0x10)) end
+	if readInteger(RCX+0x10) == 0xFFFFFFFF then
+	if debugvar then print ("mb6action action hit") end
+	RDI = 0xFFFF
+	if debugvar then print ("RDI AFTER FIX: " .. RDI) end
+	end
+	
+	
+end
+
+
+--fixes crash when unusual unit tries to ai_go_to_vehicle
+--SOFTWARE breakpoint
+function setMainBreakpoint6() 
+	
+	if CachedOffsetMainBreakpoint6 ~= nil then
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint6)
+	end
+	
+	CachedOffsetMainBreakpoint6 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetMainBreakpoint6[1]))
+	if debugvar then print ("setting breakpoint6 at: " .. DEC_HEX(CachedOffsetMainBreakpoint6)) end
+	
+	debug_setBreakpoint(CachedOffsetMainBreakpoint6, 4, 0, 0,function()
+		mainBreakpoint6Action()
+		return 0
+	end)
+	
+	
+	
+end
+
+
+
+
 function LevelChangeBreakpointAction()
 	if debugvar then print("LevelChangeBreakpoint HIT!") end
 	if not seed_evaluated then
@@ -1927,6 +1973,7 @@ function LevelChangeBreakpointAction()
 	setMainBreakpoint3()
 	setMainBreakpoint4()
 	setMainBreakpoint5()
+	setMainBreakpoint6()
 	nopBytes()
 	
 	
@@ -2025,6 +2072,7 @@ function HaloDLLChangeBreakpointAction()
 	setMainBreakpoint3()
 	setMainBreakpoint4()
 	setMainBreakpoint5()
+	setMainBreakpoint6()
 	nopBytes()
 	
 	--if already in-game, run levelchangebreakpoint (check happens in there)
@@ -2177,6 +2225,7 @@ function deactivate()
 		debug_removeBreakpoint(CachedOffsetMainBreakpoint3)
 		debug_removeBreakpoint(CachedOffsetMainBreakpoint4)
 		debug_removeBreakpoint(CachedOffsetMainBreakpoint5)
+		debug_removeBreakpoint(CachedOffsetMainBreakpoint6)
 		debug_removeBreakpoint(CachedOffsetLevelChangeBreakpoint)
 		debug_removeBreakpoint(CachedOffsetHaloDLLChangeBreakpoint)
 		
