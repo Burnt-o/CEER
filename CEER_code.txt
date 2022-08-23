@@ -65,7 +65,7 @@ CEER.BiDiMode = bdLeftToRight
 CEER.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
 CEER.BorderStyle = bsSizeable
 CEER.BorderWidth = 0
-CEER.Caption = 'CE Enemy Randomiser v1.2'
+CEER.Caption = 'CE Enemy Randomiser v1.2b'
 CEER.ClientHeight = 250
 CEER.ClientWidth = 400
 CEER.Color = 2368548
@@ -1771,7 +1771,7 @@ function test1()
 		if debugvar then print("finished test1, took " .. os.clock()-nClock .. " seconds.") end
 end
 
---new method using set ~ 0.014s
+--new method using set ~0.167s
 function test2()
 	local nClock = os.clock()
 	local last_unit = 0
@@ -1779,7 +1779,7 @@ function test2()
 	
 	
 	for i = 1, 1000000, 1 do
-	flag = fastInvalidActorsTable[last_unit]
+	flag = fastInvalidActorsTable[tostring(last_unit)]
 	end
 		if debugvar then print("finished test2, took " .. os.clock()-nClock .. " seconds.") end
 end
@@ -1800,8 +1800,8 @@ function mainBreakpoint2Action()
 	
 	
 	--big performance improvement here. we're using ideas from this stack overflow post https://stackoverflow.com/questions/2282444/how-to-check-if-a-table-contains-an-element-in-lua
-	if fastInvalidActorsTable[last_unit] then 
-	if debugvar then print ("returnning on invalid unit") end
+	if fastInvalidActorsTable[tostring(last_unit)] then 
+	--if debugvar then print ("returnning on invalid unit") end
 	return
 	end
 	
@@ -3046,3 +3046,4 @@ CEER.OnClose = function(sender)
 	closeCE()
 	return caFree
 end
+
