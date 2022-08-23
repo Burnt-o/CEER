@@ -65,7 +65,7 @@ CEER.BiDiMode = bdLeftToRight
 CEER.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
 CEER.BorderStyle = bsSizeable
 CEER.BorderWidth = 0
-CEER.Caption = 'CE Enemy Randomiser v1.0'
+CEER.Caption = 'CE Enemy Randomiser v1.2'
 CEER.ClientHeight = 250
 CEER.ClientWidth = 400
 CEER.Color = 2368548
@@ -172,7 +172,7 @@ AboutButton.AnchorSideBottom.Side = asrTop
 AboutButton.Left = 266
 AboutButton.Height = 25
 AboutButton.Hint = ''
-AboutButton.Top = 182 + 20
+AboutButton.Top = 182 + 20 + 20
 AboutButton.Width = 75
 AboutButton.HelpType = htContext
 AboutButton.HelpKeyword = ''
@@ -525,6 +525,54 @@ PopcornCheckbox.WordWrap = false
 PopcornCheckbox.OptimalFill = false
 
 
+RocketCheckbox = createCheckBox(MainPanel)
+RocketCheckbox.Tag = 0
+RocketCheckbox.AnchorSideLeft.Side = asrTop
+RocketCheckbox.AnchorSideTop.Side = asrTop
+RocketCheckbox.AnchorSideRight.Side = asrTop
+RocketCheckbox.AnchorSideBottom.Side = asrTop
+RocketCheckbox.Left = 60
+RocketCheckbox.Height = 15
+RocketCheckbox.Hint = ''
+RocketCheckbox.Top = 78 + 20
+RocketCheckbox.Width = 112
+RocketCheckbox.HelpType = htContext
+RocketCheckbox.HelpKeyword = ''
+RocketCheckbox.HelpContext = 0
+RocketCheckbox.Align = alNone
+RocketCheckbox.Alignment = taLeftJustify
+RocketCheckbox.Anchors = '[akTop,akLeft]'
+RocketCheckbox.AutoSize = true
+RocketCheckbox.BidiMode = bdLeftToRight
+RocketCheckbox.BorderSpacing.Top = 0
+RocketCheckbox.Caption = "Don't Randomise Rocket Launcher Flood"
+RocketCheckbox.Color = 536870911
+RocketCheckbox.Constraints.MaxWidth = 0
+RocketCheckbox.Constraints.MinHeight = 0
+RocketCheckbox.Constraints.MinWidth = 0
+RocketCheckbox.Enabled = true
+RocketCheckbox.Font.Color = 536870912
+RocketCheckbox.Font.Height = 0
+RocketCheckbox.Font.Name = 'default'
+RocketCheckbox.Font.Orientation = 0
+RocketCheckbox.Font.Pitch = fpDefault
+RocketCheckbox.Font.Quality = fqDefault
+RocketCheckbox.Font.Size = 0
+RocketCheckbox.Font.Style = '[]'
+RocketCheckbox.Layout = tlTop
+RocketCheckbox.ParentBidiMode = true
+RocketCheckbox.ParentColor = false
+RocketCheckbox.ParentFont = true
+RocketCheckbox.ParentShowHint = true
+RocketCheckbox.ShowAccelChar = true
+RocketCheckbox.ShowHint = false
+RocketCheckbox.Transparent = true
+RocketCheckbox.Visible = true
+RocketCheckbox.WordWrap = false
+RocketCheckbox.OptimalFill = false
+
+
+
 
 --------------------
 --
@@ -539,7 +587,7 @@ ActivateButton.AnchorSideBottom.Side = asrTop
 ActivateButton.Left = 58
 ActivateButton.Height = 53
 ActivateButton.Hint = 'It is recommended that you activate the randomiser while either in the main menu, or in the PoA cutscene, for full-game runs.'
-ActivateButton.Top = 91 + 20
+ActivateButton.Top = 91 + 20 + 20
 ActivateButton.Width = 287
 ActivateButton.HelpType = htContext
 ActivateButton.HelpKeyword = ''
@@ -589,7 +637,7 @@ CELabel3.AnchorSideBottom.Side = asrTop
 CELabel3.Left = 139
 CELabel3.Height = 15
 CELabel3.Hint = ''
-CELabel3.Top = 153  + 20
+CELabel3.Top = 153  + 20 + 20
 CELabel3.Width = 35
 CELabel3.HelpType = htContext
 CELabel3.HelpKeyword = ''
@@ -641,7 +689,7 @@ StatusLabel.AnchorSideBottom.Side = asrTop
 StatusLabel.Left = 179
 StatusLabel.Height = 15
 StatusLabel.Hint = ''
-StatusLabel.Top = 153 + 20
+StatusLabel.Top = 153 + 20 + 20
 StatusLabel.Width = 95
 StatusLabel.HelpType = htContext
 StatusLabel.HelpKeyword = ''
@@ -720,9 +768,9 @@ OffsetGameIndicator = nil
 OffsetVar1 = nil
 OffsetVar2 = nil
 OffsetVar3 = nil
-			OffsetMessageTC = nil
-			OffsetTickcount = nil
-			OffsetCinematic = nil
+OffsetMessageTC = nil
+OffsetTickcount = nil
+OffsetCinematic = nil
 
 
 
@@ -756,7 +804,7 @@ validBipedsTable = {}
 invalidBipedsTable = {}
 
 
-invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "infection", "detector"}
+invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector"}
 invalidUnitStrings = {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}} --arranged by level, with 11th level for "unknown level"
 level_index = 11
 debugtdatum = false
@@ -807,13 +855,13 @@ function setOffsets()
 		game_version = getVersion()
 		
 		if game_version == 2645 then
-
-		
-		
-		
+			
+			
+			
+			
 			if debugvar then print ("loading offsets for 2645") end
 			OffsetCinematic = {0x2af89b8, 0x0A}
-					OffsetMessageTC = {0x2A54C98, 0x0}
+			OffsetMessageTC = {0x2A54C98, 0x0}
 			OffsetTickcount = {0x2B5FCE8}
 			OffsetLevels = {0x2AF8281}
 			OffsetHaloDLL = {0x03B80E98, 0x8} 
@@ -826,7 +874,7 @@ function setOffsets()
 			OffsetMainBreakpoint3 = {0xB3DBD4}
 			OffsetMainBreakpoint4 = {0xB4D54E}
 			OffsetMainBreakpoint5 = {0xB0478E}
-						OffsetMainBreakpoint6 = {0xD27E09}
+			OffsetMainBreakpoint6 = {0xD27E09}
 			OffsetMenuIndicator = {0x3A4A7C9}
 			OffsetStateIndicator = {0x3B40D69}
 			OffsetGameIndicator = {0x03B81270, 0x0}
@@ -838,7 +886,7 @@ function setOffsets()
 			elseif game_version == 2904 then
 			if debugvar then print ("loading offsets for 2904") end
 			OffsetCinematic = {0x2E773D8, 0x0A}
-						OffsetMessageTC = {0x02D68A08, 0x0}
+			OffsetMessageTC = {0x02D68A08, 0x0}
 			OffsetTickcount = {0x2B88764}
 			
 			OffsetLevels = {0x2B611E5}
@@ -914,8 +962,8 @@ function setOffsets()
 		if debugvar then print ("we're on Winstore version") end
 		game_version = 2904
 		OffsetCinematic = {0x2E773D8, 0x0A}
-			OffsetMessageTC = {0x02D68A08, 0x0}
-			OffsetTickcount = {0x2B88764}
+		OffsetMessageTC = {0x02D68A08, 0x0}
+		OffsetTickcount = {0x2B88764}
 		
 		if debugvar then print ("loading offsets for 2904 winstore") end
 		OffsetLevels = {0x2B611E5}
@@ -1025,10 +1073,10 @@ function evalAllPointers()
 	CachedOffsetVar2 = readQword(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetVar2[1]))
 	CachedOffsetVar3 = readQword(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetVar3[1]))
 	
-CachedOffsetMessageTC = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetMessageTC))
-CachedOffsetTickcount = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetTickcount))
-CachedOffsetCinematic = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetCinematic))
-
+	CachedOffsetMessageTC = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetMessageTC))
+	CachedOffsetTickcount = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetTickcount))
+	CachedOffsetCinematic = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetCinematic))
+	
 	
 	
 	
@@ -1148,13 +1196,12 @@ function stringtablecontains(list, x)
 	for _, v in pairs(list) do
 		--print ("v: " .. v .. ", x: " .. x)
 		
-		if not (v == "infection" and PopcornCheckbox.Checked == false) then
+		
 		
 		if string.find(x, v) then 
 			
 			return true 
 			
-		end
 		end
 	end
 	return false
@@ -1254,6 +1301,32 @@ function actorDatum(actor_table_addy, enemy_index)
 	return readInteger(actor_table_addy + (enemy_index * 0x10) + 0x0C)
 end
 
+function table.shallow_copy(t)
+  local t2 = {}
+  for k,v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
+
+
+function evaluateInvalidStrings()
+	
+	local stringtable = table.shallow_copy(invalidUnitStrings_AllLevels)
+	
+	if PopcornCheckbox.Checked then
+		table.insert(stringtable, "infection")
+	end
+	
+	if RocketCheckbox.Checked then
+		 table.insert(stringtable, "rocket")
+	end
+	
+	
+	return stringtable
+	
+	
+end
 
 function evaluateBipeds(biped_table_addy)
 	if debugvar then print ("evaluating bipeds") end
@@ -1274,7 +1347,7 @@ function evaluateBipeds(biped_table_addy)
 		bipedstring = getTagString(datum)
 		
 		table.insert(allBipedsTable, faction)
-		if stringtablecontains(invalidUnitStrings_AllLevels, bipedstring) then
+		if stringtablecontains(evaluateInvalidStrings(), bipedstring) then
 			table.insert(invalidBipedsTable, biped_index)
 			if debugvar then print ("invalid biped with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. biped_index .. ", faction: " .. faction .. ", string: " .. bipedstring) end
 			else
@@ -1287,6 +1360,7 @@ function evaluateBipeds(biped_table_addy)
 		
 	end
 end
+
 
 
 function evaluateActors(actor_table_addy)
@@ -1311,7 +1385,7 @@ function evaluateActors(actor_table_addy)
 		actorstring = getTagString(datum)
 		
 		table.insert(allActorsTable, faction)
-		if stringtablecontains(invalidUnitStrings_AllLevels, actorstring) then
+		if stringtablecontains(evaluateInvalidStrings(), actorstring) then
 			table.insert(invalidActorsTable, actv_index)
 			if debugvar then print ("invalid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. " name: " .. actorstring) end
 			else
@@ -1430,59 +1504,59 @@ end
 
 
 
-	--prints custom hud message
-	function printMessage(message)
-		
-		if string.len(message) &gt; 62 then
-			--trim it
-			message = string.sub(message, 0, 61)
-		end
-		
-		if string.len(message) &lt; 62 then
-			--add whitespace
-			message = message .. string.rep(" ", 62 - string.len(message))
-		end
-		
-		
-		WriteInteger(CachedOffsetMessageTC, (ReadInteger(CachedOffsetTickcount) + 500)) --set message tc to current tc (minus 70 is good val for faded look)
-		WriteString(CachedOffsetMessageTC+0x4, message, true) --set message text
-		WriteBytes(CachedOffsetMessageTC+0x80, 0x00, 0x00, 0x01, 0x00) --set show message flag to true
-		WriteBytes(CachedOffsetMessageTC+0x84, 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
-		
-		--WriteInteger("[" .. halo1pointer .. OffsetMessageTC .. "]+0", (ReadInteger(halo1pointer .. OffsetTickcount))) --set message tc to current tc (minus 70 is good val for faded look)
-		--WriteString("[" .. halo1pointer .. OffsetMessageTC .. "]+4", message, true) --set message text
-		--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+80", 0x00, 0x00, 0x01, 0x00) --set show message flag to true
-		--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+84", 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
+--prints custom hud message
+function printMessage(message)
+	
+	if string.len(message) &gt; 62 then
+		--trim it
+		message = string.sub(message, 0, 61)
 	end
+	
+	if string.len(message) &lt; 62 then
+		--add whitespace
+		message = message .. string.rep(" ", 62 - string.len(message))
+	end
+	
+	
+	WriteInteger(CachedOffsetMessageTC, (ReadInteger(CachedOffsetTickcount) + 500)) --set message tc to current tc (minus 70 is good val for faded look)
+	WriteString(CachedOffsetMessageTC+0x4, message, true) --set message text
+	WriteBytes(CachedOffsetMessageTC+0x80, 0x00, 0x00, 0x01, 0x00) --set show message flag to true
+	WriteBytes(CachedOffsetMessageTC+0x84, 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
+	
+	--WriteInteger("[" .. halo1pointer .. OffsetMessageTC .. "]+0", (ReadInteger(halo1pointer .. OffsetTickcount))) --set message tc to current tc (minus 70 is good val for faded look)
+	--WriteString("[" .. halo1pointer .. OffsetMessageTC .. "]+4", message, true) --set message text
+	--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+80", 0x00, 0x00, 0x01, 0x00) --set show message flag to true
+	--WriteBytes("[" .. halo1pointer .. OffsetMessageTC .. "]+84", 0xFF, 0xFF, 0xFF, 0xFF) --no idea wtf this does but it needs to be this
+end
 
 
 
 function PrintMessageTimerLoop()
 	
 	if activation_state ~= 4 then
-	return
-	end
-		
-				local state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
-		local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
-		local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
-		if (game == nil or menu == nil or state == nil) or (not (state == 0xFF and menu == 7 and game == 0)) then
-			if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. PrintMessageTimer") end
-				return
-		end
-		
-		--just need to check that we're not in a cutscene
-		if readBytes(CachedOffsetCinematic, 1) == 1 then
 		return
-		end
-		
-		printMessage(message_to_print)
-		need_to_print_message = false
-		
-		
-		
 	end
 	
+	local state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
+	local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
+	local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
+	if (game == nil or menu == nil or state == nil) or (not (state == 0xFF and menu == 7 and game == 0)) then
+		if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. PrintMessageTimer") end
+		return
+	end
+	
+	--just need to check that we're not in a cutscene
+	if readBytes(CachedOffsetCinematic, 1) == 1 then
+		return
+	end
+	
+	printMessage(message_to_print)
+	need_to_print_message = false
+	
+	
+	
+end
+
 
 
 
@@ -1512,21 +1586,26 @@ function evaluateSeed()
 	seed_number = seedString_toNumber(seed_string)
 	seed_evaluated = true
 	
-			
-		
-		local popcornstring = "."
-		if PopcornCheckbox.Checked then
-		popcornstring = ", popcorn exempt."
-		end
-		
-		
-		if RB_randomseed.Checked then
-		message_to_print = "Random Seed: " .. seed_string .. popcornstring
+	
+	
+	local popcornstring = ""
+	if PopcornCheckbox.Checked then
+		popcornstring = ", popcorn exempt"
+	end
+	
+	local rocketstring = ""
+		if RocketCheckbox.Checked then
+		rocketstring = ", rockets exempt"
+	end
+	
+	
+	if RB_randomseed.Checked then
+		message_to_print = "Random Seed: " .. seed_string .. popcornstring .. rocketstring .. "."
 		else
-		message_to_print = "Set Seed: " .. seed_string .. popcornstring
-		end
-		need_to_print_message = true
-		
+		message_to_print = "Set Seed: " .. seed_string .. popcornstring .. rocketstring .. "."
+	end
+	need_to_print_message = true
+	
 	
 end
 
@@ -1660,12 +1739,12 @@ function mainBreakpoint2Action()
 	
 	
 	RCX = validActorsTable[math.random(1, number_of_valid_actors)]
---if debugvar then print ("rerolling " .. last_unit .. "into " .. RCX) end
+	--if debugvar then print ("rerolling " .. last_unit .. "into " .. RCX) end
 	spawn_incrementer = spawn_incrementer + 1
 	
 	--RCX = test_actor
 	
-
+	
 	
 	
 end
@@ -1798,7 +1877,8 @@ function mainBreakpoint5Action_2645()
 	last_faction = allBipedsTable[RAX + 1]
 	
 	
-	if contains(invalidBipedsTable, RAX) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
+	if contains(invalidBipedsTable, RAX) or (RCX &gt; 249 and RCX &lt; 260) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
+		--if debugvar then print ("invalid biped for reasons! RCX: " .. RCX) end
 		return
 	end
 	
@@ -1809,7 +1889,7 @@ function mainBreakpoint5Action_2645()
 	end
 	
 	math.randomseed(seed_number + (RDX - RDI)) --I don't even know what RDI is here but it seems to be different every time so hopefully unique
-	if debugvar then print ("RCX on randomising bipeds: " .. RCX) end
+	
 	--TODO: MAKE THIS BETTER. CURRENTLY RCX OR R8 sometimes are addys which won't be consistent between playthrus. 
 	
 	local randy = math.random(1, number_of_valid_bipeds)
@@ -1870,11 +1950,11 @@ end
 
 
 function mainBreakpoint6Action()
---if debugvar then print ("mb6action hit, RCX == " .. tostring(RCX) .. " [RCX + 10 == " .. readInteger(RCX+0x10)) end
+	--if debugvar then print ("mb6action hit, RCX == " .. tostring(RCX) .. " [RCX + 10 == " .. readInteger(RCX+0x10)) end
 	if readInteger(RCX+0x10) == 0xFFFFFFFF then
-	if debugvar then print ("mb6action action hit") end
-	RDI = 0xFFFF
-	if debugvar then print ("RDI AFTER FIX: " .. RDI) end
+		if debugvar then print ("mb6action action hit") end
+		RDI = 0xFFFF
+		if debugvar then print ("RDI AFTER FIX: " .. RDI) end
 	end
 	
 	
@@ -2015,9 +2095,9 @@ end
 function DLLsafetycheck()
 	if not (process == nil) then
 		if process == "MCC-Win64-Shipping.exe" then
-		return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
+			return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
 			elseif "MCCWinStore-Win64-Shipping.exe" then
-		return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
+			return readString("[[" .. process .. "+" .. DEC_HEX(OffsetHaloDLL[1]) .. "]+" .. DEC_HEX(OffsetHaloDLL[2]) .. "]+4E", 4)
 			else
 			return 0
 			
@@ -2056,8 +2136,8 @@ function HaloDLLChangeBreakpointAction()
 	local y, check = pcall(DLLsafetycheck)
 	
 	if check ~= "This" then
-	if debugvar then print("bailing on halodllchange breakpoint") end
-	retryHaloDLLChangeBreakpointActionTimer.Enabled = true
+		if debugvar then print("bailing on halodllchange breakpoint") end
+		retryHaloDLLChangeBreakpointActionTimer.Enabled = true
 		return
 	end
 	if debugvar then print("not bailing, check = " .. check) end
@@ -2083,12 +2163,12 @@ end
 
 
 function retryHaloDLLChangeBreakpointActionTimerLoop()
-if checkAttached() then
-	HaloDLLChangeBreakpointAction()
-	
-	else
-	retryHaloDLLChangeBreakpointActionTimer.Enabled = false
-end
+	if checkAttached() then
+		HaloDLLChangeBreakpointAction()
+		
+		else
+		retryHaloDLLChangeBreakpointActionTimer.Enabled = false
+	end
 end
 retryHaloDLLChangeBreakpointActionTimer.OnTimer = retryHaloDLLChangeBreakpointActionTimerLoop
 
@@ -2156,7 +2236,7 @@ function lowerActivationTimerLoop()
 	end
 	
 	if need_to_print_message then
-	PrintMessageTimerLoop()
+		PrintMessageTimerLoop()
 	end
 	
 	
@@ -2194,11 +2274,13 @@ function lockUI(flag)
 		RB_setseed.Enabled = false
 		Edit_Seed.Enabled = false
 		PopcornCheckbox.Enabled = false
+		RocketCheckbox.Enabled = false
 		else
 		RB_randomseed.Enabled = true
 		RB_setseed.Enabled = true
 		Edit_Seed.Enabled = RB_setseed.Checked
 		PopcornCheckbox.Enabled = true
+		RocketCheckbox.Enabled = true
 		
 	end
 end
@@ -2279,9 +2361,9 @@ function tryToActivate(callingfunc)
 			
 			
 			if steam_flag then
-			game_version = getVersion()
-			else
-			game_version = 2904
+				game_version = getVersion()
+				else
+				game_version = 2904
 			end
 			
 			
@@ -2334,7 +2416,7 @@ function tryToActivate(callingfunc)
 	end
 	
 	if activation_state == 4 then
-
+		
 		
 		
 		
@@ -2801,9 +2883,9 @@ CELabel6.AutoSize = true
 CELabel6.BidiMode = bdLeftToRight
 CELabel6.BorderSpacing.Top = 0
 CELabel6.Caption = "Requires Cheatengine to be installed. \nRemember to run MCC with anticheat disabled. \n" ..
-		"Supports current patch (v2904) as of 19th of August, 2022, \nas well as Season 8 (v2645). \n\n" ..
-		"The 'Don't Randomise Popcorn' setting makes it so popcorn (infection forms) \ncan't get randomised into other enemies. \nI recommend leaving this option disabled to make for a more fun \n(and chaotic, and challenging) experience, but YMMV. \n\n" ..
-		"COOP: To play coop, both players must use the 'Set Seed' setting, \nand use the exact same seed. \nPreferably activate the randomiser while still in the lobby menu. "
+"Supports current patch (v2904) as of 19th of August, 2022, \nas well as Season 8 (v2645). \n\n" ..
+"The 'Don't Randomise Popcorn' setting makes it so popcorn (infection forms) \ncan't get randomised into other enemies. \nI recommend leaving this option disabled to make for a more fun \n(and chaotic, and challenging) experience, but YMMV. \n\n" ..
+"COOP: To play coop, both players must use the 'Set Seed' setting, \nand use the exact same seed. \nPreferably activate the randomiser while still in the lobby menu. "
 CELabel6.Color = 536870911
 CELabel6.Constraints.MaxWidth = 0
 CELabel6.Constraints.MinHeight = 0
@@ -2840,12 +2922,12 @@ CELabel3.Cursor = crHandPoint
 CELabel5.Cursor = crHandPoint
 
 CELabel3.OnClick = function(sender)
-	 shellExecute("https://github.com/Burnt-o/CEER/releases")
+	shellExecute("https://github.com/Burnt-o/CEER/releases")
 	
 end
 
 CELabel5.OnClick = function(sender)
-	 shellExecute("https://youtu.be/wyf0qTXs3Xo")
+	shellExecute("https://youtu.be/wyf0qTXs3Xo")
 	
 end
 
@@ -2853,8 +2935,8 @@ end
 
 function aboutButtonClicked()
 	
-AboutWindow.Visible = true
-				
+	AboutWindow.Visible = true
+	
 	
 end
 
