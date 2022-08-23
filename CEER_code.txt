@@ -743,7 +743,7 @@ game_version = nil
 seed_evaluated = false
 seed_string = nil
 seed_number = nil
-last_unit = 0
+--last_unit = 0
 last_faction = nil
 need_to_print_message = false
 message_to_print = ""
@@ -797,6 +797,7 @@ allActorsTable = {}
 validActorsTable = {}
 invalidActorsTable = {}
 validActorsDatumTable = {}
+fastInvalidActorsTable = {}
 
 number_of_valid_bipeds = 0
 allBipedsTable = {}
@@ -1161,7 +1162,7 @@ function checkAttached2()
 	local y, check = pcall(DLLcheck)
 	if debugvar then 
 		if check == nil then print("CHECK WAS NIL") else
-		print("check: ", tostring(check)) end 
+		print("check y: ", tostring(y)) end 
 	end
 	if check == nil then
 		if debugvar then print("failed level check") end
@@ -1206,6 +1207,10 @@ function stringtablecontains(list, x)
 	end
 	return false
 end
+
+
+
+
 
 function contains(list, x)
 	if list == {} then
@@ -1361,6 +1366,17 @@ function evaluateBipeds(biped_table_addy)
 	end
 end
 
+function clearTable(t)
+	local count = #t
+for i=0, count do t[i]=nil end
+end
+
+
+    function Set (list)
+      local set = {}
+      for _, l in ipairs(list) do set[tostring(l)] = true end
+      return set
+    end
 
 
 function evaluateActors(actor_table_addy)
@@ -1370,6 +1386,8 @@ function evaluateActors(actor_table_addy)
 	validActorsDatumTable = {}
 	invalidActorsTable = {}
 	allActorsTable = {}
+	clearTable(fastInvalidActorsTable)
+	
 	number_of_valid_actors = 0
 	local datum = nil
 	local faction = nil
@@ -1387,6 +1405,7 @@ function evaluateActors(actor_table_addy)
 		table.insert(allActorsTable, faction)
 		if stringtablecontains(evaluateInvalidStrings(), actorstring) then
 			table.insert(invalidActorsTable, actv_index)
+			
 			if debugvar then print ("invalid actor with datum: 0x" .. DEC_HEX(datum) .. ", index: " .. actv_index .. " name: " .. actorstring) end
 			else
 			table.insert(validActorsTable, actv_index)
@@ -1398,6 +1417,8 @@ function evaluateActors(actor_table_addy)
 		actv_index = actv_index + 1 
 		
 	end
+	
+	fastInvalidActorsTable = Set(invalidActorsTable)
 	
 	if debugvar then print("actors evalutated. took " .. os.clock()-nClock .. "seconds. valid actors: " .. number_of_valid_actors .. "/" .. #validActorsTable .. ", invalid actors: " .. #invalidActorsTable) end
 	
@@ -1610,12 +1631,18 @@ function evaluateSeed()
 end
 
 function restoreNopBytes()
+	
+
+	
+	
 	local addy = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes1Addy[1]))
 	
 	if not readBytes(addy, 1) == 0x90 then
 		if debugvar then print ("tried to restore bytes but they were already restored") end
 		return
 	end
+	
+		pause()
 	
 	for i=1, 3, 1 do
 		writeBytes(addy, OffsetNopBytes1Value[i])
@@ -1629,9 +1656,13 @@ function restoreNopBytes()
 		addy2 = addy2 + 1
 	end
 	OffsetNopBytes2Value = {}
+	
+	unpause()
 end
 
 function nopBytes()
+	
+
 	if debugvar then print("nopBytes is being run at least") end
 	--needed to unrandomise spawn positions in combination with mainBreakpoint1
 	
@@ -1643,6 +1674,9 @@ function nopBytes()
 		if debugvar then print ("tried to nop bytes but they were already nopped") end
 		return
 	end
+	
+	
+		pause()
 	
 	OffsetNopBytes1Value = {}
 	for i=1, 3, 1 do
@@ -1661,7 +1695,11 @@ function nopBytes()
 		writeBytes(addy2, 0x90)
 		addy2 = addy2 + 1
 	end
+
+unpause()
 end
+
+
 
 function mainBreakpoint1Action_2904()
 	if not ingameflag then
@@ -1720,6 +1758,31 @@ function setMainBreakpoint1()
 end
 
 
+--old method ~0.235s
+function test1()
+	local nClock = os.clock()
+	local last_unit = 0
+	local flag = false
+	
+	
+	for i = 1, 1000000, 1 do
+	flag = contains(invalidActorsTable, last_unit)
+	end
+		if debugvar then print("finished test1, took " .. os.clock()-nClock .. " seconds.") end
+end
+
+--new method using set ~ 0.014s
+function test2()
+	local nClock = os.clock()
+	local last_unit = 0
+	local flag = false
+	
+	
+	for i = 1, 1000000, 1 do
+	flag = fastInvalidActorsTable[last_unit]
+	end
+		if debugvar then print("finished test2, took " .. os.clock()-nClock .. " seconds.") end
+end
 
 
 
@@ -1727,11 +1790,21 @@ function mainBreakpoint2Action()
 	if not ingameflag then
 		return
 	end
-	last_unit = RCX
-	last_faction = allActorsTable[RCX + 1]
-	if contains(invalidActorsTable, RCX) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
-		return
+	local last_unit = RCX
+	last_faction = allActorsTable[last_unit + 1]
+	--if contains(invalidActorsTable, last_unit) then --don't randomize invalid actvs (ie The Monitor should stay The Monitor and not a popcorn)
+	--	return
+	--end
+	
+	
+	
+	
+	--big performance improvement here. we're using ideas from this stack overflow post https://stackoverflow.com/questions/2282444/how-to-check-if-a-table-contains-an-element-in-lua
+	if fastInvalidActorsTable[last_unit] then 
+	if debugvar then print ("returnning on invalid unit") end
+	return
 	end
+	
 	
 	
 	math.randomseed(seed_number + R12 + (50 * R13) + spawn_incrementer)
@@ -2285,6 +2358,14 @@ function lockUI(flag)
 	end
 end
 
+function restoreGameData()
+
+
+			restoreNopBytes()
+
+
+end
+
 function deactivate()
 	if debugvar then print ("DEACTIVATING!!") end
 	activation_state = 0
@@ -2311,10 +2392,8 @@ function deactivate()
 		debug_removeBreakpoint(CachedOffsetLevelChangeBreakpoint)
 		debug_removeBreakpoint(CachedOffsetHaloDLLChangeBreakpoint)
 		
-		
-		if checkAttached2() and OffsetNopBytes1Addy ~= nil then
-			restoreNopBytes()
-		end
+		pcall(restoreGameData)
+
 	end
 	
 	
@@ -2960,7 +3039,7 @@ CEER.OnClose = function(sender)
 	
 	--TODO - check if attached, if so remove breakpoints, restore spawn rng code bytes
 	
-	pcall(deactivate)
+	pcall(restoreGameData)
 	
 	
 	
