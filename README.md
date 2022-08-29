@@ -5,6 +5,8 @@ Randomises enemies in Halo CE for MCC.
 
 More info in this video [here.](https://www.youtube.com/watch?v=17N8_E40Nl0)
 
+Custom Campaign files if you want to play with every enemy on every level [here.](https://www.mediafire.com/file/nazogqdm99jwnda/CEER_Classic_Maps.rar/file)
+
 Requires [Cheatengine](https://www.cheatengine.org/) to be installed.
 Remember to run MCC with anticheat disabled.
 
