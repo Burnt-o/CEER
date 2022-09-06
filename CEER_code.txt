@@ -1,11 +1,11 @@
 
 debugvar = false
---if os.getenv('USERNAME') == "mauri" then
---	debugvar = true --only turn on debugvar if it's burnts computer
---end
-
+if os.getenv('USERNAME') == "mauri" then
+	debugvar = true --only turn on debugvar if it's burnts computer
+end
+--debugvar = false
 if debugvar then print("hi burnt") end
---debugvar = true
+debugvar = false
 --
 superdebugvar = false
 
@@ -23,6 +23,7 @@ end
 
 --test_actor = 0
 
+test_value = 10000
 
 
 ----
@@ -35,7 +36,7 @@ CEER.AnchorSideTop.Side = asrTop
 CEER.AnchorSideRight.Side = asrTop
 CEER.AnchorSideBottom.Side = asrTop
 CEER.Left = 602
-CEER.Height = 250
+CEER.Height = 450 + 30
 CEER.Hint = ''
 CEER.Top = 161
 CEER.Width = 400
@@ -65,14 +66,14 @@ CEER.BiDiMode = bdLeftToRight
 CEER.BorderIcons = '[biSystemMenu,biMinimize,biMaximize]'
 CEER.BorderStyle = bsSizeable
 CEER.BorderWidth = 0
-CEER.Caption = 'CE Enemy Randomiser v1.2b'
-CEER.ClientHeight = 250
+CEER.Caption = 'CE Enemy Randomiser v1.3'
+CEER.ClientHeight = 450+ 30
 CEER.ClientWidth = 400
 CEER.Color = 2368548
 CEER.Constraints.MaxWidth = 400
-CEER.Constraints.MinHeight = 250
+CEER.Constraints.MinHeight = 450+ 30
 CEER.Constraints.MinWidth = 400
-CEER.Constraints.MinHeight = 250
+CEER.Constraints.MinHeight = 450+ 30
 CEER.DefaultMonitor = dmActiveForm
 CEER.DockSite = false
 CEER.DragKind = dkDrag
@@ -111,7 +112,7 @@ MainPanel.AnchorSideTop.Side = asrTop
 MainPanel.AnchorSideRight.Side = asrTop
 MainPanel.AnchorSideBottom.Side = asrTop
 MainPanel.Left = 0
-MainPanel.Height = 250
+MainPanel.Height = 450+ 30
 MainPanel.Hint = ''
 MainPanel.Top = 0
 MainPanel.Width = 400
@@ -130,7 +131,7 @@ MainPanel.BidiMode = bdLeftToRight
 MainPanel.BorderWidth = 0
 MainPanel.BorderStyle = bsNone
 MainPanel.Caption = ''
-MainPanel.ClientHeight = 250
+MainPanel.ClientHeight = 450+ 30
 MainPanel.ClientWidth = 400
 MainPanel.Color = 2368548
 MainPanel.Constraints.MaxWidth = 0
@@ -172,7 +173,7 @@ AboutButton.AnchorSideBottom.Side = asrTop
 AboutButton.Left = 266
 AboutButton.Height = 25
 AboutButton.Hint = ''
-AboutButton.Top = 182 + 20 + 20
+AboutButton.Top = 182 + 20 + 20 + 200 + 20
 AboutButton.Width = 75
 AboutButton.HelpType = htContext
 AboutButton.HelpKeyword = ''
@@ -396,7 +397,7 @@ CELabel1.Anchors = '[akTop,akLeft]'
 CELabel1.AutoSize = true
 CELabel1.BidiMode = bdLeftToRight
 CELabel1.BorderSpacing.Top = 0
-CELabel1.Caption = 'Seed:'
+CELabel1.Caption = 'RNG Seed:'
 CELabel1.Color = 536870911
 CELabel1.Constraints.MaxWidth = 0
 CELabel1.Constraints.MinHeight = 0
@@ -477,6 +478,102 @@ CELabel2.Visible = true
 CELabel2.WordWrap = false
 CELabel2.OptimalFill = false
 
+--------------------
+LabelLine1 = createLabel(MainPanel)
+LabelLine1.Tag = 0
+LabelLine1.AnchorSideLeft.Side = asrTop
+LabelLine1.AnchorSideTop.Side = asrTop
+LabelLine1.AnchorSideRight.Side = asrTop
+LabelLine1.AnchorSideBottom.Side = asrTop
+LabelLine1.Left = 45
+LabelLine1.Height = 15
+LabelLine1.Hint = ''
+LabelLine1.Top = 78 - 5
+LabelLine1.Width = 34
+LabelLine1.HelpType = htContext
+LabelLine1.HelpKeyword = ''
+LabelLine1.HelpContext = 0
+LabelLine1.Align = alNone
+LabelLine1.Alignment = taLeftJustify
+LabelLine1.Anchors = '[akTop,akLeft]'
+LabelLine1.AutoSize = true
+LabelLine1.BidiMode = bdLeftToRight
+LabelLine1.BorderSpacing.Top = 0
+LabelLine1.Caption = '______________________________________'
+LabelLine1.Color = 536870911
+LabelLine1.Constraints.MaxWidth = 0
+LabelLine1.Constraints.MinHeight = 0
+LabelLine1.Constraints.MinWidth = 0
+LabelLine1.DragCursor = -12
+LabelLine1.DragKind = dkDrag
+LabelLine1.DragMode = dmManual
+LabelLine1.Enabled = true
+LabelLine1.Font.Color = 16777215
+LabelLine1.Font.Height = 0
+LabelLine1.Font.Name = 'default'
+LabelLine1.Font.Orientation = 0
+LabelLine1.Font.Pitch = fpDefault
+LabelLine1.Font.Quality = fqDefault
+LabelLine1.Font.Size = 0
+LabelLine1.Font.Style = '[]'
+LabelLine1.Layout = tlTop
+LabelLine1.ParentBidiMode = true
+LabelLine1.ParentColor = false
+LabelLine1.ParentFont = true
+LabelLine1.ParentShowHint = true
+LabelLine1.ShowAccelChar = true
+LabelLine1.ShowHint = false
+LabelLine1.Transparent = true
+LabelLine1.Visible = true
+LabelLine1.WordWrap = false
+LabelLine1.OptimalFill = false
+
+RandomiseEnemiesCheckbox = createCheckBox(MainPanel)
+RandomiseEnemiesCheckbox.Tag = 0
+RandomiseEnemiesCheckbox.AnchorSideLeft.Side = asrTop
+RandomiseEnemiesCheckbox.AnchorSideTop.Side = asrTop
+RandomiseEnemiesCheckbox.AnchorSideRight.Side = asrTop
+RandomiseEnemiesCheckbox.AnchorSideBottom.Side = asrTop
+RandomiseEnemiesCheckbox.Left = 60
+RandomiseEnemiesCheckbox.Height = 15
+RandomiseEnemiesCheckbox.Hint = ''
+RandomiseEnemiesCheckbox.Top = 78  + 20
+RandomiseEnemiesCheckbox.Width = 112
+RandomiseEnemiesCheckbox.HelpType = htContext
+RandomiseEnemiesCheckbox.HelpKeyword = ''
+RandomiseEnemiesCheckbox.HelpContext = 0
+RandomiseEnemiesCheckbox.Align = alNone
+RandomiseEnemiesCheckbox.Alignment = taLeftJustify
+RandomiseEnemiesCheckbox.Anchors = '[akTop,akLeft]'
+RandomiseEnemiesCheckbox.AutoSize = true
+RandomiseEnemiesCheckbox.BidiMode = bdLeftToRight
+RandomiseEnemiesCheckbox.BorderSpacing.Top = 0
+RandomiseEnemiesCheckbox.Caption = "Randomise Enemies"
+RandomiseEnemiesCheckbox.Color = 536870911
+RandomiseEnemiesCheckbox.Constraints.MaxWidth = 0
+RandomiseEnemiesCheckbox.Constraints.MinHeight = 0
+RandomiseEnemiesCheckbox.Constraints.MinWidth = 0
+RandomiseEnemiesCheckbox.Enabled = true
+RandomiseEnemiesCheckbox.Font.Color = 536870912
+RandomiseEnemiesCheckbox.Font.Height = 0
+RandomiseEnemiesCheckbox.Font.Name = 'default'
+RandomiseEnemiesCheckbox.Font.Orientation = 0
+RandomiseEnemiesCheckbox.Font.Pitch = fpDefault
+RandomiseEnemiesCheckbox.Font.Quality = fqDefault
+RandomiseEnemiesCheckbox.Font.Size = 0
+RandomiseEnemiesCheckbox.Font.Style = '[]'
+RandomiseEnemiesCheckbox.Layout = tlTop
+RandomiseEnemiesCheckbox.ParentBidiMode = true
+RandomiseEnemiesCheckbox.ParentColor = false
+RandomiseEnemiesCheckbox.ParentFont = true
+RandomiseEnemiesCheckbox.ParentShowHint = true
+RandomiseEnemiesCheckbox.ShowAccelChar = true
+RandomiseEnemiesCheckbox.ShowHint = false
+RandomiseEnemiesCheckbox.Transparent = true
+RandomiseEnemiesCheckbox.Visible = true
+RandomiseEnemiesCheckbox.WordWrap = false
+RandomiseEnemiesCheckbox.OptimalFill = false
+RandomiseEnemiesCheckbox.Checked = true
 
 PopcornCheckbox = createCheckBox(MainPanel)
 PopcornCheckbox.Tag = 0
@@ -484,10 +581,10 @@ PopcornCheckbox.AnchorSideLeft.Side = asrTop
 PopcornCheckbox.AnchorSideTop.Side = asrTop
 PopcornCheckbox.AnchorSideRight.Side = asrTop
 PopcornCheckbox.AnchorSideBottom.Side = asrTop
-PopcornCheckbox.Left = 60
+PopcornCheckbox.Left = 60 + 20
 PopcornCheckbox.Height = 15
 PopcornCheckbox.Hint = ''
-PopcornCheckbox.Top = 78
+PopcornCheckbox.Top = 78 + 40
 PopcornCheckbox.Width = 112
 PopcornCheckbox.HelpType = htContext
 PopcornCheckbox.HelpKeyword = ''
@@ -531,10 +628,10 @@ RocketCheckbox.AnchorSideLeft.Side = asrTop
 RocketCheckbox.AnchorSideTop.Side = asrTop
 RocketCheckbox.AnchorSideRight.Side = asrTop
 RocketCheckbox.AnchorSideBottom.Side = asrTop
-RocketCheckbox.Left = 60
+RocketCheckbox.Left = 60 + 20
 RocketCheckbox.Height = 15
 RocketCheckbox.Hint = ''
-RocketCheckbox.Top = 78 + 20
+RocketCheckbox.Top = 78 + 20 + 40
 RocketCheckbox.Width = 112
 RocketCheckbox.HelpType = htContext
 RocketCheckbox.HelpKeyword = ''
@@ -545,7 +642,7 @@ RocketCheckbox.Anchors = '[akTop,akLeft]'
 RocketCheckbox.AutoSize = true
 RocketCheckbox.BidiMode = bdLeftToRight
 RocketCheckbox.BorderSpacing.Top = 0
-RocketCheckbox.Caption = "Don't Randomise Rocket Launcher Flood"
+RocketCheckbox.Caption = "Don't Randomise Rocket Flood"
 RocketCheckbox.Color = 536870911
 RocketCheckbox.Constraints.MaxWidth = 0
 RocketCheckbox.Constraints.MinHeight = 0
@@ -572,6 +669,345 @@ RocketCheckbox.WordWrap = false
 RocketCheckbox.OptimalFill = false
 
 
+LabelLine2 = createLabel(MainPanel)
+LabelLine2.Tag = 0
+LabelLine2.AnchorSideLeft.Side = asrTop
+LabelLine2.AnchorSideTop.Side = asrTop
+LabelLine2.AnchorSideRight.Side = asrTop
+LabelLine2.AnchorSideBottom.Side = asrTop
+LabelLine2.Left = 45
+LabelLine2.Height = 15
+LabelLine2.Hint = ''
+LabelLine2.Top = 78 + 20 + 50 + 25 - 5
+LabelLine2.Width = 34
+LabelLine2.HelpType = htContext
+LabelLine2.HelpKeyword = ''
+LabelLine2.HelpContext = 0
+LabelLine2.Align = alNone
+LabelLine2.Alignment = taLeftJustify
+LabelLine2.Anchors = '[akTop,akLeft]'
+LabelLine2.AutoSize = true
+LabelLine2.BidiMode = bdLeftToRight
+LabelLine2.BorderSpacing.Top = 0
+LabelLine2.Caption = '______________________________________'
+LabelLine2.Color = 536870911
+LabelLine2.Constraints.MaxWidth = 0
+LabelLine2.Constraints.MinHeight = 0
+LabelLine2.Constraints.MinWidth = 0
+LabelLine2.DragCursor = -12
+LabelLine2.DragKind = dkDrag
+LabelLine2.DragMode = dmManual
+LabelLine2.Enabled = true
+LabelLine2.Font.Color = 16777215
+LabelLine2.Font.Height = 0
+LabelLine2.Font.Name = 'default'
+LabelLine2.Font.Orientation = 0
+LabelLine2.Font.Pitch = fpDefault
+LabelLine2.Font.Quality = fqDefault
+LabelLine2.Font.Size = 0
+LabelLine2.Font.Style = '[]'
+LabelLine2.Layout = tlTop
+LabelLine2.ParentBidiMode = true
+LabelLine2.ParentColor = false
+LabelLine2.ParentFont = true
+LabelLine2.ParentShowHint = true
+LabelLine2.ShowAccelChar = true
+LabelLine2.ShowHint = false
+LabelLine2.Transparent = true
+LabelLine2.Visible = true
+LabelLine2.WordWrap = false
+LabelLine2.OptimalFill = false
+
+
+
+RandomiseTexturesCheckbox = createCheckBox(MainPanel)
+RandomiseTexturesCheckbox.Tag = 0
+RandomiseTexturesCheckbox.AnchorSideLeft.Side = asrTop
+RandomiseTexturesCheckbox.AnchorSideTop.Side = asrTop
+RandomiseTexturesCheckbox.AnchorSideRight.Side = asrTop
+RandomiseTexturesCheckbox.AnchorSideBottom.Side = asrTop
+RandomiseTexturesCheckbox.Left = 60
+RandomiseTexturesCheckbox.Height = 15
+RandomiseTexturesCheckbox.Hint = ''
+RandomiseTexturesCheckbox.Top = 78 + 20 + 50 + 25 + 20
+RandomiseTexturesCheckbox.Width = 112
+RandomiseTexturesCheckbox.HelpType = htContext
+RandomiseTexturesCheckbox.HelpKeyword = ''
+RandomiseTexturesCheckbox.HelpContext = 0
+RandomiseTexturesCheckbox.Align = alNone
+RandomiseTexturesCheckbox.Alignment = taLeftJustify
+RandomiseTexturesCheckbox.Anchors = '[akTop,akLeft]'
+RandomiseTexturesCheckbox.AutoSize = true
+RandomiseTexturesCheckbox.BidiMode = bdLeftToRight
+RandomiseTexturesCheckbox.BorderSpacing.Top = 0
+RandomiseTexturesCheckbox.Caption = "Randomise Textures (on load)"
+RandomiseTexturesCheckbox.Color = 536870911
+RandomiseTexturesCheckbox.Constraints.MaxWidth = 0
+RandomiseTexturesCheckbox.Constraints.MinHeight = 0
+RandomiseTexturesCheckbox.Constraints.MinWidth = 0
+RandomiseTexturesCheckbox.Enabled = true
+RandomiseTexturesCheckbox.Font.Color = 536870912
+RandomiseTexturesCheckbox.Font.Height = 0
+RandomiseTexturesCheckbox.Font.Name = 'default'
+RandomiseTexturesCheckbox.Font.Orientation = 0
+RandomiseTexturesCheckbox.Font.Pitch = fpDefault
+RandomiseTexturesCheckbox.Font.Quality = fqDefault
+RandomiseTexturesCheckbox.Font.Size = 0
+RandomiseTexturesCheckbox.Font.Style = '[]'
+RandomiseTexturesCheckbox.Layout = tlTop
+RandomiseTexturesCheckbox.ParentBidiMode = true
+RandomiseTexturesCheckbox.ParentColor = false
+RandomiseTexturesCheckbox.ParentFont = true
+RandomiseTexturesCheckbox.ParentShowHint = true
+RandomiseTexturesCheckbox.ShowAccelChar = true
+RandomiseTexturesCheckbox.ShowHint = false
+RandomiseTexturesCheckbox.Transparent = true
+RandomiseTexturesCheckbox.Visible = true
+RandomiseTexturesCheckbox.WordWrap = false
+RandomiseTexturesCheckbox.OptimalFill = false
+
+
+RestrictTexturesCheckbox = createCheckBox(MainPanel)
+RestrictTexturesCheckbox.Tag = 0
+RestrictTexturesCheckbox.AnchorSideLeft.Side = asrTop
+RestrictTexturesCheckbox.AnchorSideTop.Side = asrTop
+RestrictTexturesCheckbox.AnchorSideRight.Side = asrTop
+RestrictTexturesCheckbox.AnchorSideBottom.Side = asrTop
+RestrictTexturesCheckbox.Left = 60 + 20
+RestrictTexturesCheckbox.Height = 15
+RestrictTexturesCheckbox.Hint = ''
+RestrictTexturesCheckbox.Top = 78 + 20 + 50 + 25 + 20 + 20
+RestrictTexturesCheckbox.Width = 112
+RestrictTexturesCheckbox.HelpType = htContext
+RestrictTexturesCheckbox.HelpKeyword = ''
+RestrictTexturesCheckbox.HelpContext = 0
+RestrictTexturesCheckbox.Align = alNone
+RestrictTexturesCheckbox.Alignment = taLeftJustify
+RestrictTexturesCheckbox.Anchors = '[akTop,akLeft]'
+RestrictTexturesCheckbox.AutoSize = true
+RestrictTexturesCheckbox.BidiMode = bdLeftToRight
+RestrictTexturesCheckbox.BorderSpacing.Top = 0
+RestrictTexturesCheckbox.Caption = "Restrict by Type"
+RestrictTexturesCheckbox.Color = 536870911
+RestrictTexturesCheckbox.Constraints.MaxWidth = 0
+RestrictTexturesCheckbox.Constraints.MinHeight = 0
+RestrictTexturesCheckbox.Constraints.MinWidth = 0
+RestrictTexturesCheckbox.Enabled = true
+RestrictTexturesCheckbox.Font.Color = 536870912
+RestrictTexturesCheckbox.Font.Height = 0
+RestrictTexturesCheckbox.Font.Name = 'default'
+RestrictTexturesCheckbox.Font.Orientation = 0
+RestrictTexturesCheckbox.Font.Pitch = fpDefault
+RestrictTexturesCheckbox.Font.Quality = fqDefault
+RestrictTexturesCheckbox.Font.Size = 0
+RestrictTexturesCheckbox.Font.Style = '[]'
+RestrictTexturesCheckbox.Layout = tlTop
+RestrictTexturesCheckbox.ParentBidiMode = true
+RestrictTexturesCheckbox.ParentColor = false
+RestrictTexturesCheckbox.ParentFont = true
+RestrictTexturesCheckbox.ParentShowHint = true
+RestrictTexturesCheckbox.ShowAccelChar = true
+RestrictTexturesCheckbox.ShowHint = false
+RestrictTexturesCheckbox.Transparent = true
+RestrictTexturesCheckbox.Visible = true
+RestrictTexturesCheckbox.WordWrap = false
+RestrictTexturesCheckbox.OptimalFill = false
+RestrictTexturesCheckbox.Checked = true
+
+
+
+
+LabelLine3 = createLabel(MainPanel)
+LabelLine3.Tag = 0
+LabelLine3.AnchorSideLeft.Side = asrTop
+LabelLine3.AnchorSideTop.Side = asrTop
+LabelLine3.AnchorSideRight.Side = asrTop
+LabelLine3.AnchorSideBottom.Side = asrTop
+LabelLine3.Left = 45
+LabelLine3.Height = 15
+LabelLine3.Hint = ''
+LabelLine3.Top = 78 + 20 + 50 + 25 + 20 + 20 + 37 - 5
+LabelLine3.Width = 34
+LabelLine3.HelpType = htContext
+LabelLine3.HelpKeyword = ''
+LabelLine3.HelpContext = 0
+LabelLine3.Align = alNone
+LabelLine3.Alignment = taLeftJustify
+LabelLine3.Anchors = '[akTop,akLeft]'
+LabelLine3.AutoSize = true
+LabelLine3.BidiMode = bdLeftToRight
+LabelLine3.BorderSpacing.Top = 0
+LabelLine3.Caption = '______________________________________'
+LabelLine3.Color = 536870911
+LabelLine3.Constraints.MaxWidth = 0
+LabelLine3.Constraints.MinHeight = 0
+LabelLine3.Constraints.MinWidth = 0
+LabelLine3.DragCursor = -12
+LabelLine3.DragKind = dkDrag
+LabelLine3.DragMode = dmManual
+LabelLine3.Enabled = true
+LabelLine3.Font.Color = 16777215
+LabelLine3.Font.Height = 0
+LabelLine3.Font.Name = 'default'
+LabelLine3.Font.Orientation = 0
+LabelLine3.Font.Pitch = fpDefault
+LabelLine3.Font.Quality = fqDefault
+LabelLine3.Font.Size = 0
+LabelLine3.Font.Style = '[]'
+LabelLine3.Layout = tlTop
+LabelLine3.ParentBidiMode = true
+LabelLine3.ParentColor = false
+LabelLine3.ParentFont = true
+LabelLine3.ParentShowHint = true
+LabelLine3.ShowAccelChar = true
+LabelLine3.ShowHint = false
+LabelLine3.Transparent = true
+LabelLine3.Visible = true
+LabelLine3.WordWrap = false
+LabelLine3.OptimalFill = false
+
+RandomiseSoundsCheckbox = createCheckBox(MainPanel)
+RandomiseSoundsCheckbox.Tag = 0
+RandomiseSoundsCheckbox.AnchorSideLeft.Side = asrTop
+RandomiseSoundsCheckbox.AnchorSideTop.Side = asrTop
+RandomiseSoundsCheckbox.AnchorSideRight.Side = asrTop
+RandomiseSoundsCheckbox.AnchorSideBottom.Side = asrTop
+RandomiseSoundsCheckbox.Left = 60
+RandomiseSoundsCheckbox.Height = 15
+RandomiseSoundsCheckbox.Hint = ''
+RandomiseSoundsCheckbox.Top = 78 + 20 + 50 + 25 + 20 + 37 + 40
+RandomiseSoundsCheckbox.Width = 112
+RandomiseSoundsCheckbox.HelpType = htContext
+RandomiseSoundsCheckbox.HelpKeyword = ''
+RandomiseSoundsCheckbox.HelpContext = 0
+RandomiseSoundsCheckbox.Align = alNone
+RandomiseSoundsCheckbox.Alignment = taLeftJustify
+RandomiseSoundsCheckbox.Anchors = '[akTop,akLeft]'
+RandomiseSoundsCheckbox.AutoSize = true
+RandomiseSoundsCheckbox.BidiMode = bdLeftToRight
+RandomiseSoundsCheckbox.BorderSpacing.Top = 0
+RandomiseSoundsCheckbox.Caption = "Randomise Sounds (on load) (S8 only)"
+RandomiseSoundsCheckbox.Color = 536870911
+RandomiseSoundsCheckbox.Constraints.MaxWidth = 0
+RandomiseSoundsCheckbox.Constraints.MinHeight = 0
+RandomiseSoundsCheckbox.Constraints.MinWidth = 0
+RandomiseSoundsCheckbox.Enabled = true
+RandomiseSoundsCheckbox.Font.Color = 536870912
+RandomiseSoundsCheckbox.Font.Height = 0
+RandomiseSoundsCheckbox.Font.Name = 'default'
+RandomiseSoundsCheckbox.Font.Orientation = 0
+RandomiseSoundsCheckbox.Font.Pitch = fpDefault
+RandomiseSoundsCheckbox.Font.Quality = fqDefault
+RandomiseSoundsCheckbox.Font.Size = 0
+RandomiseSoundsCheckbox.Font.Style = '[]'
+RandomiseSoundsCheckbox.Layout = tlTop
+RandomiseSoundsCheckbox.ParentBidiMode = true
+RandomiseSoundsCheckbox.ParentColor = false
+RandomiseSoundsCheckbox.ParentFont = true
+RandomiseSoundsCheckbox.ParentShowHint = true
+RandomiseSoundsCheckbox.ShowAccelChar = true
+RandomiseSoundsCheckbox.ShowHint = false
+RandomiseSoundsCheckbox.Transparent = true
+RandomiseSoundsCheckbox.Visible = true
+RandomiseSoundsCheckbox.WordWrap = false
+RandomiseSoundsCheckbox.OptimalFill = false
+
+
+RestrictSoundsCheckbox = createCheckBox(MainPanel)
+RestrictSoundsCheckbox.Tag = 0
+RestrictSoundsCheckbox.AnchorSideLeft.Side = asrTop
+RestrictSoundsCheckbox.AnchorSideTop.Side = asrTop
+RestrictSoundsCheckbox.AnchorSideRight.Side = asrTop
+RestrictSoundsCheckbox.AnchorSideBottom.Side = asrTop
+RestrictSoundsCheckbox.Left = 60 + 20
+RestrictSoundsCheckbox.Height = 15
+RestrictSoundsCheckbox.Hint = ''
+RestrictSoundsCheckbox.Top = 78 + 20 + 50 + 25 + 20 + 20 + 37 + 40
+RestrictSoundsCheckbox.Width = 112
+RestrictSoundsCheckbox.HelpType = htContext
+RestrictSoundsCheckbox.HelpKeyword = ''
+RestrictSoundsCheckbox.HelpContext = 0
+RestrictSoundsCheckbox.Align = alNone
+RestrictSoundsCheckbox.Alignment = taLeftJustify
+RestrictSoundsCheckbox.Anchors = '[akTop,akLeft]'
+RestrictSoundsCheckbox.AutoSize = true
+RestrictSoundsCheckbox.BidiMode = bdLeftToRight
+RestrictSoundsCheckbox.BorderSpacing.Top = 0
+RestrictSoundsCheckbox.Caption = "Restrict by Type"
+RestrictSoundsCheckbox.Color = 536870911
+RestrictSoundsCheckbox.Constraints.MaxWidth = 0
+RestrictSoundsCheckbox.Constraints.MinHeight = 0
+RestrictSoundsCheckbox.Constraints.MinWidth = 0
+RestrictSoundsCheckbox.Enabled = true
+RestrictSoundsCheckbox.Font.Color = 536870912
+RestrictSoundsCheckbox.Font.Height = 0
+RestrictSoundsCheckbox.Font.Name = 'default'
+RestrictSoundsCheckbox.Font.Orientation = 0
+RestrictSoundsCheckbox.Font.Pitch = fpDefault
+RestrictSoundsCheckbox.Font.Quality = fqDefault
+RestrictSoundsCheckbox.Font.Size = 0
+RestrictSoundsCheckbox.Font.Style = '[]'
+RestrictSoundsCheckbox.Layout = tlTop
+RestrictSoundsCheckbox.ParentBidiMode = true
+RestrictSoundsCheckbox.ParentColor = false
+RestrictSoundsCheckbox.ParentFont = true
+RestrictSoundsCheckbox.ParentShowHint = true
+RestrictSoundsCheckbox.ShowAccelChar = true
+RestrictSoundsCheckbox.ShowHint = false
+RestrictSoundsCheckbox.Transparent = true
+RestrictSoundsCheckbox.Visible = true
+RestrictSoundsCheckbox.WordWrap = false
+RestrictSoundsCheckbox.OptimalFill = false
+RestrictSoundsCheckbox.Checked = true
+
+
+
+IncludeMusicCheckbox = createCheckBox(MainPanel)
+IncludeMusicCheckbox.Tag = 0
+IncludeMusicCheckbox.AnchorSideLeft.Side = asrTop
+IncludeMusicCheckbox.AnchorSideTop.Side = asrTop
+IncludeMusicCheckbox.AnchorSideRight.Side = asrTop
+IncludeMusicCheckbox.AnchorSideBottom.Side = asrTop
+IncludeMusicCheckbox.Left = 60 + 20
+IncludeMusicCheckbox.Height = 15
+IncludeMusicCheckbox.Hint = ''
+IncludeMusicCheckbox.Top = 78 + 20 + 50 + 25 + 20 + 20 + 37 + 40 + 20
+IncludeMusicCheckbox.Width = 112
+IncludeMusicCheckbox.HelpType = htContext
+IncludeMusicCheckbox.HelpKeyword = ''
+IncludeMusicCheckbox.HelpContext = 0
+IncludeMusicCheckbox.Align = alNone
+IncludeMusicCheckbox.Alignment = taLeftJustify
+IncludeMusicCheckbox.Anchors = '[akTop,akLeft]'
+IncludeMusicCheckbox.AutoSize = true
+IncludeMusicCheckbox.BidiMode = bdLeftToRight
+IncludeMusicCheckbox.BorderSpacing.Top = 0
+IncludeMusicCheckbox.Caption = "Include Music"
+IncludeMusicCheckbox.Color = 536870911
+IncludeMusicCheckbox.Constraints.MaxWidth = 0
+IncludeMusicCheckbox.Constraints.MinHeight = 0
+IncludeMusicCheckbox.Constraints.MinWidth = 0
+IncludeMusicCheckbox.Enabled = true
+IncludeMusicCheckbox.Font.Color = 536870912
+IncludeMusicCheckbox.Font.Height = 0
+IncludeMusicCheckbox.Font.Name = 'default'
+IncludeMusicCheckbox.Font.Orientation = 0
+IncludeMusicCheckbox.Font.Pitch = fpDefault
+IncludeMusicCheckbox.Font.Quality = fqDefault
+IncludeMusicCheckbox.Font.Size = 0
+IncludeMusicCheckbox.Font.Style = '[]'
+IncludeMusicCheckbox.Layout = tlTop
+IncludeMusicCheckbox.ParentBidiMode = true
+IncludeMusicCheckbox.ParentColor = false
+IncludeMusicCheckbox.ParentFont = true
+IncludeMusicCheckbox.ParentShowHint = true
+IncludeMusicCheckbox.ShowAccelChar = true
+IncludeMusicCheckbox.ShowHint = false
+IncludeMusicCheckbox.Transparent = true
+IncludeMusicCheckbox.Visible = true
+IncludeMusicCheckbox.WordWrap = false
+IncludeMusicCheckbox.OptimalFill = false
+IncludeMusicCheckbox.Checked = true
 
 
 --------------------
@@ -587,7 +1023,7 @@ ActivateButton.AnchorSideBottom.Side = asrTop
 ActivateButton.Left = 58
 ActivateButton.Height = 53
 ActivateButton.Hint = 'It is recommended that you activate the randomiser while either in the main menu, or in the PoA cutscene, for full-game runs.'
-ActivateButton.Top = 91 + 20 + 20
+ActivateButton.Top = 91 + 20 + 20 + 200 + 20
 ActivateButton.Width = 287
 ActivateButton.HelpType = htContext
 ActivateButton.HelpKeyword = ''
@@ -637,7 +1073,7 @@ CELabel3.AnchorSideBottom.Side = asrTop
 CELabel3.Left = 139
 CELabel3.Height = 15
 CELabel3.Hint = ''
-CELabel3.Top = 153  + 20 + 20
+CELabel3.Top = 153  + 20 + 20 + 200 + 20
 CELabel3.Width = 35
 CELabel3.HelpType = htContext
 CELabel3.HelpKeyword = ''
@@ -689,7 +1125,7 @@ StatusLabel.AnchorSideBottom.Side = asrTop
 StatusLabel.Left = 179
 StatusLabel.Height = 15
 StatusLabel.Hint = ''
-StatusLabel.Top = 153 + 20 + 20
+StatusLabel.Top = 153 + 20 + 20 + 200 + 20
 StatusLabel.Width = 95
 StatusLabel.HelpType = htContext
 StatusLabel.HelpKeyword = ''
@@ -771,6 +1207,13 @@ OffsetVar3 = nil
 OffsetMessageTC = nil
 OffsetTickcount = nil
 OffsetCinematic = nil
+OffsetTagTable = nil
+OffsetParticleFix1Addy = nil
+OffsetParticleFix2Addy = nil
+ParticleFix1Value_Vanilla = {}
+ParticleFix2Value_Vanilla = {}
+ParticleFix1Value_Modified = {}
+ParticleFix2Value_Modified = {}
 
 
 
@@ -791,6 +1234,7 @@ CachedOffsetVar3 = nil
 CachedOffsetMessageTC = nil
 CachedOffsetTickcount = nil
 CachedOffsetCinematic = nil
+CachedOffsetTagTable = nil
 
 number_of_valid_actors = 0
 allActorsTable = {}
@@ -807,6 +1251,7 @@ invalidBipedsTable = {}
 
 invalidUnitStrings_AllLevels = {"flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector"}
 invalidUnitStrings = {{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}} --arranged by level, with 11th level for "unknown level"
+invalidSoundStrings = {"actually nothing"}
 level_index = 11
 debugtdatum = false
 if debugvar then debugtdatum = true end
@@ -884,25 +1329,50 @@ function setOffsets()
 			OffsetVar3 = {0x2A60400}
 			
 			
-			elseif game_version == 2904 then
-			if debugvar then print ("loading offsets for 2904") end
-			OffsetCinematic = {0x2E773D8, 0x0A}
-			OffsetMessageTC = {0x02D68A08, 0x0}
-			OffsetTickcount = {0x2B88764}
 			
-			OffsetLevels = {0x2B611E5}
-			OffsetHaloDLL = {0x3F7BA50, 0x8} 
+			--scan for "rncs", the earlier pair with other tags by it. needs single level pointer
+			OffsetTagTable = {0x1AC8A30, 0x0}
+			
+			
+			
+			--scan nw 44 8B 54 01 34, mov r10d,[rcx+rax+34]
+			OffsetParticleFix1Addy = {0xC3F85F}
+			
+			--string of cc's below above
+			OffsetParticleFix2Addy = {0xC3FC34}
+			
+			--contents of particlefix1addy
+			ParticleFix1Value_Vanilla = {0x44, 0x8B, 0x54, 0x01, 0x34}
+			
+			
+			--jump to location of particlefix2addy
+			ParticleFix1Value_Modified = {0xE9, 0xD0, 0x03, 0x00, 0x00}
+			
+			ParticleFix2Value_Vanilla = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC}
+			
+			--mov r10d, 00000004; jmp to instruction after particlefix1addy
+			ParticleFix2Value_Modified = {0x41, 0xBA, 0x04, 0x00, 0x00, 0x00, 0xE9, 0x25, 0xFC, 0xFF, 0xFF}
+			
+			
+			elseif game_version == 2969 then
+			if debugvar then print ("loading offsets for 2969") end
+			OffsetCinematic = {0x2FFBD28, 0x0A}
+			OffsetMessageTC = {0x02EECD08, 0x0}
+			OffsetTickcount = {0x2CECFD4}
+			
+			OffsetLevels = {0x2CC58A5}
+			OffsetHaloDLL = {0x3F94F90, 0x8} 
 			
 			--scan for non-write 48 C1 F8 05 41 D3 E0. take second of three halo1.dll results.
 			--check what "test [rdi + rax*4+04],r8d" writes to on restarting keys. correct one should be third result. 
-			OffsetSpawnerRNG = { 0x02A1E940, 0x764 }
+			OffsetSpawnerRNG = { 0x02B82ED0, 0x464 }
 			
 			
 			--just whatever writes to offsetvar1 (but put it on the instruction after; mov byte ptr [halo1.dll+2A52D80], 01)
-			OffsetLevelChangeBreakpoint  = {0xA9C455}
+			OffsetLevelChangeBreakpoint  = {0xA948A5}
 			
 			--same process as offsetspawner rng but at test instrution, just scroll down a bit to the imul randy thing. 10 bytes long.
-			OffsetNopBytes1Addy = {0xC77C4A}
+			OffsetNopBytes1Addy = {0xC74ECA}
 			
 			
 			--scan nonwrite 44 0f b7 74 24 32, take first halo dll result. it's the JE just below
@@ -911,62 +1381,85 @@ function setOffsets()
 			--scan non write 88000000 ** ** ** ** ** ** ** ** 00 00 ** ** ** 84 00 00 00
 			--take second of 2 halodll results.
 			--bp needs to go on "mov rcx, r9" just below the end of the last instruction with the r14 + 8400000 thing.
-			OffsetMainBreakpoint1 = {0xC77E57}
+			OffsetMainBreakpoint1 = {0xC750D7}
 			
 			
 			--scan nonw 4c 8b d8 4c 2b df 4c 03 de. take second of three halodll results. 
 			--bp goes on movsx rsi, cx that's inbetween the adds
-			OffsetMainBreakpoint2 = {0xC7A135}
+			OffsetMainBreakpoint2 = {0xC773B5}
 			
 			
 			--scan nw 0f b7 97 80010000
 			--bp on mov[rbx+74], ax that's just below
-			OffsetMainBreakpoint3 = {0xB299C5}
+			OffsetMainBreakpoint3 = {0xB238F7}
 			
 			
 			--scan nw 48 8b c1 49 2b c0 49 03 c2
 			--take second of 3 results
 			--bp goes on cmp bp, -01
-			OffsetMainBreakpoint4 = {0xB399EE}
+			OffsetMainBreakpoint4 = {0xB3328E}
 			
 			--scan nw 48 8b d0 48 2b d3 48 03 , 
 			--take first of 6 results
 			--bp goes on lea rcx,[rax + rax*2]
-			OffsetMainBreakpoint5 = {0xB8BD2E}
+			OffsetMainBreakpoint5 = {0xB3466D}
 			
 			
 			--goes on cmp di, -1, below is je, below is mov ecx,[rcx+10] (we're checking that value in advance and setting edi to 0xFFFF if [rcx+10] is 0xFFFFFFFF
 			--scan nw 66 83 FF FF ** ** ** ** ** ** 8B 49 10
-			OffsetMainBreakpoint6 = {0xDEFBB9}
+			OffsetMainBreakpoint6 = {0xDEAFC9}
 			
 			
-			OffsetMenuIndicator = {0x3E45529}
-			OffsetStateIndicator = {0x3F2FBC9}
-			OffsetGameIndicator = {0x03F7C380, 0x0}
+			OffsetMenuIndicator = {0x3E5DF29}
+			OffsetStateIndicator = {0x3F519E9}
+			OffsetGameIndicator = {0x3F94E90, 0x0}
 			
 			
-			OffsetVar1 = {0x1C77BE8}
+			OffsetVar1 = {0x1DD7668}
 			--scan for writeable 8 bytes with value of offset3 + 0x28 (for keyes)
 			
 			--scan for writeable 8byte 0x0000000050000000. take second of two halo1dll results
-			OffsetVar2 = {0x2E7A588}
+			OffsetVar2 = {0x2FFEEC8}
 			
 			--check what accesses offset2 as you load into keyes. choose one of the many counted subs. near it should be an add, that's offset3.
-			OffsetVar3 = {0x2D741E0}
+			OffsetVar3 = {0x2EF87D8}
+			
+			
+			OffsetTagTable = {0x1DD7668, 0x0}
+			
+			
+			--scan nw 44 8B 54 01 34, mov r10d,[rcx+rax+34]
+			OffsetParticleFix1Addy = {0xC51311}
+			
+			--string of cc's below above
+			OffsetParticleFix2Addy = {0xC516E5}
+			
+			--contents of particlefix1addy
+			ParticleFix1Value_Vanilla = {0x44, 0x8B, 0x54, 0x01, 0x34}
+			
+			
+			--jump to location of particlefix2addy
+			ParticleFix1Value_Modified = {0xE9, 0xCF, 0x03, 0x00, 0x00}
+			
+			ParticleFix2Value_Vanilla = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC}
+			
+			--mov r10d, 00000004; jmp to instruction after particlefix1addy
+			ParticleFix2Value_Modified = {0x41, 0xBA, 0x04, 0x00, 0x00, 0x00, 0xE9, 0x26, 0xFC, 0xFF, 0xFF}
+			
 			
 			
 		end
 		
 		
 		else
-		--WinStore, so assume current version (1.2904)
+		--WinStore, so assume current version (1.2969)
 		if debugvar then print ("we're on Winstore version") end
-		game_version = 2904
+		game_version = 2969
 		OffsetCinematic = {0x2E773D8, 0x0A}
 		OffsetMessageTC = {0x02D68A08, 0x0}
 		OffsetTickcount = {0x2B88764}
 		
-		if debugvar then print ("loading offsets for 2904 winstore") end
+		if debugvar then print ("loading offsets for 2969 winstore") end
 		OffsetLevels = {0x2B611E5}
 		OffsetHaloDLL = {0x03E1F540, 0x8} 
 		
@@ -1077,7 +1570,7 @@ function evalAllPointers()
 	CachedOffsetMessageTC = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetMessageTC))
 	CachedOffsetTickcount = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetTickcount))
 	CachedOffsetCinematic = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetCinematic))
-	
+	CachedOffsetTagTable = evalPointer(tableConcat({CachedOffsetHaloDLL}, OffsetTagTable))
 	
 	
 	
@@ -1197,18 +1690,36 @@ function stringtablecontains(list, x)
 	for _, v in pairs(list) do
 		--print ("v: " .. v .. ", x: " .. x)
 		
-		
-		
-		if string.find(x, v) then 
+		if x ~= nil then 
 			
-			return true 
 			
+			if string.find(x, v) then 
+				
+				return true 
+				
+			end
 		end
 	end
 	return false
 end
 
-
+function stringtablecontainsposition(list, x)
+	if list == {} then
+		return 0
+	end
+	for _, v in pairs(list) do
+		--print ("v: " .. v .. ", x: " .. x)
+		
+		
+		
+		if string.find(x, v) then 
+			
+			return (_) 
+			
+		end
+	end
+	return 0
+end
 
 
 
@@ -1222,6 +1733,16 @@ function contains(list, x)
 	return false
 end
 
+
+function getTagStringFromMemLoc(memloc)
+	local tmemloc = memloc
+	
+	tmemloc = tmemloc - CachedOffsetVar2 + CachedOffsetVar3
+	
+	tmemloc = readString(tmemloc, 0x100)
+	
+	return tmemloc
+end
 
 
 function getTagString(datum)
@@ -1242,7 +1763,7 @@ function getTagString(datum)
 	--if debugvar then print ("actorstring1: " .. tdatum) end
 	tdatum = tdatum - CachedOffsetVar2 + CachedOffsetVar3
 	--if debugvar then print ("actorstring2: 0x" .. DEC_HEX(tdatum)) end
-	tdatum = readString(DEC_HEX(tdatum), 0x100) --string should always have a zero terminator
+	tdatum = readString(tdatum, 0x100) --string should always have a zero terminator
 	--if debugvar then print ("actorstring3: " .. tdatum) end
 	return tdatum
 end
@@ -1307,11 +1828,11 @@ function actorDatum(actor_table_addy, enemy_index)
 end
 
 function table.shallow_copy(t)
-  local t2 = {}
-  for k,v in pairs(t) do
-    t2[k] = v
-  end
-  return t2
+	local t2 = {}
+	for k,v in pairs(t) do
+		t2[k] = v
+	end
+	return t2
 end
 
 
@@ -1324,7 +1845,7 @@ function evaluateInvalidStrings()
 	end
 	
 	if RocketCheckbox.Checked then
-		 table.insert(stringtable, "rocket")
+		table.insert(stringtable, "rocket")
 	end
 	
 	
@@ -1368,15 +1889,15 @@ end
 
 function clearTable(t)
 	local count = #t
-for i=0, count do t[i]=nil end
+	for i=0, count do t[i]=nil end
 end
 
 
-    function Set (list)
-      local set = {}
-      for _, l in ipairs(list) do set[tostring(l)] = true end
-      return set
-    end
+function Set (list)
+	local set = {}
+	for _, l in ipairs(list) do set[tostring(l)] = true end
+	return set
+end
 
 
 function evaluateActors(actor_table_addy)
@@ -1490,6 +2011,12 @@ function debugPrintList(list)
 	end
 end
 
+function debugPrintListHex(list)
+	for index, value in ipairs(list) do
+		print(index, ". ", DEC_HEX(value))
+	end
+end
+
 
 function evaluateLevel()
 	
@@ -1561,7 +2088,7 @@ function PrintMessageTimerLoop()
 	local state = readBytes(process .. "+" .. DEC_HEX(OffsetStateIndicator[1]), 1)
 	local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
 	local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
-	if (game == nil or menu == nil or state == nil) or (not (state == 0xFF and menu == 7 and game == 0)) then
+	if (game == nil or menu == nil or state == nil) or (not (state == 0xFF and menu ~= 0 and game == 0)) then
 		if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. PrintMessageTimer") end
 		return
 	end
@@ -1615,7 +2142,7 @@ function evaluateSeed()
 	end
 	
 	local rocketstring = ""
-		if RocketCheckbox.Checked then
+	if RocketCheckbox.Checked then
 		rocketstring = ", rockets exempt"
 	end
 	
@@ -1630,9 +2157,82 @@ function evaluateSeed()
 	
 end
 
+
+function tableLength(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
+end
+
+function unassembleParticleFix()
+	if debugvar then print ("unassembling particle fix") end
+	
+	local addy1 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetParticleFix1Addy[1]))
+	local addy2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetParticleFix2Addy[1]))
+	
+	if readBytes(addy1, 1) == ParticleFix1Value_Vanilla[1] then
+		if debugvar then print("skipping disassembling particle fix, was already vanilla value") end
+		return
+	end
+	
+	
+	for i=1, tableLength(ParticleFix1Value_Vanilla), 1 do
+		--if debugvar then print ("nopbytes for loop actually being run..") end
+		
+		writeBytes(addy1, ParticleFix1Value_Vanilla[i])
+		addy1 = addy1 + 1
+	end
+	
+	for i=1, tableLength(ParticleFix2Value_Vanilla), 1 do
+		--if debugvar then print ("nopbytes for loop actually being run..") end
+		
+		writeBytes(addy2, ParticleFix2Value_Vanilla[i])
+		addy2 = addy2 + 1
+	end
+	
+	
+	
+	
+	
+end
+
+
+function assembleParticleFix()
+	
+	if debugvar then print ("assembling particle fix") end
+	
+	local addy1 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetParticleFix1Addy[1]))
+	local addy2 = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetParticleFix2Addy[1]))
+	
+	if not (readBytes(addy1, 1) == ParticleFix1Value_Vanilla[1]) then
+		if debugvar then print("skipping assembling particle fix, was already non-vanilla value") end
+		return
+	end
+	
+	
+	for i=1, tableLength(ParticleFix1Value_Modified), 1 do
+		--if debugvar then print ("nopbytes for loop actually being run..") end
+		
+		writeBytes(addy1, ParticleFix1Value_Modified[i])
+		addy1 = addy1 + 1
+	end
+	
+	for i=1, tableLength(ParticleFix2Value_Modified), 1 do
+		--if debugvar then print ("nopbytes for loop actually being run..") end
+		
+		writeBytes(addy2, ParticleFix2Value_Modified[i])
+		addy2 = addy2 + 1
+	end
+	
+	
+	
+end
+
+
+
 function restoreNopBytes()
 	
-
+	
 	
 	
 	local addy = getAddress(DEC_HEX(CachedOffsetHaloDLL) .. "+" .. DEC_HEX(OffsetNopBytes1Addy[1]))
@@ -1642,7 +2242,7 @@ function restoreNopBytes()
 		return
 	end
 	
-		pause()
+	
 	
 	for i=1, 3, 1 do
 		writeBytes(addy, OffsetNopBytes1Value[i])
@@ -1657,12 +2257,16 @@ function restoreNopBytes()
 	end
 	OffsetNopBytes2Value = {}
 	
-	unpause()
+	
 end
+
+
+
+
 
 function nopBytes()
 	
-
+	
 	if debugvar then print("nopBytes is being run at least") end
 	--needed to unrandomise spawn positions in combination with mainBreakpoint1
 	
@@ -1676,7 +2280,7 @@ function nopBytes()
 	end
 	
 	
-		pause()
+	
 	
 	OffsetNopBytes1Value = {}
 	for i=1, 3, 1 do
@@ -1695,13 +2299,13 @@ function nopBytes()
 		writeBytes(addy2, 0x90)
 		addy2 = addy2 + 1
 	end
-
-unpause()
+	
+	
 end
 
 
 
-function mainBreakpoint1Action_2904()
+function mainBreakpoint1Action_2969()
 	if not ingameflag then
 		return
 	end
@@ -1739,10 +2343,10 @@ function setMainBreakpoint1()
 			mainBreakpoint1Action_2645()
 			return 0
 		end)
-		elseif game_version == 2904 then
+		elseif game_version == 2969 then
 		--blah blah, different registeers
 		debug_setBreakpoint(CachedOffsetMainBreakpoint1,function()
-			mainBreakpoint1Action_2904()
+			mainBreakpoint1Action_2969()
 			return 0
 		end)
 		else
@@ -1766,9 +2370,9 @@ function test1()
 	
 	
 	for i = 1, 1000000, 1 do
-	flag = contains(invalidActorsTable, last_unit)
+		flag = contains(invalidActorsTable, last_unit)
 	end
-		if debugvar then print("finished test1, took " .. os.clock()-nClock .. " seconds.") end
+	if debugvar then print("finished test1, took " .. os.clock()-nClock .. " seconds.") end
 end
 
 --new method using set ~0.167s
@@ -1779,9 +2383,9 @@ function test2()
 	
 	
 	for i = 1, 1000000, 1 do
-	flag = fastInvalidActorsTable[tostring(last_unit)]
+		flag = fastInvalidActorsTable[tostring(last_unit)]
 	end
-		if debugvar then print("finished test2, took " .. os.clock()-nClock .. " seconds.") end
+	if debugvar then print("finished test2, took " .. os.clock()-nClock .. " seconds.") end
 end
 
 
@@ -1801,8 +2405,8 @@ function mainBreakpoint2Action()
 	
 	--big performance improvement here. we're using ideas from this stack overflow post https://stackoverflow.com/questions/2282444/how-to-check-if-a-table-contains-an-element-in-lua
 	if fastInvalidActorsTable[tostring(last_unit)] then 
-	--if debugvar then print ("returnning on invalid unit") end
-	return
+		--if debugvar then print ("returnning on invalid unit") end
+		return
 	end
 	
 	
@@ -1844,7 +2448,7 @@ function setMainBreakpoint2()
 			mainBreakpoint2Action()
 			return 0
 		end)
-		elseif game_version == 2904 then
+		elseif game_version == 2969 then
 		--blah blah, different registeers
 		debug_setBreakpoint(CachedOffsetMainBreakpoint2,function()
 			if need_to_evaluate_actors then
@@ -2001,7 +2605,7 @@ function setMainBreakpoint5()
 			mainBreakpoint5Action_2645()
 			return 0
 		end)
-		elseif game_version == 2904 then
+		elseif game_version == 2969 then
 		--i'm not sure but it might use the same registers, need to double check behaviour but assuming so for now
 		debug_setBreakpoint(CachedOffsetMainBreakpoint5, 4, 0, 1,function()
 			if need_to_evaluate_bipeds and readString(RDX, 4) == "dpib" then
@@ -2054,10 +2658,387 @@ function setMainBreakpoint6()
 	
 end
 
+local function ShuffleInPlace(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+	end
+end
+
+
+function randomiseSounds()
+	local seed_num = seed_number
+	local tagindex = 0
+	local offset = 0x10 -- change datum of tag
+	local continueloop1 = true
+	local continueloop2 = true
+	local tagtableaddy = CachedOffsetTagTable
+	local restrictbytype = RestrictSoundsCheckbox.Checked
+	local includemusic = IncludeMusicCheckbox.Checked
+	local classtable = {"dialog", "impulse", "ambience", "sfx", "music"} --order matters, match will be made with earliest in list if multiple matches
+	
+	local tag_misc = {} -- everything that doesn't match goes in here
+	local tag_dialog = {}
+	local tag_impulse = {}
+	local tag_ambience = {}
+	local tag_sfx = {}
+	local tag_music = {} -- for includemusic
+	
+	
+	
+	if debugvar then print ("CachedOffsetTagTable: " .. DEC_HEX(CachedOffsetTagTable)) end
+	
+	
+	
+	while continueloop1 do 
+		local workingaddy = tagtableaddy + (tagindex * 0x20)
+		
+		continueloop1 = (readString(workingaddy, 4)  ~= "leve")
+		
+		--if debugvar then print ("readstring1: " .. readString(workingaddy, 4)) end
+		
+		
+		if readString(workingaddy, 4) == "!dns" then
+			local tagstring = getTagString(readInteger(workingaddy+0xC))
+			local tagtype = stringtablecontainsposition(classtable, tagstring)
+			
+			
+			
+			if restrictbytype then
+				if tagtype == 0 then 
+					table.insert(tag_misc, readInteger(workingaddy+offset))
+					elseif tagtype == 1 then
+					table.insert(tag_dialog, readInteger(workingaddy+offset))
+					elseif tagtype == 2 then
+					table.insert(tag_impulse, readInteger(workingaddy+offset))
+					elseif tagtype == 3 then
+					table.insert(tag_ambience, readInteger(workingaddy+offset))
+					elseif tagtype == 4 then
+					table.insert(tag_sfx, readInteger(workingaddy+offset))
+					elseif tagtype == 5 then
+					table.insert(tag_music, readInteger(workingaddy+offset))
+				end
+				
+				else
+				if tagtype == 5 then
+					table.insert(tag_music, readInteger(workingaddy+offset))
+					else
+					table.insert(tag_misc, readInteger(workingaddy+offset))
+				end
+				
+			end
+	
+			
+		end
+	
+		
+		tagindex = tagindex + 1
+		
+	end
+	
+	
+	
+	
+	
+	if debugvar then print("tag_music count: " .. tableLength(tag_music)) end
+	if debugvar then print("tag_misc count: " .. tableLength(tag_misc)) end
+	if debugvar then print("tag_dia count: " .. tableLength(tag_dialog)) end
+	if debugvar then print("tag_impulse count: " .. tableLength(tag_impulse)) end
+	if debugvar then print("tag_amb count: " .. tableLength(tag_ambience)) end
+	if debugvar then print("tag_sfx count: " .. tableLength(tag_sfx)) end
+	--note to self - what happens if a table is empty? prolly error
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_music)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_misc)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_dialog)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_impulse)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_ambience)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_sfx)
+	
+	
+	
+	
+	
+	local successcount_misc = 1
+	local successcount_dialog = 1
+	local successcount_impulse = 1
+	local successcount_ambience = 1
+	local successcount_sfx = 1
+	local successcount_music = 1
+	
+	tagindex = 0
+	
+	while continueloop2 do 
+		local workingaddy = tagtableaddy + (tagindex * 0x20)
+		
+		continueloop2 = (readString(workingaddy, 4)  ~= "leve")
+		
+		if readString(workingaddy, 4) == "!dns" then
+			local tagstring = getTagString(readInteger(workingaddy+0xC))
+			local tagtype = stringtablecontainsposition(classtable, tagstring)
+			
+
+			
+			
+			
+				
+				if restrictbytype then
+					if tagtype == 0 then 
+						writeInteger(workingaddy + offset, tag_misc[successcount_misc])
+						successcount_misc = successcount_misc + 1
+						elseif tagtype == 1 then
+						local last_datum = readInteger(workingaddy + offset)
+						
+						writeInteger(workingaddy + offset, tag_dialog[successcount_dialog])
+						successcount_dialog = successcount_dialog + 1
+						elseif tagtype == 2 then
+						writeInteger(workingaddy + offset, tag_impulse[successcount_impulse])
+						successcount_impulse = successcount_impulse + 1
+						elseif tagtype == 3 then
+						writeInteger(workingaddy + offset, tag_ambience[successcount_ambience])
+						successcount_ambience = successcount_ambience + 1
+						elseif tagtype == 4 then
+						writeInteger(workingaddy + offset, tag_sfx[successcount_sfx])
+						successcount_sfx = successcount_sfx + 1
+						elseif tagtype == 5 then
+						writeInteger(workingaddy + offset, tag_music[successcount_music])
+						successcount_music = successcount_music + 1
+					end
+					
+					else
+					
+					if tagtype == 5 then
+						if includemusic then
+							writeInteger(workingaddy + offset, tag_music[successcount_music])
+							successcount_music = successcount_music + 1
+						end
+						else
+						writeInteger(workingaddy + offset, tag_misc[successcount_misc])
+						successcount_misc = successcount_misc + 1
+					end
+					
+				end
+			end
+		
+		tagindex = tagindex + 1
+	end
+	
+	
+	
+	if debugvar then
+		print ("successcount_misc " .. successcount_misc)
+		print ("successcount_dialog " .. successcount_dialog)
+		print ("successcount_impulse " .. successcount_impulse)
+		print ("successcount_ambience " .. successcount_ambience)
+		print ("successcount_sfx " .. successcount_sfx)
+		print ("successcount_music" .. successcount_music)
+		
+		print("tablelength misc" .. tableLength(tag_misc))
+		print("tablelength dialog" .. tableLength(tag_dialog))
+		print("tablelength impulse" .. tableLength(tag_impulse))
+		print("tablelength ambience" .. tableLength(tag_ambience))
+		print("tablelength sfx" .. tableLength(tag_sfx))
+		print("tablelength music" .. tableLength(tag_music))
+		
+		
+		debugPrintListHex(tag_dialog)
+	
+	end
+	
+	
+	
+end
+
+function randomiseTextures()
+	
+	local seed_num = seed_number
+	local tagindex = 0
+	local offset = 0x14 -- change datum of tag
+	local continueloop1 = true
+	local continueloop2 = true
+	local tagtableaddy = CachedOffsetTagTable
+	local restrictbytype = RestrictTexturesCheckbox.Checked
+	local classtable = {"rasterizer", "ui", "characters", "effects", "levels", "scenery", "sky", "vehicles", "weapons"} --order matters, match will be made with earliest in list if multiple matches
+	--rasterizer and ui will NOT be randomised cos crashes
+	local tag_misc = {} -- everything that doesn't match goes in here
+	local tag_characters = {}
+	local tag_effects = {}
+	local tag_levels = {}
+	local tag_scenery = {}
+	local tag_sky = {} 
+	local tag_vehicles = {} 
+	local tag_weapons = {} 
+	
+	
+	
+	
+	
+	
+	
+	while continueloop1 do 
+		local workingaddy = tagtableaddy + (tagindex * 0x20)
+		
+		continueloop1 = (readString(workingaddy, 4)  ~= "leve")
+		
+		--if debugvar then print ("readstring1: " .. readString(workingaddy, 4)) end
+		
+		
+		if readString(workingaddy, 4) == "mtib" then
+			local tagstring = getTagString(readInteger(workingaddy+0xC))
+			local tagtype = stringtablecontainsposition(classtable, tagstring)
+			
+			
+			if restrictbytype then
+				if tagtype == 0 then 
+					table.insert(tag_misc, readInteger(workingaddy+offset))
+					elseif tagtype == 3 then
+					table.insert(tag_characters, readInteger(workingaddy+offset))
+					elseif tagtype == 4 then
+					table.insert(tag_effects, readInteger(workingaddy+offset))
+					elseif tagtype == 5 then
+					table.insert(tag_levels, readInteger(workingaddy+offset))
+					elseif tagtype == 6 then
+					table.insert(tag_scenery, readInteger(workingaddy+offset))
+					elseif tagtype == 7 then
+					table.insert(tag_sky, readInteger(workingaddy+offset))
+					elseif tagtype == 8 then
+					table.insert(tag_vehicles, readInteger(workingaddy+offset))
+					elseif tagtype == 9 then
+					table.insert(tag_weapons, readInteger(workingaddy+offset))
+				end
+				
+				else
+				if tagtype == 0 then
+					table.insert(tag_misc, {readInteger(workingaddy+offset),readInteger(workingaddy+offset-4)})
+					elseif tagtype &gt; 2 then
+					table.insert(tag_misc, {readInteger(workingaddy+offset),readInteger(workingaddy+offset-4)})
+				end
+				
+			end
+		end
+		
+		tagindex = tagindex + 1
+		
+	end
+	
+	
+	
+	
+	
+	if debugvar then print("tex: tag_misc count: " .. tableLength(tag_misc)) end
+	
+	--note to self - what happens if a table is empty? prolly error
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_misc)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_characters)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_effects)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_levels)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_scenery)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_sky)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_vehicles)
+	math.randomseed(seed_num)
+	ShuffleInPlace(tag_weapons)
+	
+	
+	
+	
+	
+	local successcount_misc = 1
+	local successcount_characters = 1
+	local successcount_effects = 1
+	local successcount_levels = 1
+	local successcount_scenery = 1
+	local successcount_sky = 1
+	local successcount_vehicles = 1
+	local successcount_weapons = 1
+	
+	tagindex = 0
+	
+	while continueloop2 do 
+		local workingaddy = tagtableaddy + (tagindex * 0x20)
+		
+		continueloop2 = (readString(workingaddy, 4)  ~= "leve")
+		
+		if readString(workingaddy, 4) == "mtib" then
+			local tagstring = getTagString(readInteger(workingaddy+0xC))
+			local tagtype = stringtablecontainsposition(classtable, tagstring)
+			
+			--print ("tagstring: " .. tagstring .. " @ tagindex: " .. tagindex)
+			
+			
+			if restrictbytype then
+				if tagtype == 0 then 
+					
+					writeInteger(workingaddy + offset, tag_misc[successcount_misc])
+					
+					successcount_misc = successcount_misc + 1
+					elseif tagtype == 3 then
+					writeInteger(workingaddy + offset, tag_characters[successcount_characters])
+					successcount_characters = successcount_characters+ 1
+					elseif tagtype == 4 then
+					writeInteger(workingaddy + offset, tag_effects[successcount_effects])
+					successcount_effects = successcount_effects + 1
+					elseif tagtype == 5 then
+					writeInteger(workingaddy + offset, tag_levels[successcount_levels])
+					successcount_levels = successcount_levels + 1
+					elseif tagtype == 6 then
+					writeInteger(workingaddy + offset, tag_scenery[successcount_scenery])
+					successcount_scenery = successcount_scenery + 1
+					elseif tagtype == 7 then
+					writeInteger(workingaddy + offset, tag_sky[successcount_sky])
+					successcount_sky = successcount_sky + 1
+					elseif tagtype == 8 then
+					writeInteger(workingaddy + offset, tag_vehicles[successcount_vehicles])
+					successcount_vehicles = successcount_vehicles + 1
+					elseif tagtype == 9 then
+					writeInteger(workingaddy + offset, tag_weapons[successcount_weapons])
+					successcount_weapons = successcount_weapons + 1
+				end
+				
+				else
+				
+				if tagtype == 0 or tagtype &gt; 2 then
+					if successcount_misc &lt; test_value then
+						writeInteger(workingaddy + offset, tag_misc[successcount_misc][1])
+						writeInteger(workingaddy + offset -4, tag_misc[successcount_misc][2])
+					end
+					
+					
+					
+					
+					successcount_misc = successcount_misc + 1
+				end
+				
+			end
+		end
+		tagindex = tagindex + 1
+	end
+	
+	
+	if debugvar then print ("tex_misc count: " .. successcount_misc) end
+	
+	
+	
+	
+	
+end
 
 
 
-function LevelChangeBreakpointAction()
+
+
+function LevelChangeBreakpointAction(natural_hit)
 	if debugvar then print("LevelChangeBreakpoint HIT!") end
 	if not seed_evaluated then
 		evaluateSeed()
@@ -2082,7 +3063,7 @@ function LevelChangeBreakpointAction()
 	
 	
 	
-	if (game == nil or menu == nil or state == nil) or (not (menu == 7 and game == 0)) then
+	if (game == nil or menu == nil or state == nil) or (not (menu ~= 0 and game == 0)) then
 		if game == nil then game = "nil" end
 		if menu == nil then menu = "nil" end
 		if state == nil then state = "nil" end
@@ -2112,22 +3093,42 @@ function LevelChangeBreakpointAction()
 	--level_index = evaluateLevel()
 	
 	--nop bytes related to vanilla spawn rng as we want consistent positions per our seed
-	
-	
-	--set flag so we evaluate actor list for this level and make table of valid actv indexes to randomize into
-	need_to_evaluate_actors = true
-	need_to_evaluate_bipeds = true
-	
 	evalAllPointers()
-	--set our breakpoints
-	--setLevelChangeBreakpoint()
-	setMainBreakpoint1()
-	setMainBreakpoint2()
-	setMainBreakpoint3()
-	setMainBreakpoint4()
-	setMainBreakpoint5()
-	setMainBreakpoint6()
+	if RandomiseEnemiesCheckbox.Checked then
+		--set flag so we evaluate actor list for this level and make table of valid actv indexes to randomize into
+		need_to_evaluate_actors = true
+		need_to_evaluate_bipeds = true
+		
+		
+		--set our breakpoints
+		--setLevelChangeBreakpoint()
+		setMainBreakpoint1()
+		setMainBreakpoint2()
+		setMainBreakpoint3()
+		setMainBreakpoint4()
+		setMainBreakpoint5()
+		setMainBreakpoint6()
+	end
+	
+	pause()
 	nopBytes()
+	
+	
+	if natural_hit then
+		if RandomiseTexturesCheckbox.Checked then
+			assembleParticleFix()
+			randomiseTextures()
+			
+		end
+		
+		if RandomiseSoundsCheckbox.Checked and game_version == 2645 then
+			randomiseSounds()
+		end
+		
+		
+	end
+	unpause()
+	
 	
 	
 end
@@ -2149,7 +3150,7 @@ function setLevelChangeBreakpoint()
 	if debugvar then print("levelchangebreakpoint set at: " .. DEC_HEX(CachedOffsetLevelChangeBreakpoint)) end
 	
 	debug_setBreakpoint(CachedOffsetLevelChangeBreakpoint, 1, 0, 1, function()
-		LevelChangeBreakpointAction()
+		LevelChangeBreakpointAction(true)
 		return 0
 	end)
 	
@@ -2157,7 +3158,7 @@ function setLevelChangeBreakpoint()
 	
 	
 	
-	LevelChangeBreakpointAction() --call onceoff
+	LevelChangeBreakpointAction(false) --call onceoff
 	
 	--TODO need to check if we're already in-game, if so run LevelChangeBreakpointAction()
 	
@@ -2220,16 +3221,16 @@ function HaloDLLChangeBreakpointAction()
 	evalAllPointers()
 	--set our breakpoints
 	setLevelChangeBreakpoint()
-	setMainBreakpoint1()
-	setMainBreakpoint2()
-	setMainBreakpoint3()
-	setMainBreakpoint4()
-	setMainBreakpoint5()
-	setMainBreakpoint6()
-	nopBytes()
+	--setMainBreakpoint1()
+	--setMainBreakpoint2()
+	--setMainBreakpoint3()
+	--setMainBreakpoint4()
+	--setMainBreakpoint5()
+	--setMainBreakpoint6()
+	--nopBytes()
 	
 	--if already in-game, run levelchangebreakpoint (check happens in there)
-	LevelChangeBreakpointAction()
+	LevelChangeBreakpointAction(false)
 	
 	
 end
@@ -2298,7 +3299,7 @@ function lowerActivationTimerLoop()
 		local menu = readBytes(process .. "+" .. DEC_HEX(OffsetMenuIndicator[1]), 1)
 		local game = readBytes("[" .. process .. "+" .. DEC_HEX(OffsetGameIndicator[1]) .. "]+" .. DEC_HEX(OffsetGameIndicator[2]), 1)
 		
-		if (game == nil or menu == nil or state == nil) or (not (menu == 7 and game == 0)) then
+		if (game == nil or menu == nil or state == nil) or (not (menu ~= 0 and game == 0)) then
 			if debugvar then print("one of these conditions wasn't met: " .. state .. " " .. menu .. " " .. game .. ", t. lowerActivationTimer") end
 			ingameflag = false
 			
@@ -2342,28 +3343,31 @@ reOpenProcessesTimer.OnTimer = reOpenProcessesTimerLoop
 
 
 function lockUI(flag)
+	RB_randomseed.Enabled = not flag
+	RB_setseed.Enabled = not flag
+	
+	PopcornCheckbox.Enabled = not flag
+	RocketCheckbox.Enabled = not flag
+	RandomiseEnemiesCheckbox.Enabled = not flag
+	RandomiseTexturesCheckbox.Enabled = not flag
+	RandomiseSoundsCheckbox.Enabled = not flag
+	IncludeMusicCheckbox.Enabled = not flag
+	RestrictSoundsCheckbox.Enabled = not flag
+	RestrictTexturesCheckbox.Enabled = not flag
 	if flag then
-		RB_randomseed.Enabled = false
-		RB_setseed.Enabled = false
-		Edit_Seed.Enabled = false
-		PopcornCheckbox.Enabled = false
-		RocketCheckbox.Enabled = false
+		Edit_Seed.Enabled = not flag
 		else
-		RB_randomseed.Enabled = true
-		RB_setseed.Enabled = true
 		Edit_Seed.Enabled = RB_setseed.Checked
-		PopcornCheckbox.Enabled = true
-		RocketCheckbox.Enabled = true
-		
 	end
 end
 
 function restoreGameData()
-
-
-			restoreNopBytes()
-
-
+	
+	pause()
+	restoreNopBytes()
+	--unassembleParticleFix()
+	unpause()
+	
 end
 
 function deactivate()
@@ -2393,7 +3397,7 @@ function deactivate()
 		debug_removeBreakpoint(CachedOffsetHaloDLLChangeBreakpoint)
 		
 		pcall(restoreGameData)
-
+		
 	end
 	
 	
@@ -2442,11 +3446,11 @@ function tryToActivate(callingfunc)
 			if steam_flag then
 				game_version = getVersion()
 				else
-				game_version = 2904
+				game_version = 2969
 			end
 			
 			
-			if game_version ~= 2645 and game_version ~= 2904 then
+			if game_version ~= 2645 and game_version ~= 2969 then
 				--uh oh! invalid version!
 				game_version = nil
 				deactivate()
@@ -2962,7 +3966,7 @@ CELabel6.AutoSize = true
 CELabel6.BidiMode = bdLeftToRight
 CELabel6.BorderSpacing.Top = 0
 CELabel6.Caption = "Requires Cheatengine to be installed. \nRemember to run MCC with anticheat disabled. \n" ..
-"Supports current patch (v2904) as of 19th of August, 2022, \nas well as Season 8 (v2645). \n\n" ..
+"Supports current patch (v2969) as of 19th of August, 2022, \nas well as Season 8 (v2645). \n\n" ..
 "The 'Don't Randomise Popcorn' setting makes it so popcorn (infection forms) \ncan't get randomised into other enemies. \nI recommend leaving this option disabled to make for a more fun \n(and chaotic, and challenging) experience, but YMMV. \n\n" ..
 "COOP: To play coop, both players must use the 'Set Seed' setting, \nand use the exact same seed. \nPreferably activate the randomiser while still in the lobby menu. "
 CELabel6.Color = 536870911
@@ -3019,6 +4023,17 @@ function aboutButtonClicked()
 	
 end
 
+last_sound = "nil"
+function debugSound()
+	
+	debug_removeBreakpoint("halo1.dll+b1b440")
+	debug_setBreakpoint("halo1.dll+b1b440", 3, 0, 1, function()
+		last_sound = getTagString(RCX)
+		return 0
+	end)
+	
+end
+
 
 
 
@@ -3047,3 +4062,22 @@ CEER.OnClose = function(sender)
 	return caFree
 end
 
+
+-- returnval = 0
+
+
+-- function debugger_onBreakpoint()
+	-- return returnval
+	
+	
+-- end
+
+-- function changereturnval()
+	-- if returnval == 0 then
+		-- returnval = 1 
+		-- else
+		-- returnval = 0
+	-- end
+-- end
+
+-- hotkey1 = createHotkey(changereturnval, VK_F3)
