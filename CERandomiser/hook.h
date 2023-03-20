@@ -1,9 +1,10 @@
 #pragma once
-
-//#include <cinttypes>
-//#include "pointer.h"
 #include "multilevel_pointer.h"
-class IHook {
+
+
+
+// Base class with management stuff
+class Hook {
 protected:
 	std::wstring mHookName;
 	std::wstring mAssociatedModule; // used to know if a hook should be reattached or attached on dll load/unload
@@ -11,11 +12,11 @@ protected:
 	bool mShouldBeEnabled = false;
 	bool mInstalled = false;
 public:
-	// Contracts
-	virtual void attach() { PLOG_DEBUG << "this should always be overridden"; };
-	virtual void detach() { PLOG_DEBUG << "this should always be overridden"; };
+	// Contracts - must be overridden
+	virtual void attach() = 0;
+	virtual void detach() = 0;
 
-	IHook(const std::wstring& hook_name, bool startEnabled, std::wstring associatedModule)
+	Hook(const std::wstring& hook_name, bool startEnabled, const std::wstring& associatedModule)
 		: mHookName(hook_name), mAssociatedModule(associatedModule), mShouldBeEnabled(startEnabled)
 	{}
 
@@ -28,24 +29,21 @@ public:
 	void update_state();
 };
 
-class inline_hook : public IHook {
+class InlineHook : public Hook {
 private:
-
 	MultilevelPointer* mOriginalFunction = nullptr;
 	void* mHookFunction;
 	safetyhook::InlineHook mInlineHook;
 
-
-
 public:
-	inline_hook(const std::wstring& hook_name, multilevel_pointer* original_func, void* new_func, bool startEnabled = false, std::wstring associatedModule = L"")
-		: IHook(hook_name, startEnabled, associatedModule), mOriginalFunction(original_func), mHookFunction(new_func)
+	InlineHook(const std::wstring& hook_name, MultilevelPointer* original_func, void* new_func, bool startEnabled = false, std::wstring associatedModule = L"")
+		: Hook(hook_name, startEnabled, associatedModule), mOriginalFunction(original_func), mHookFunction(new_func)
 	{}
 	
-	~inline_hook() = default;
+	~InlineHook() = default;
 
-	void attach();
-	void detach();
+	void attach() final;
+	void detach() final;
 
 	safetyhook::InlineHook& getInlineHook();
 
@@ -57,26 +55,22 @@ private:
 
 
 
-class mid_hook : public IHook {
+class MidHook : public Hook {
 private:
-
-
 	MultilevelPointer* mOriginalFunction = nullptr;
 	safetyhook::MidHookFn mHookFunction;
 	safetyhook::MidHook mMidHook;
 
-
-
 public:
-
-	mid_hook(const std::wstring& hook_name, multilevel_pointer* original_func, safetyhook::MidHookFn new_func, bool startEnabled = false, std::wstring associatedModule = L"")
-		: IHook(hook_name, startEnabled, associatedModule), mOriginalFunction(original_func), mHookFunction(new_func)
+	// TODO: replace MidHookFn type with a template or std::function
+	MidHook(const std::wstring& hook_name, MultilevelPointer* original_func, safetyhook::MidHookFn new_func, bool startEnabled = false, std::wstring associatedModule = L"")
+		: Hook(hook_name, startEnabled, associatedModule), mOriginalFunction(original_func), mHookFunction(new_func)
 	{}
 
-	~mid_hook() = default;
+	~MidHook() = default;
 
-	void attach();
-	void detach();
+	void attach() final;
+	void detach() final;
 
 
 private:

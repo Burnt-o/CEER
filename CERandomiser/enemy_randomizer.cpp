@@ -110,8 +110,8 @@ pointer* p_Hook_EvaluateEncounter = new pointer(std::wstring(L"halo1.dll"), { 0x
 
 
 //hooks objects
-mid_hook* mh_Hook_SpawnActvByIndex = new mid_hook(L"Hook_SpawnActvByIndex", p_Hook_SpawnActvByIndex, Hook_SpawnActvByIndex, false, L"halo1.dll");
-mid_hook* mh_Hook_EvaluateEncounter = new mid_hook(L"Hook_EvaluateEncounter", p_Hook_EvaluateEncounter, Hook_EvaluateEncounter, false, L"halo1.dll");
+MidHook* mh_Hook_SpawnActvByIndex = new MidHook(L"Hook_SpawnActvByIndex", p_Hook_SpawnActvByIndex, Hook_SpawnActvByIndex, false, L"halo1.dll");
+MidHook* mh_Hook_EvaluateEncounter = new MidHook(L"Hook_EvaluateEncounter", p_Hook_EvaluateEncounter, Hook_EvaluateEncounter, false, L"halo1.dll");
 
 
 //hook functions

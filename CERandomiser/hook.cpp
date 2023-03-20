@@ -7,13 +7,13 @@
 
 
 
-const std::wstring& IHook::hook_name()
+const std::wstring& Hook::hook_name()
 {
 	return this->mHookName;
 }
 
 
-const std::wstring& IHook::associated_module()
+const std::wstring& Hook::associated_module()
 {
 	return this->mAssociatedModule;
 }
@@ -21,7 +21,7 @@ const std::wstring& IHook::associated_module()
 
 
 
-void inline_hook::hook_install(void* old_func, void* new_func)
+void InlineHook::hook_install(void* old_func, void* new_func)
 {
 	// Acquire the factory's builder which will freeze all threads and give
 	// us access to the hook creation methods.
@@ -33,14 +33,14 @@ void inline_hook::hook_install(void* old_func, void* new_func)
 	// factory will be kept alive by member mInlineHook.
 }
 
-void mid_hook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
+void MidHook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
 {
 	auto builder = SafetyHookFactory::acquire();
 	this->mMidHook = builder.create_mid(old_func, new_func);
 }
 
 
-void inline_hook::attach()
+void InlineHook::attach()
 {
 	PLOG_DEBUG << "inline_hook attempting attach: " << this->mHookName;
 	PLOG_VERBOSE << "hookFunc " << this->mHookFunction;
@@ -79,7 +79,7 @@ void inline_hook::attach()
 
 }
 
-void mid_hook::attach()
+void MidHook::attach()
 {
 	PLOG_DEBUG << "mid_hook attempting attach: " << this->mHookName;
 	if (this->mInstalled) {
@@ -118,7 +118,7 @@ void mid_hook::attach()
 	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction;
 }
 
-void inline_hook::detach()
+void InlineHook::detach()
 {
 	PLOG_DEBUG << "detaching hook: " << this->mHookName;
 	if (!this->mInstalled) {
@@ -133,7 +133,7 @@ void inline_hook::detach()
 	this->mInlineHook = {};
 }
 
-void mid_hook::detach()
+void MidHook::detach()
 {
 	PLOG_DEBUG << "detaching hook: " << this->mHookName;
 	if (!this->mInstalled) {
@@ -152,14 +152,14 @@ void mid_hook::detach()
 
 
 
-void* IHook::installed_at()
+void* Hook::installed_at()
 {
 	return this->mInstalledAt;
 }
 
 
 
-void IHook::update_state()
+void Hook::update_state()
 {
 	if (this->mShouldBeEnabled)
 	{
@@ -173,7 +173,7 @@ void IHook::update_state()
 
 
 
-void IHook::set_WantsToBeEnabled(bool value)
+void Hook::set_WantsToBeEnabled(bool value)
 {
 	if (this->mShouldBeEnabled != value)
 	{
@@ -185,13 +185,13 @@ void IHook::set_WantsToBeEnabled(bool value)
 
 
 
-bool IHook::get_WantsToBeEnabled()
+bool Hook::get_WantsToBeEnabled()
 {
 	return this->mShouldBeEnabled;
 }
 
 
-safetyhook::InlineHook& inline_hook::getInlineHook()
+safetyhook::InlineHook& InlineHook::getInlineHook() 
 {
 	return this->mInlineHook;
 }

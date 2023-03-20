@@ -13,7 +13,7 @@ private:
 	bool readString(std::string& resolvedOut) const; // special case of readData that handles short-string-optimization
 
 protected:
-	bool dereference_pointer(void* base, std::vector<int64_t> offsets, void** resolvedOut) const;
+	bool dereferencePointer(void* base, std::vector<int64_t> offsets, void** resolvedOut) const;
 	static std::stringstream* SetLastErrorByRef()
 	{
 		mLastError.clear();

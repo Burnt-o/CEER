@@ -9,5 +9,5 @@ namespace enemy_randomizer_manager
 	void er_load_entities();
 }
 
-extern mid_hook* mh_Hook_SpawnActvByIndex;
-extern mid_hook* mh_Hook_EvaluateEncounter;
+extern MidHook* mh_Hook_SpawnActvByIndex;
+extern MidHook* mh_Hook_EvaluateEncounter;
