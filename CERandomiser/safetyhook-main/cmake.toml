@@ -1,0 +1,58 @@
+# Reference: https://build-cpp.github.io/cmkr/cmake-toml
+[project]
+name = "safetyhook"
+
+[options]
+SAFETYHOOK_BUILD_TESTS = false
+
+[conditions]
+build-tests = "SAFETYHOOK_BUILD_TESTS"
+
+[vcpkg]
+version = "2022.07.25"
+packages = ["bddisasm"]
+
+[find-package]
+bddisasm = { required = false }
+
+[target.safetyhook]
+type = "static"
+sources = ["src/**.cpp", "src/**.hpp", "include/**.hpp"]
+include-directories = ["include/"]
+compile-features = ["cxx_std_17"]
+compile-definitions = ["NOMINMAX"]
+link-libraries = ["bddisasm::bddisasm", "ntdll"]
+alias = "safetyhook::safetyhook"
+msvc.private-compile-options = ["/permissive-", "/W4", "/w14640"]
+clang.private-compile-options = ["-Wall", "-Wextra", "-Wshadow", "-Wnon-virtual-dtor", "-pedantic"]
+gcc.private-compile-options = ["-Wall", "-Wextra", "-Wshadow", "-Wnon-virtual-dtor", "-pedantic"]
+
+[target.test0]
+condition = "build-tests"
+type = "executable"
+sources = ["tests/test0.cpp"]
+link-libraries = ["safetyhook::safetyhook"]
+
+[target.test1]
+condition = "build-tests"
+type = "executable"
+sources = ["tests/test1.cpp"]
+link-libraries = ["safetyhook::safetyhook"]
+
+[target.test2]
+condition = "build-tests"
+type = "executable"
+sources = ["tests/test2.cpp"]
+link-libraries = ["safetyhook::safetyhook"]
+
+[target.test3]
+condition = "build-tests"
+type = "executable"
+sources = ["tests/test3.cpp"]
+link-libraries = ["safetyhook::safetyhook"]
+
+[target.test4]
+condition = "build-tests"
+type = "executable"
+sources = ["tests/test4.cpp"]
+link-libraries = ["safetyhook::safetyhook"]
