@@ -27,19 +27,16 @@
     <ClInclude Include="global_kill.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dll_cache.h">
+    <ClInclude Include="ModuleCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pointer.h">
+    <ClInclude Include="Hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hook_manager.h">
+    <ClInclude Include="HookManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enemy_randomizer.h">
@@ -77,13 +74,10 @@
     <ClCompile Include="windows_utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dll_cache.cpp">
+    <ClCompile Include="ModuleCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pointer.cpp">
+    <ClCompile Include="Hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="config_window.cpp">
@@ -92,10 +86,7 @@
     <ClCompile Include="enemy_randomizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hook_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="midhook_context_interpreter.cpp">
+    <ClCompile Include="HookManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="multilevel_pointer.cpp">

@@ -122,10 +122,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;CERANDOMISER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Users\mauri\source\repos\plog-master\include;$(SolutionDir)\safetyhook-main\src;$(SolutionDir)\safetyhook-main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,10 +142,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;CERANDOMISER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Users\mauri\source\repos\plog-master\include;$(SolutionDir)\safetyhook-main\src;$(SolutionDir)\safetyhook-main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,33 +158,45 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="config_window.h" />
-    <ClInclude Include="dll_cache.h" />
+    <ClInclude Include="ModuleCache.h" />
     <ClInclude Include="expected_exception.h" />
     <ClInclude Include="global_kill.h" />
-    <ClInclude Include="hook.h" />
-    <ClInclude Include="hook_manager.h" />
+    <ClInclude Include="Hook.h" />
+    <ClInclude Include="HookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
     <ClInclude Include="multilevel_pointer.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="pointer.h" />
     <ClInclude Include="enemy_randomizer.h" />
     <ClInclude Include="windows_utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="config_window.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="dll_cache.cpp" />
-    <ClCompile Include="hook.cpp" />
-    <ClCompile Include="hook_manager.cpp" />
-    <ClCompile Include="midhook_context_interpreter.cpp" />
+    <ClCompile Include="ModuleCache.cpp" />
+    <ClCompile Include="Hook.cpp" />
+    <ClCompile Include="HookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
-    <ClCompile Include="pointer.cpp" />
     <ClCompile Include="enemy_randomizer.cpp" />
-    <ClCompile Include="safetyhook-main\src\Builder.cpp" />
-    <ClCompile Include="safetyhook-main\src\Factory.cpp" />
-    <ClCompile Include="safetyhook-main\src\InlineHook.cpp" />
-    <ClCompile Include="safetyhook-main\src\MidHook.cpp" />
-    <ClCompile Include="safetyhook-main\src\ThreadFreezer.cpp" />
+    <ClCompile Include="safetyhook-main\src\Builder.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="safetyhook-main\src\Factory.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="safetyhook-main\src\InlineHook.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="safetyhook-main\src\MidHook.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="safetyhook-main\src\ThreadFreezer.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="windows_utilities.cpp" />
   </ItemGroup>
   <ItemGroup>

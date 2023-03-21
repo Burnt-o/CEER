@@ -1,9 +1,38 @@
 #include "pch.h"
 #include "multilevel_pointer.h"
-#include "dll_cache.h"
+#include "ModuleCache.h"
 #include "windows_utilities.h"
 
+// static, only needs to be set once
 void* PointerTypes::ExeOffset::mEXEAddress = nullptr;
+
+
+
+// static factory methods
+ MultilevelPointer* MultilevelPointer::make(const std::vector<int64_t>& offsets)
+{
+	return new PointerTypes::ExeOffset(offsets);
+}
+
+// Pointer is relative to some void* baseAddress
+ MultilevelPointer* MultilevelPointer::make(void* const& baseAddress, const std::vector<int64_t>& offsets)
+{
+	return new PointerTypes::BaseOffset(baseAddress, offsets);
+}
+
+// Pointer is relative to a module eg halo1.dll
+ MultilevelPointer* MultilevelPointer::make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets)
+{
+	return new PointerTypes::ModuleOffset(moduleName, offsets);
+}
+
+// Pointer is already fully resolved (used for stuff that never changes address)
+ MultilevelPointer* MultilevelPointer::make(void* const& baseAddress)
+{
+	return new PointerTypes::Resolved(baseAddress);
+}
+
+
 
 
 bool MultilevelPointer::dereferencePointer(void* base, std::vector<int64_t> offsets, void** resolvedOut) const
@@ -69,7 +98,7 @@ bool PointerTypes::BaseOffset::resolve(void** resolvedOut) const
 
 bool PointerTypes::ModuleOffset::resolve(void** resolvedOut) const
 {
-	auto moduleAddress = dll_cache::get_module_handle(this->mModuleName);
+	auto moduleAddress = ModuleCache::getModuleHandle(this->mModuleName);
 	if (!moduleAddress.has_value()) 
 	{
 		*SetLastErrorByRef() << "ModuleOffset resolution failed, module not found with name: " << wstr_to_str(this->mModuleName) << std::endl;

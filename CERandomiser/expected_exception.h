@@ -6,11 +6,11 @@
 class expected_exception : public std::exception
 {
 private:
-	const char* message;
+	 const char* message = nullptr;
 
 public:
-	expected_exception(const char* const msg) : message(msg) {}
-	const char* what()
+	explicit expected_exception(const char*  msg) : message(msg) {}
+	 const char* what()
 	{
 		return this->message;
 	}

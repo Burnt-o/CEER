@@ -4,6 +4,9 @@
 
 
 
+
+
+
 // base factory class
 class MultilevelPointer {
 private:
@@ -25,29 +28,16 @@ public:
 
 	// Factory methods
 	// Pointer is relative to the exe address
-	static MultilevelPointer* make(const std::vector<int64_t>& offsets)
-	{
-		return new PointerTypes::ExeOffset(offsets);
-	}
+	static MultilevelPointer* make(const std::vector<int64_t>& offsets);
 
 	// Pointer is relative to some void* baseAddress
-	static MultilevelPointer* make(void* const& baseAddress, const std::vector<int64_t>& offsets)
-	{
-		return new PointerTypes::BaseOffset(baseAddress, offsets);
-	}
+	static MultilevelPointer* make(void* const& baseAddress, const std::vector<int64_t>& offsets);
 
 	// Pointer is relative to a module eg halo1.dll
-	static MultilevelPointer* make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets)
-	{
-		return new PointerTypes::ModuleOffset(moduleName, offsets);
-	}
+	static MultilevelPointer* make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets);
 
 	// Pointer is already fully resolved (used for stuff that never changes address)
-	static MultilevelPointer* make(void* const& baseAddress)
-	{
-		return new PointerTypes::Resolved(baseAddress);
-	}
-
+	static MultilevelPointer* make(void* const& baseAddress);
 
 	// The useful stuff
 	virtual bool resolve(void** resolvedOut) const = 0; // Overriden in derived classes
@@ -73,7 +63,6 @@ public:
 	}
 
 };
-
 
 
 namespace PointerTypes // So we don't pollute global namespace

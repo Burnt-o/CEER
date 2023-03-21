@@ -3,8 +3,8 @@
 
 #include "windows_utilities.h"
 #include "global_kill.h"
-#include "dll_cache.h"
-#include "hook_manager.h"
+#include "ModuleCache.h"
+#include "HookManager.h"
 #include "config_window.h"
 
 
@@ -42,37 +42,35 @@ void stop_logging()
 // Main Execution Loop
 void RealMain() {
 
-    init_logging();
-    PLOG_INFO << "Randomizer initializing";
+    { // scope for auto-managed resources
+        init_logging();
+        PLOG_INFO << "Randomizer initializing";
+        config_window::initialize();
 
-    dll_cache::initialize();
-    config_window::initialize();
-
-
-    auto hks = std::make_unique <hook_manager> ();
-    hks->attach_all();
+        ModuleCache::initialize();
+        auto hookManager = std::make_shared <HookManager>();
 
 
-   while (!global_kill::is_kill_set()) {
-       if (GetKeyState(0x23) & 0x8000) // 'End' key
-       {
-           PLOG_INFO << "Killing internal dll";
-           global_kill::kill_me();
-       }
 
-       if (GetKeyState(0x24) & 0x8000) // 'Home' key
-       {
-           PLOG_INFO << "enabling halo 1 enemy randomizer";
-           hks->EnableEnemyRandomizer();
-       }
+        while (!global_kill::is_kill_set()) {
+            if (GetKeyState(0x23) & 0x8000) // 'End' key
+            {
+                PLOG_INFO << "Killing internal dll";
+                global_kill::kill_me();
+            }
+
+            if (GetKeyState(0x24) & 0x8000) // 'Home' key
+            {
+                PLOG_INFO << "enabling halo 1 enemy randomizer";
+                //hookManager->enableEnemyRandomizer();
+            }
 
 
-        Sleep(100);
+            Sleep(100);
+        }
     }
-
-     // shutdown
-
-    hks->detach_all();
+    // auto-managed resources have fallen out of scope
+    // just need to free up everything else
 
     stop_logging();
 }
@@ -112,26 +110,5 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 
     return TRUE;
 
-
-    FILE* pCout = nullptr;
-    switch (ul_reason_for_call)
-    {
-    case DLL_PROCESS_ATTACH:
-        DisableThreadLibraryCalls(hModule);
-
-        AllocConsole();
-        freopen_s(&pCout, "conout$", "w", stdout);
-        init();
-
-        break;
-    case DLL_THREAD_ATTACH:
-
-        break;
-
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
-    }
-    return TRUE;
 }
 

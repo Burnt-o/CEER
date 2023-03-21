@@ -1,8 +1,9 @@
+#pragma once
 #include "pch.h"
 #include "enemy_randomizer.h"
 #include "midhook_context_interpreter.h"
-#include "dll_cache.h"
-
+#include "ModuleCache.h"
+#include "multilevel_pointer.h"
 
 
 
@@ -74,7 +75,7 @@ namespace enemy_randomizer_manager
 	{
 		mh_Hook_SpawnActvByIndex->set_WantsToBeEnabled(value);
 		mh_Hook_EvaluateEncounter->set_WantsToBeEnabled(value);
-		if (value && dll_cache::module_in_cache(L"halo1.dll"))
+		if (value && ModuleCache::isModuleInCache(L"halo1.dll"))
 		{
 			er_load_entities();
 		}
@@ -104,8 +105,8 @@ namespace enemy_randomizer_manager
 //pointers
 #define MCC_VER_2645
 #ifdef MCC_VER_2645
-pointer* p_Hook_SpawnActvByIndex = new pointer(std::wstring(L"halo1.dll"), { 0xC540B5 });
-pointer* p_Hook_EvaluateEncounter = new pointer(std::wstring(L"halo1.dll"), { 0xC51DD7 });
+MultilevelPointer* p_Hook_SpawnActvByIndex = MultilevelPointer::make(std::wstring(L"halo1.dll"), { 0xC540B5 });
+MultilevelPointer* p_Hook_EvaluateEncounter = MultilevelPointer::make(std::wstring(L"halo1.dll"), { 0xC51DD7 });
 #endif // MCC_VER_2645
 
 
@@ -115,23 +116,26 @@ MidHook* mh_Hook_EvaluateEncounter = new MidHook(L"Hook_EvaluateEncounter", p_Ho
 
 
 //hook functions
-midhook_context_interpreter* MCI_SpawnActvByIndex = new midhook_context_interpreter({reg_index::rcx});
+MidhookContextInterpreter* MCI_SpawnActvByIndex = new MidhookContextInterpreter({Register::rcx});
 void Hook_SpawnActvByIndex(SafetyHookContext& ctx) {
 	if (!enemy_randomizer_state::entities_loaded) { PLOG_DEBUG << "Hook_SpawnActvByIndex bailing, entities not loaded"; return; }
-	PLOG_VERBOSE << "Enemy spawning, actv index: " << MCI_SpawnActvByIndex->GetParameterValue(ctx, 0);
+	uint64_t* actorVariantIndex = MCI_SpawnActvByIndex->getParameterRef(ctx, 0);
 
-	MCI_SpawnActvByIndex->SetParameterValue(ctx, 0, 3); // set the index for 3 just for testing 
+	*actorVariantIndex = 3; // set the index for 3 just for testing 
 
 	enemy_randomizer_state::IncrementEncounterUnitIndex();
 }
 
-midhook_context_interpreter* MCI_EvaluateEncounter = new midhook_context_interpreter({ reg_index::r11, reg_index::rsi });
+MidhookContextInterpreter* MCI_EvaluateEncounter = new MidhookContextInterpreter({ Register::r11, Register::rsi });
 void Hook_EvaluateEncounter(SafetyHookContext& ctx) {
 	if (!enemy_randomizer_state::entities_loaded) { PLOG_DEBUG << "Hook_EvaluateEncounter bailing, entities not loaded"; return; }
-	PLOG_VERBOSE << "Encounter evaluating: " << std::endl
-		<< "encounter: " << MCI_EvaluateEncounter->GetParameterValue(ctx, 0)
-		<< "squad: " << MCI_EvaluateEncounter->GetParameterValue(ctx, 1);
+	uint64_t* encounterIndex = MCI_EvaluateEncounter->getParameterRef(ctx, 0);
+	uint64_t* squadIndex = MCI_EvaluateEncounter->getParameterRef(ctx, 1);
 
-	enemy_randomizer_state::SetEncounterData(MCI_EvaluateEncounter->GetParameterValue(ctx, 0), MCI_EvaluateEncounter->GetParameterValue(ctx, 1), 0);
+	PLOG_VERBOSE << "Encounter evaluating: " << std::endl
+		<< "encounter: " << *encounterIndex
+		<< "squad: " << *squadIndex;
+
+	enemy_randomizer_state::SetEncounterData(*encounterIndex, *squadIndex, 0);
 	
 }

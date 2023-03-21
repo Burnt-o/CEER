@@ -1,6 +1,6 @@
 #pragma once
-#include "hook.h"
-#include "pointer.h"
+#include "Hook.h"
+
 
 
 namespace enemy_randomizer_manager

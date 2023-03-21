@@ -1,4 +1,6 @@
-#include "pch.h"
+#include <plog/Log.h>
+
+
 #include <algorithm>
 #include <iterator>
 
@@ -121,6 +123,8 @@ InlineHook& InlineHook::operator=(InlineHook&& other) noexcept {
 }
 
 InlineHook::~InlineHook() {
+    PLOG_VERBOSE << "safetyhook::InlineHook destructor called";
+
     destroy();
 }
 

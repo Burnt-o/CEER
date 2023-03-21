@@ -1,19 +1,19 @@
 #include "pch.h"
-#include "hook.h"
+#include "Hook.h"
 //#include "pointer.h"
-#include "dll_cache.h"
+#include "ModuleCache.h"
 
 
 
 
 
-const std::wstring& Hook::hook_name()
+const std::wstring& Hook::getHookName()
 {
 	return this->mHookName;
 }
 
 
-const std::wstring& Hook::associated_module()
+const std::wstring& Hook::getAssociatedModule()
 {
 	return this->mAssociatedModule;
 }
@@ -42,16 +42,16 @@ void MidHook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
 
 void InlineHook::attach()
 {
-	PLOG_DEBUG << "inline_hook attempting attach: " << this->mHookName;
+	PLOG_DEBUG << "inline_hook attempting attach: " << getHookName();
 	PLOG_VERBOSE << "hookFunc " << this->mHookFunction;
-	if (this->mInstalled) {
+	if (this->getInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
 		return;
 	}
 
-	if (this->associated_module() != L"" && !dll_cache::module_in_cache(this->associated_module()))
+	if (this->getAssociatedModule() != L"" && !ModuleCache::isModuleInCache(this->getAssociatedModule()))
 	{
-		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->associated_module();
+		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->getAssociatedModule();
 		return;
 	}
 
@@ -72,24 +72,24 @@ void InlineHook::attach()
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
 	hook_install(pOriginalFunction, this->mHookFunction); // need to pass latter by ref?
-	this->mInstalledAt = pOriginalFunction;
-	this->mInstalled = true;
-	PLOG_DEBUG << "inline_hook successfully attached: " << this->mHookName;
+
+	this->setInstalled(true);
+	PLOG_DEBUG << "inline_hook successfully attached: " << this->getHookName();
 
 
 }
 
 void MidHook::attach()
 {
-	PLOG_DEBUG << "mid_hook attempting attach: " << this->mHookName;
-	if (this->mInstalled) {
+	PLOG_DEBUG << "mid_hook attempting attach: " << this->getHookName();
+	if (this->getInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
 		return;
 	}
 
-	if (this->associated_module() != L"" && !dll_cache::module_in_cache(this->associated_module()))
+	if (this->getAssociatedModule() != L"" && !ModuleCache::isModuleInCache(this->getAssociatedModule()))
 	{
-		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->associated_module();
+		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->getAssociatedModule();
 		return;
 	}
 
@@ -110,51 +110,55 @@ void MidHook::attach()
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
 	hook_install(pOriginalFunction, this->mHookFunction);
-	this->mInstalledAt = pOriginalFunction;
-	this->mInstalled = true;
+	this->setInstalled(true);
 
-	PLOG_DEBUG << "mid_hook successfully attached: " << this->mHookName;
-	PLOG_VERBOSE << "originalFunc " << this->mInstalledAt;
+	PLOG_DEBUG << "mid_hook successfully attached: " << this->getHookName();
+	PLOG_VERBOSE << "originalFunc " << pOriginalFunction;
 	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction;
 }
 
 void InlineHook::detach()
 {
-	PLOG_DEBUG << "detaching hook: " << this->mHookName;
-	if (!this->mInstalled) {
+	PLOG_DEBUG << "detaching hook: " << this->getHookName();
+	if (!this->getInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
 	// Should I add a check for pOriginalFunction being valid here?
 
-	this->mInstalledAt = nullptr;
-	this->mInstalled = false;
+
+	this->setInstalled(false);
 	this->mInlineHook = {};
 }
 
 void MidHook::detach()
 {
-	PLOG_DEBUG << "detaching hook: " << this->mHookName;
-	if (!this->mInstalled) {
+	PLOG_DEBUG << "detaching hook: " << this->getHookName();
+	if (!this->getInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
 	// Should I add a check for pOriginalFunction being valid here?
-	this->mInstalledAt = nullptr;
-	this->mInstalled = false;
+
+	this->setInstalled(false);
 	this->mMidHook = {};
-	PLOG_DEBUG << "successfully detached " << this->mHookName;
+	PLOG_DEBUG << "successfully detached " << this->getHookName();
 }
 
 
 
-
-
-void* Hook::installed_at()
+void* InlineHook::getHookInstallLocation() const
 {
-	return this->mInstalledAt;
+	if (!getInstalled()) return nullptr;
+	return (void*)this->mInlineHook.target();
+}
+
+void* MidHook::getHookInstallLocation() const
+{
+	if (!getInstalled()) return nullptr;
+	return (void*)this->mMidHook.target();
 }
 
 

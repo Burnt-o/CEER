@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include <algorithm>
 
 #include <Windows.h>

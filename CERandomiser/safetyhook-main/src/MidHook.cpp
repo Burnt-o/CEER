@@ -1,4 +1,6 @@
-#include "pch.h"
+#include <plog/Log.h>
+
+
 #include <algorithm>
 
 #include "safetyhook/Factory.hpp"
@@ -37,6 +39,7 @@ MidHook& MidHook::operator=(MidHook&& other) noexcept {
 }
 
 MidHook::~MidHook() {
+    PLOG_VERBOSE << "safetyhook::MidHook destructor called";
     if (m_stub != 0) {
         auto builder = Factory::acquire();
         builder.free(m_stub, sizeof(asm_data));
