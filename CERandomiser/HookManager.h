@@ -43,9 +43,9 @@ public:
 
 	void detachAllHooks();
 
-	void addHook(std::shared_ptr<Hook> newHook)
+	static void addHook(std::shared_ptr<Hook> newHook)
 	{
-		mAllHooks.push_back(newHook);
+		get().mAllHooks.push_back(newHook);
 	}
 
 

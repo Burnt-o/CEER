@@ -5,7 +5,7 @@
 #include "global_kill.h"
 #include "ModuleCache.h"
 #include "HookManager.h"
-#include "config_window.h"
+#include "ConfigWindow.h"
 
 
 
@@ -38,6 +38,19 @@ void stop_logging()
 
 
 
+/* GENERAL TODO::
+Probably change HookManager to be ModuleHookManager
+    It should only manage hooks that are module relative
+Hook/InlineHook/MidHook -> ModuleHook/ModuleInlineHook/ModuleMidHook
+    associatedModule should be mandatory
+    non-module hooks can just use the base safetyhook 
+Split off the d3d hook stuff into D3DHookManager and ImGuiManager
+    the latter holding a reference to the former so the latter gets destructed first
+ConfigWindow then holds ref to ImGuiManager
+
+*/ 
+
+
 
 // Main Execution Loop
 void RealMain() {
@@ -45,7 +58,7 @@ void RealMain() {
     { // scope for auto-managed resources
         init_logging();
         PLOG_INFO << "Randomizer initializing";
-        config_window::initialize();
+        ConfigWindow::initialize();
 
         ModuleCache::initialize();
         auto hookManager = std::make_shared <HookManager>();
