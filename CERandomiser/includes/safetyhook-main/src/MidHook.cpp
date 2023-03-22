@@ -43,6 +43,8 @@ MidHook::~MidHook() {
     if (m_stub != 0) {
         auto builder = Factory::acquire();
         builder.free(m_stub, sizeof(asm_data));
+    } else {
+        PLOG_VERBOSE << "empty hook destroyed";
     }
 }
 

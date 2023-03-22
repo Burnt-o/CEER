@@ -56,21 +56,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="safetyhook-main\src\ThreadFreezer.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="safetyhook-main\src\Builder.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="safetyhook-main\src\Factory.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="safetyhook-main\src\InlineHook.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="safetyhook-main\src\MidHook.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
     <ClCompile Include="windows_utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,13 +77,20 @@
     <ClCompile Include="multilevel_pointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="safetyhook-main\src\MidHook.x64.asm">
+    <ClCompile Include="includes\safetyhook-main\src\Builder.cpp">
       <Filter>Source Files\safetyhook</Filter>
-    </None>
-    <None Include="safetyhook-main\src\MidHook.x86.asm">
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook-main\src\Factory.cpp">
       <Filter>Source Files\safetyhook</Filter>
-    </None>
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook-main\src\InlineHook.cpp">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook-main\src\MidHook.cpp">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook-main\src\ThreadFreezer.cpp">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

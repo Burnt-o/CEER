@@ -25,15 +25,15 @@ HookManager::HookManager()
 	mAllHooks.reserve(20);
 
 	// Add to our list. 
-	mAllHooks.push_back(mGlobalHook_LoadLibraryA);
-	mAllHooks.push_back(mGlobalHook_LoadLibraryW);
-	mAllHooks.push_back(mGlobalHook_LoadLibraryExA);
-	mAllHooks.push_back(mGlobalHook_LoadLibraryExW);
-	mAllHooks.push_back(mGlobalHook_FreeLibrary);
+	mAllHooks.emplace_back(mGlobalHook_LoadLibraryA);
+	mAllHooks.emplace_back(mGlobalHook_LoadLibraryW);
+	mAllHooks.emplace_back(mGlobalHook_LoadLibraryExA);
+	mAllHooks.emplace_back(mGlobalHook_LoadLibraryExW);
+	mAllHooks.emplace_back(mGlobalHook_FreeLibrary);
 
 	// Attach them
 	mGlobalHook_LoadLibraryA.get()->attach();
-	mGlobalHook_LoadLibraryA.get()->attach();
+	mGlobalHook_LoadLibraryW.get()->attach();
 	mGlobalHook_LoadLibraryExA.get()->attach();
 	mGlobalHook_LoadLibraryExW.get()->attach();
 	mGlobalHook_FreeLibrary.get()->attach();

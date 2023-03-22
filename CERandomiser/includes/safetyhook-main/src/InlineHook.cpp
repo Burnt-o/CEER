@@ -293,6 +293,7 @@ void InlineHook::destroy() {
     std::scoped_lock lock{m_mutex};
 
     if (m_trampoline == 0) {
+        PLOG_VERBOSE << "nevermind, hook wasn't real";
         return;
     }
 
