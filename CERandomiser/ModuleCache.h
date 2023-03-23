@@ -45,6 +45,11 @@ public:
 	// no copying
 	ModuleCache(ModuleCache& other) = delete;
 	ModuleCache& operator=(const ModuleCache&) = delete;
+
+	static void destroy()
+	{
+		get().~ModuleCache();
+	}
 };
 
 

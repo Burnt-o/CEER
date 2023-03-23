@@ -20,7 +20,7 @@ D3D11Hook::D3D11Hook()
 		auto builder = safetyhook::Factory::acquire();
 
 		auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
-		auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
+		auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9EBC0 });
 		void* p_oldPresent;
 		void* p_oldResizeBuffers;
 		if (!mlp_oldPresent->resolve(&p_oldPresent))
@@ -155,7 +155,9 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 const std::string testString = "testttting";
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
+	// Call original present
 	D3D11Hook& instance = get();
+
 	if (!instance.isD3DdeviceInitialized)
 	{
 		try
@@ -163,7 +165,7 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 			instance.initializeD3Ddevice(pSwapChain);
 			instance.isD3DdeviceInitialized = true;
 		}
-		catch (expected_exception ex)
+		catch (expected_exception& ex)
 		{
 			PLOG_FATAL << "Failed to initialize d3d device, info: " << std::endl
 				<< ex.what() << std::endl

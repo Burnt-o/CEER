@@ -70,6 +70,9 @@ public:
 	ModuleHookManager& operator=(const ModuleHookManager& arg) = delete; // Assignment operator
 	ModuleHookManager& operator=(const ModuleHookManager&& arg) = delete; // Move operator
 
-
+	static void destroy()
+	{
+		get().~ModuleHookManager();
+	}
 
 };

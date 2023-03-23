@@ -99,6 +99,12 @@ void RealMain() {
     }
     // auto-managed resources have fallen out of scope
     // just need to free up everything else
+    PLOG_DEBUG << "destroying singletons";
+    ModuleHookManager::destroy();
+    D3D11Hook::destroy();
+    ModuleCache::destroy();
+
+
     PLOG_DEBUG << "end of logging";
     stop_logging();
 }

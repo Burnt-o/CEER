@@ -60,4 +60,8 @@ public:
 		get();
 	}
 
+	static void destroy()
+	{
+		get().~D3D11Hook();
+	}
 };
