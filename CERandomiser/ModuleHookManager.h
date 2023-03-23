@@ -45,6 +45,10 @@ private:
 	static void postModuleLoad_UpdateHooks(std::wstring_view libPath); // called by newLoadLibraries
 
 public:
+	static void initialize()
+	{
+		get();
+	}
 
 	~ModuleHookManager()
 	{

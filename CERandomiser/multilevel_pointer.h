@@ -16,13 +16,14 @@ private:
 	bool readString(std::string& resolvedOut) const; // special case of readData that handles short-string-optimization
 
 protected:
-	bool dereferencePointer(void* base, std::vector<int64_t> offsets, void** resolvedOut) const;
+	bool dereferencePointer(const void* const& base, const std::vector<int64_t>& offsets, void** resolvedOut) const;
 	static std::stringstream* SetLastErrorByRef()
 	{
 		mLastError.clear();
 		mLastError.str("");
 		return &mLastError;
 	}
+	virtual ~MultilevelPointer() = default;
 public:
 
 
@@ -69,7 +70,7 @@ namespace PointerTypes // So we don't pollute global namespace
 {
 	class ExeOffset : public MultilevelPointer {
 	private:
-		const std::vector<int64_t>& mOffsets;
+		const std::vector<int64_t> mOffsets;
 		static void* mEXEAddress;
 	public:
 		explicit ExeOffset(const std::vector<int64_t>& offsets) : mOffsets(offsets) {}
@@ -78,8 +79,8 @@ namespace PointerTypes // So we don't pollute global namespace
 
 	class BaseOffset : public MultilevelPointer {
 	private:
-		const std::vector<int64_t>& mOffsets;
 		void* mBaseAddress;
+		const std::vector<int64_t> mOffsets;
 	public:
 		explicit BaseOffset(void* const& baseAddress, const std::vector<int64_t>& offsets) : mBaseAddress(baseAddress), mOffsets(offsets) {}
 		bool MultilevelPointer::resolve(void** resolvedOut) const override;
@@ -88,8 +89,8 @@ namespace PointerTypes // So we don't pollute global namespace
 
 	class ModuleOffset : public MultilevelPointer {
 	private:
-		const std::vector<int64_t>& mOffsets;
 		const std::wstring mModuleName;
+		const std::vector<int64_t> mOffsets;
 	public:
 		explicit ModuleOffset(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets) : mModuleName(moduleName), mOffsets(offsets) {}
 		bool MultilevelPointer::resolve(void** resolvedOut) const override;

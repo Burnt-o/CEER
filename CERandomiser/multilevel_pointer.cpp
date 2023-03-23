@@ -35,7 +35,7 @@ void* PointerTypes::ExeOffset::mEXEAddress = nullptr;
 
 
 
-bool MultilevelPointer::dereferencePointer(void* base, std::vector<int64_t> offsets, void** resolvedOut) const
+bool MultilevelPointer::dereferencePointer(const void* const& base, const std::vector<int64_t>& offsets, void** resolvedOut) const
 {
 	uintptr_t baseAddress = (uintptr_t)base; //cast to uintptr_t so we can do math to it
 	if (offsets.size() > 0)
@@ -88,7 +88,7 @@ bool PointerTypes::ExeOffset::resolve(void** resolvedOut) const
 		PointerTypes::ExeOffset::mEXEAddress = GetModuleHandleA(NULL);// null means get the handle for the currently running process
 		if (!PointerTypes::ExeOffset::mEXEAddress) { PLOG_ERROR << "Couldn't get exe process handle"; throw("Couldn't get exe process handle"); }
 	}
-	return dereferencePointer(this->mEXEAddress, this->mOffsets, resolvedOut);
+	return dereferencePointer(ExeOffset::mEXEAddress, this->mOffsets, resolvedOut);
 }
 
 bool PointerTypes::BaseOffset::resolve(void** resolvedOut) const
@@ -105,6 +105,10 @@ bool PointerTypes::ModuleOffset::resolve(void** resolvedOut) const
 		return false;
 	}
 	PLOG_VERBOSE << "moduleAddress: " << moduleAddress.value();
+	for (int64_t offset : this->mOffsets)
+	{
+		PLOG_VERBOSE << "offset: " << offset;
+	}
 
 	return dereferencePointer(moduleAddress.value(), this->mOffsets, resolvedOut);
 }

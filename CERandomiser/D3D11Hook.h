@@ -5,11 +5,15 @@
 #include "ModuleHook.h"
 #include "ModuleHookManager.h"
 
+
+ extern "C" typedef HRESULT __stdcall DX11Present(IDXGISwapChain * pSwapChain, UINT SyncInterval, UINT Flags);
+ extern "C" typedef HRESULT __stdcall DX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+
 class D3D11Hook
 {
 private:
 	// constructor private
-	D3D11Hook();
+	explicit D3D11Hook();
 
 	// singleton accessor
 	static D3D11Hook& get() {
@@ -17,14 +21,16 @@ private:
 		return instance;
 	}
 
-	std::shared_ptr<ModuleInlineHook> mHookPresent;
-	std::shared_ptr<ModuleInlineHook> mHookResizeBuffers;
 
+	// hook objects
+	safetyhook::InlineHook mHookPresent;
+	safetyhook::InlineHook mHookResizeBuffers;
 
 	// hook functions
-	HRESULT __stdcall newDX11Present(IDXGISwapChain * pSwapChain, UINT SyncInterval, UINT Flags);
-	HRESULT __stdcall newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
-	
+	static DX11Present newDX11Present;
+	static DX11ResizeBuffers newDX11ResizeBuffers;
+	static LRESULT __stdcall mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Doesn't need hook cos we got SetWindowLongPtr
+	WNDPROC mOldWndProc = nullptr;
 	
 	// D3D stuff
 	void initializeD3Ddevice(IDXGISwapChain* pSwapChain);
@@ -33,8 +39,7 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;
 	HWND m_windowHandle = nullptr;
 	ID3D11RenderTargetView* m_pMainRenderTargetView = nullptr;
-	static LRESULT __stdcall mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Doesn't need hook cos we got SetWindowLongPtr
-	WNDPROC mOldWndProc = nullptr;
+
 
 	// Imgui stuff
 	ImFont* mDefaultFont = nullptr;
@@ -50,8 +55,9 @@ private:
 	D3D11Hook& operator=(const D3D11Hook&& arg) = delete; // Move operator
 
 public:
-
+	static void initialize()
+	{
+		get();
+	}
 
 };
-
-inline static D3D11Hook d3D11Hook; // global

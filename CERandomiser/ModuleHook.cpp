@@ -91,7 +91,7 @@ void ModuleMidHook::attach()
 
 	PLOG_DEBUG << "mid_hook successfully attached: " << this->getHookName();
 	PLOG_VERBOSE << "originalFunc " << pOriginalFunction;
-	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction;
+	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction; //error
 }
 
 void ModuleInlineHook::detach()

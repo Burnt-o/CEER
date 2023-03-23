@@ -5,7 +5,7 @@
 #include "global_kill.h"
 #include "ModuleCache.h"
 #include "ModuleHookManager.h"
-#include "ConfigWindow.h"
+#include "D3D11Hook.h"
 
 
 
@@ -60,10 +60,23 @@ void RealMain() {
     { // scope for auto-managed resources
         init_logging();
         PLOG_INFO << "Randomizer initializing";
-        ConfigWindow::initialize();
+        // instantiate the singletons
+        try
+        {
+            ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
 
-        ModuleCache::initialize();
-        auto hookManager = std::make_shared <ModuleHookManager>();
+            D3D11Hook::initialize(); 
+
+            ModuleHookManager::initialize();
+
+        }
+        catch (expected_exception& ex)
+        {
+            PLOG_FATAL << "Well that's no good: " << ex.what();
+            global_kill::kill_me();
+        }
+
+       // auto hookManager = std::make_shared <ModuleHookManager>();
 
 
 
@@ -86,7 +99,7 @@ void RealMain() {
     }
     // auto-managed resources have fallen out of scope
     // just need to free up everything else
-
+    PLOG_DEBUG << "end of logging";
     stop_logging();
 }
 
