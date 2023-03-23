@@ -46,7 +46,7 @@ private:
 	
 
 
-	~D3D11Hook() = default; // TODO: release d3d stuff
+	~D3D11Hook(); // releases d3d resources
 
 	// banned operations for singleton
 	D3D11Hook(const D3D11Hook& arg) = delete; // Copy constructor

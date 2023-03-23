@@ -81,9 +81,9 @@ LRESULT __stdcall D3D11Hook::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wPar
 {
 	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
-	if (!res)
+	if (!res) // I think this means the ImGui window didn't have anything to handle
 	{
-		PLOG_DEBUG << "ImGui_ImplWin32_WndProcHandler failed, calling original";
+		// so call the original and let it handle it
 		return CallWindowProc(D3D11Hook::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
 	}
 	else
@@ -97,18 +97,18 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 
 	PLOG_DEBUG << "Initializing D3Ddevice" << std::endl;
 
-	if (!SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)m_pDevice)))
+	if (!SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&m_pDevice)))
 	{
 		throw expected_exception(std::format("Failed to get D3D11Device, pSwapChain: {:x}", (uint64_t)pSwapChain).c_str());
 
 	}
 
-	// TODO: investigate if we're allowed to use shared pointers for all the D3D references we're grabbing so we don't have to manually clean up later
-	// plus that would prevent leaking if we throw one of the expected exceptions
-
 	// Get Device Context
 	m_pDevice->GetImmediateContext(&m_pDeviceContext);
-	if (!m_pDevice) throw expected_exception("Failed to get DeviceContext");
+	if (!m_pDeviceContext)
+	{
+		throw expected_exception("Failed to get DeviceContext");
+	}
 
 	// Use swap chain description to get MCC window handle
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -240,4 +240,36 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	// We could grab the new window Height and Width too here if we cared about that, but I don't.
 
 	return hr;
+}
+
+// Releases D3D resources, if we acquired them
+D3D11Hook::~D3D11Hook()
+{
+	// need to call release on the device https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3dswapchain9-getdevice
+	if (m_pDevice)
+	{
+		m_pDevice->Release();
+		m_pDevice = nullptr;
+	}
+
+	// and the device context
+	if (m_pDeviceContext)
+	{
+		m_pDeviceContext->Release();
+		m_pDeviceContext = nullptr;
+	}
+
+	// and the mainRenderTargetView
+	if (m_pMainRenderTargetView)
+	{
+		m_pMainRenderTargetView->Release();
+		m_pMainRenderTargetView = nullptr;
+	}
+
+	// restore the original wndProc
+	if (mOldWndProc)
+	{
+		SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)mOldWndProc);
+		mOldWndProc = nullptr;
+	}
 }
