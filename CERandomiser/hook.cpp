@@ -6,22 +6,14 @@
 
 
 
-
-const std::wstring& Hook::getHookName()
+// The hook name is just used for logging (ie logging attach/detach events)
+const std::wstring& ModuleHookBase::getHookName() const
 {
 	return this->mHookName;
 }
 
 
-const std::wstring& Hook::getAssociatedModule()
-{
-	return this->mAssociatedModule;
-}
-
-
-
-
-void InlineHook::hook_install(void* old_func, void* new_func)
+void ModuleInlineHook::hook_install(void* old_func, void* new_func)
 {
 	// Acquire the factory's builder which will freeze all threads and give
 	// us access to the hook creation methods.
@@ -33,25 +25,19 @@ void InlineHook::hook_install(void* old_func, void* new_func)
 	// factory will be kept alive by member mInlineHook.
 }
 
-void MidHook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
+void ModuleMidHook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
 {
 	auto builder = SafetyHookFactory::acquire();
 	this->mMidHook = builder.create_mid(old_func, new_func);
 }
 
 
-void InlineHook::attach()
+void ModuleInlineHook::attach()
 {
 	PLOG_DEBUG << "inline_hook attempting attach: " << getHookName();
 	PLOG_VERBOSE << "hookFunc " << this->mHookFunction;
-	if (this->getInstalled()) {
+	if (this->isHookInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
-		return;
-	}
-
-	if (this->getAssociatedModule() != L"" && !ModuleCache::isModuleInCache(this->getAssociatedModule()))
-	{
-		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->getAssociatedModule();
 		return;
 	}
 
@@ -73,26 +59,18 @@ void InlineHook::attach()
 
 	hook_install(pOriginalFunction, this->mHookFunction); // need to pass latter by ref?
 
-	this->setInstalled(true);
 	PLOG_DEBUG << "inline_hook successfully attached: " << this->getHookName();
 
 
 }
 
-void MidHook::attach()
+void ModuleMidHook::attach()
 {
 	PLOG_DEBUG << "mid_hook attempting attach: " << this->getHookName();
-	if (this->getInstalled()) {
+	if (this->isHookInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
 		return;
 	}
-
-	if (this->getAssociatedModule() != L"" && !ModuleCache::isModuleInCache(this->getAssociatedModule()))
-	{
-		PLOG_DEBUG << "attach failed: associated module wasn't in cache, " << this->getAssociatedModule();
-		return;
-	}
-
 
 	if (this->mOriginalFunction == nullptr)
 	{
@@ -110,62 +88,43 @@ void MidHook::attach()
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
 	hook_install(pOriginalFunction, this->mHookFunction);
-	this->setInstalled(true);
 
 	PLOG_DEBUG << "mid_hook successfully attached: " << this->getHookName();
 	PLOG_VERBOSE << "originalFunc " << pOriginalFunction;
 	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction;
 }
 
-void InlineHook::detach()
+void ModuleInlineHook::detach()
 {
 	PLOG_DEBUG << "detaching hook: " << this->getHookName();
-	if (!this->getInstalled()) {
+	if (!this->isHookInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
-	// Should I add a check for pOriginalFunction being valid here?
-
-
-	this->setInstalled(false);
 	this->mInlineHook = {};
+	PLOG_DEBUG << "successfully detached " << this->getHookName();
 }
 
-void MidHook::detach()
+void ModuleMidHook::detach()
 {
 	PLOG_DEBUG << "detaching hook: " << this->getHookName();
-	if (!this->getInstalled()) {
+	if (!this->isHookInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
-	// Should I add a check for pOriginalFunction being valid here?
-
-	this->setInstalled(false);
 	this->mMidHook = {};
 	PLOG_DEBUG << "successfully detached " << this->getHookName();
 }
 
 
 
-void* InlineHook::getHookInstallLocation() const
+
+
+void ModuleHookBase::updateHookState()
 {
-	if (!getInstalled()) return nullptr;
-	return (void*)this->mInlineHook.target();
-}
-
-void* MidHook::getHookInstallLocation() const
-{
-	if (!getInstalled()) return nullptr;
-	return (void*)this->mMidHook.target();
-}
-
-
-
-void Hook::update_state()
-{
-	if (this->mShouldBeEnabled)
+	if (this->mWantsToBeAttached)
 	{
 		this->attach();
 	}
@@ -176,26 +135,36 @@ void Hook::update_state()
 }
 
 
-
-void Hook::set_WantsToBeEnabled(bool value)
+// Getter/setter for mWantsToBeAttached
+void ModuleHookBase::setWantsToBeAttached(bool value)
 {
-	if (this->mShouldBeEnabled != value)
+	if (this->mWantsToBeAttached != value)
 	{
-		this->mShouldBeEnabled = value;
-		this->update_state();
+		this->mWantsToBeAttached = value;
+		this->updateHookState();
 	}
 }
 
 
-
-
-bool Hook::get_WantsToBeEnabled()
+bool ModuleHookBase::getWantsToBeAttached() const
 {
-	return this->mShouldBeEnabled;
+	return this->mWantsToBeAttached;
+}
+
+// Gets a ref to the safetyhook object, mainly used for calling the original function from within the new function
+safetyhook::InlineHook& ModuleInlineHook::getInlineHook() 
+{
+	return this->mInlineHook;
 }
 
 
-safetyhook::InlineHook& InlineHook::getInlineHook() 
+// isHookInstalled just checks if the safetyhook types are properly constructed (hook is installed) or default-constructed (hook is not installed, all members are zero)
+bool ModuleInlineHook::isHookInstalled() const
 {
-	return this->mInlineHook;
+	return this->mInlineHook.trampoline() != 0;
+}
+
+bool ModuleMidHook::isHookInstalled() const
+{
+	return this->mMidHook.target() != 0;
 }

@@ -36,10 +36,10 @@
     <ClInclude Include="Hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigWindow.h">
+    <ClInclude Include="D3D11Hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HookManager.h">
+    <ClInclude Include="ModuleHookManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enemy_randomizer.h">
@@ -78,6 +78,9 @@
     <ClInclude Include="includes\imgui\imstb_truetype.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -92,13 +95,13 @@
     <ClCompile Include="Hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigWindow.cpp">
+    <ClCompile Include="D3D11Hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="enemy_randomizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HookManager.cpp">
+    <ClCompile Include="ModuleHookManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="multilevel_pointer.cpp">
@@ -136,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="includes\imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiHook.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

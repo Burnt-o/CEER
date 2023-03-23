@@ -4,7 +4,7 @@
 #include "windows_utilities.h"
 #include "global_kill.h"
 #include "ModuleCache.h"
-#include "HookManager.h"
+#include "ModuleHookManager.h"
 #include "ConfigWindow.h"
 
 
@@ -38,16 +38,18 @@ void stop_logging()
 
 
 
-/* GENERAL TODO::
+/* GENERAL TODO:: 
 Probably change HookManager to be ModuleHookManager
     It should only manage hooks that are module relative
 Hook/InlineHook/MidHook -> ModuleHook/ModuleInlineHook/ModuleMidHook
     associatedModule should be mandatory
     non-module hooks can just use the base safetyhook 
+    Refactor the ModuleHook stuff now that we've narrowed the scope of it's purpose
 Split off the d3d hook stuff into D3DHookManager and ImGuiManager
     the latter holding a reference to the former so the latter gets destructed first
 ConfigWindow then holds ref to ImGuiManager
-
+Add IATLookup PointerType, for getting the address of d3d Present and ResizeBuffers
+Create a PointerManager service that stores all the pointers per game version / looks it up from the intertubes
 */ 
 
 
@@ -61,7 +63,7 @@ void RealMain() {
         ConfigWindow::initialize();
 
         ModuleCache::initialize();
-        auto hookManager = std::make_shared <HookManager>();
+        auto hookManager = std::make_shared <ModuleHookManager>();
 
 
 

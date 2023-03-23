@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "ConfigWindow.h"
+#include "D3D11Hook.h"
 
 #include "global_kill.h"
 
@@ -12,16 +12,16 @@ struct rgba {
 
 
 
-void ConfigWindow::initialize()
+D3D11Hook::D3D11Hook()
 {
     // Hook dx11 present and resizebuffers
-    auto mHookPresent = std::make_shared<InlineHook>(L"hookDX11Present", MultilevelPointer::make({0, 0, 0}), &newDX11Present, true);
-    auto mHookResizeBuffers = std::make_shared<InlineHook>(L"hookDX11ResizeBuffers", MultilevelPointer::make({ 0, 0, 0 }), &newDX11ResizeBuffers, true);
+    auto mHookPresent = std::make_shared<ModuleInlineHook>(L"hookDX11Present", MultilevelPointer::make({0, 0, 0}), &newDX11Present, true);
+    auto mHookResizeBuffers = std::make_shared<ModuleInlineHook>(L"hookDX11ResizeBuffers", MultilevelPointer::make({ 0, 0, 0 }), &newDX11ResizeBuffers, true);
 
     // HookManager will share ownership and manage/attach the hooks
 	// We do keep a copy though so we can call the original functions
-    HookManager::addHook(mHookPresent);
-    HookManager::addHook(mHookResizeBuffers);
+    ModuleHookManager::addHook(mHookPresent);
+    ModuleHookManager::addHook(mHookResizeBuffers);
 
 
 
@@ -62,14 +62,14 @@ void ConfigWindow::initialize()
 
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT __stdcall ConfigWindow::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT __stdcall D3D11Hook::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
 	if (!res)
 	{
 		PLOG_DEBUG << "ImGui_ImplWin32_WndProcHandler failed, calling original";
-		return CallWindowProc(ConfigWindow::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
+		return CallWindowProc(D3D11Hook::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
 	}
 	else
 	{
@@ -77,7 +77,7 @@ LRESULT __stdcall ConfigWindow::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 	}
 }
 
-void ConfigWindow::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
+void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 {
 
 	PLOG_DEBUG << "Initializing D3Ddevice" << std::endl;
@@ -138,7 +138,7 @@ void ConfigWindow::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 
 }
 
-HRESULT __stdcall ConfigWindow::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+HRESULT __stdcall D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
 
 	if (!isD3DdeviceInitialized)
@@ -182,7 +182,7 @@ HRESULT __stdcall ConfigWindow::newDX11Present(IDXGISwapChain* pSwapChain, UINT 
 
 }
 
-HRESULT __stdcall ConfigWindow::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+HRESULT __stdcall D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
 	// Need to release mainRenderTargetView before calling ResizeBuffers
 	if (m_pMainRenderTargetView != nullptr)
