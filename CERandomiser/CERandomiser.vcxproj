@@ -170,7 +170,7 @@
     <ClInclude Include="ModuleCache.h" />
     <ClInclude Include="expected_exception.h" />
     <ClInclude Include="global_kill.h" />
-    <ClInclude Include="Hook.h" />
+    <ClInclude Include="ModuleHook.h" />
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
     <ClInclude Include="multilevel_pointer.h" />
@@ -227,7 +227,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ModuleCache.cpp" />
-    <ClCompile Include="Hook.cpp" />
+    <ClCompile Include="ModuleHook.cpp" />
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
     <ClCompile Include="enemy_randomizer.cpp" />

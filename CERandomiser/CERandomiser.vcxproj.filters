@@ -33,7 +33,7 @@
     <ClInclude Include="ModuleCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook.h">
+    <ClInclude Include="ModuleHook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3D11Hook.h">
@@ -92,7 +92,7 @@
     <ClCompile Include="ModuleCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hook.cpp">
+    <ClCompile Include="ModuleHook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D3D11Hook.cpp">
