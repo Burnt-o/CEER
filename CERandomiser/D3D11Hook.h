@@ -9,12 +9,13 @@
  extern "C" typedef HRESULT __stdcall DX11Present(IDXGISwapChain * pSwapChain, UINT SyncInterval, UINT Flags);
  extern "C" typedef HRESULT __stdcall DX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
 
+
 class D3D11Hook
 {
 private:
-	// constructor private
-	explicit D3D11Hook();
-
+	// constructor and destructor private
+	explicit D3D11Hook() = default;
+	~D3D11Hook() = default;
 	// singleton accessor
 	static D3D11Hook& get() {
 		static D3D11Hook instance;
@@ -32,6 +33,8 @@ private:
 	static LRESULT __stdcall mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Doesn't need hook cos we got SetWindowLongPtr
 	WNDPROC mOldWndProc = nullptr;
 	
+	static bool killPresentHook; // used to avoid race condition when destroying PresentHook
+
 	// D3D stuff
 	void initializeD3Ddevice(IDXGISwapChain* pSwapChain);
 	bool isD3DdeviceInitialized = false;
@@ -46,8 +49,6 @@ private:
 	
 
 
-	~D3D11Hook(); // releases d3d resources
-
 	// banned operations for singleton
 	D3D11Hook(const D3D11Hook& arg) = delete; // Copy constructor
 	D3D11Hook(const D3D11Hook&& arg) = delete;  // Move constructor
@@ -55,12 +56,9 @@ private:
 	D3D11Hook& operator=(const D3D11Hook&& arg) = delete; // Move operator
 
 public:
-	static void initialize()
-	{
-		get();
-	}
-
-	static void destroy()
+	static void initialize(); // Set up hooks
+	static void release(); // gets rid of hooks and releases d3d resources
+	static void destroy() // destroys the singleton
 	{
 		get().~D3D11Hook();
 	}

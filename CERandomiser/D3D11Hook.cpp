@@ -9,14 +9,13 @@ struct rgba {
 };
 
 
+bool D3D11Hook::killPresentHook = false;
 
 
-
-D3D11Hook::D3D11Hook()
+void D3D11Hook::initialize()
 {
 	PLOG_INFO << "creating D3D11 hooks";
     // Hook dx11 present and resizebuffers
-	{
 		auto builder = safetyhook::Factory::acquire();
 
 		auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
@@ -36,43 +35,9 @@ D3D11Hook::D3D11Hook()
 		PLOG_DEBUG << "oldPresent: " << p_oldPresent;
 		PLOG_DEBUG << "oldResizeBuffers: " << p_oldResizeBuffers;
 
-		mHookPresent = builder.create_inline(p_oldPresent, &newDX11Present);
-		mHookResizeBuffers = builder.create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
-	}
+		get().mHookPresent = builder.create_inline(p_oldPresent, &newDX11Present);
+		get().mHookResizeBuffers = builder.create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
 
-	// So I think we split off the below code into something that gets called by .. hkpresent... i dunno
-
-    //// Create a window called "My First Tool", with a menu bar.
-    //ImGui::Begin("My First Tool", NULL, ImGuiWindowFlags_MenuBar);
-    //if (ImGui::BeginMenuBar())
-    //{
-    //    if (ImGui::BeginMenu("testmenu"))
-    //    {
-    //        if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-    //        if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-    //        //if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
-    //        ImGui::EndMenu();
-    //    }
-    //    ImGui::EndMenuBar();
-    //}
-
-    //// Edit a color stored as 4 floats
-    //rgba my_color = rgba(0.f, 0.f, 0.f, 0.f);
-    //ImGui::ColorEdit4("Color", &my_color.r);
-
-    //// Generate samples and plot them
-    //float samples[100];
-    //for (int n = 0; n < 100; n++)
-    //    samples[n] = sinf(n * 0.2f + ImGui::GetTime() * 1.5f);
-    //ImGui::PlotLines("Samples", samples, 100);
-
-    //// Display contents in a scrolling region
-    //ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
-    //ImGui::BeginChild("Scrolling");
-    //for (int n = 0; n < 50; n++)
-    //    ImGui::Text("%04d: Some text", n);
-    //ImGui::EndChild();
-    //ImGui::End();
 }
 
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -155,8 +120,28 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 const std::string testString = "testttting";
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-	// Call original present
+
 	D3D11Hook& instance = get();
+	// This flag will only be set to true on D3D11Hook destruction
+	// We will destroy the hook ourselves then return original present
+	if (D3D11Hook::killPresentHook)
+	{
+		PLOG_INFO << "PresentHook destroying itself from newPresent";
+		// call original present
+		HRESULT res = instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
+
+		// destroy the hook 
+		instance.mHookPresent.reset();
+
+		// set the kill flag to false to communicate this back to the constructor
+		D3D11Hook::killPresentHook = false;
+
+		// return 
+		return res;
+	}
+
+
+
 
 	if (!instance.isD3DdeviceInitialized)
 	{
@@ -242,34 +227,65 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	return hr;
 }
 
+// Safely destroys hooks
 // Releases D3D resources, if we acquired them
-D3D11Hook::~D3D11Hook()
+void D3D11Hook::release()
 {
-	// need to call release on the device https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3dswapchain9-getdevice
-	if (m_pDevice)
+	D3D11Hook& instance = get();
+	// Hook destruction
+	// Check if present hook exists
+	if (instance.mHookPresent.target() != 0)
 	{
-		m_pDevice->Release();
-		m_pDevice = nullptr;
+		// set the kill flag
+		D3D11Hook::killPresentHook = true;
+
+		// Wait for newPresent to kill the hook itself - it will communicate that by setting the flag back to false
+		// with timeout for failure
+		int wait = 0;
+		while (D3D11Hook::killPresentHook)
+		{
+			Sleep(10);
+			wait++;
+
+			if (wait > 100)
+			{
+				// Kill the hook ourselves since newPresent doesn't want to do it, apparently
+				PLOG_ERROR << "Manually killing present hook";
+				instance.mHookPresent.reset();
+				break;
+			}
+		}
+	}
+
+	// We can safely destroy mHookResizeBuffers since the chances that it's running while this release() is called is neglible
+	instance.mHookResizeBuffers.reset();
+
+	// D3D resource releasing:
+	// need to call release on the device https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3dswapchain9-getdevice
+	if (instance.m_pDevice)
+	{
+		instance.m_pDevice->Release();
+		instance.m_pDevice = nullptr;
 	}
 
 	// and the device context
-	if (m_pDeviceContext)
+	if (instance.m_pDeviceContext)
 	{
-		m_pDeviceContext->Release();
-		m_pDeviceContext = nullptr;
+		instance.m_pDeviceContext->Release();
+		instance.m_pDeviceContext = nullptr;
 	}
 
 	// and the mainRenderTargetView
-	if (m_pMainRenderTargetView)
+	if (instance.m_pMainRenderTargetView)
 	{
-		m_pMainRenderTargetView->Release();
-		m_pMainRenderTargetView = nullptr;
+		instance.m_pMainRenderTargetView->Release();
+		instance.m_pMainRenderTargetView = nullptr;
 	}
 
 	// restore the original wndProc
-	if (mOldWndProc)
+	if (instance.mOldWndProc)
 	{
-		SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)mOldWndProc);
-		mOldWndProc = nullptr;
+		SetWindowLongPtrW(instance.m_windowHandle, GWLP_WNDPROC, (LONG_PTR)instance.mOldWndProc);
+		instance.mOldWndProc = nullptr;
 	}
 }

@@ -57,55 +57,53 @@ Create a PointerManager service that stores all the pointers per game version / 
 // Main Execution Loop
 void RealMain() {
 
-    { // scope for auto-managed resources
-        init_logging();
-        PLOG_INFO << "Randomizer initializing";
-        // instantiate the singletons
-        try
+
+    init_logging();
+    PLOG_INFO << "Randomizer initializing";
+    // instantiate the singletons
+    try
+    {
+        ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
+        D3D11Hook::initialize(); 
+        ModuleHookManager::initialize();
+
+    }
+    catch (expected_exception& ex)
+    {
+        PLOG_FATAL << "Failed initializing singletons: " << ex.what();
+        global_kill::kill_me();
+    }
+
+    // We live in this loop 99% of the time
+    while (!global_kill::is_kill_set()) {
+        if (GetKeyState(0x23) & 0x8000) // 'End' key
         {
-            ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
-
-            D3D11Hook::initialize(); 
-
-            ModuleHookManager::initialize();
-
-        }
-        catch (expected_exception& ex)
-        {
-            PLOG_FATAL << "Well that's no good: " << ex.what();
+            PLOG_INFO << "Killing internal dll";
             global_kill::kill_me();
         }
 
-       // auto hookManager = std::make_shared <ModuleHookManager>();
-
-
-
-        while (!global_kill::is_kill_set()) {
-            if (GetKeyState(0x23) & 0x8000) // 'End' key
-            {
-                PLOG_INFO << "Killing internal dll";
-                global_kill::kill_me();
-            }
-
-            if (GetKeyState(0x24) & 0x8000) // 'Home' key
-            {
-                PLOG_INFO << "enabling halo 1 enemy randomizer";
-                //hookManager->enableEnemyRandomizer();
-            }
-
-
-            Sleep(100);
+        if (GetKeyState(0x24) & 0x8000) // 'Home' key
+        {
+            PLOG_INFO << "enabling halo 1 enemy randomizer";
+            //hookManager->enableEnemyRandomizer();
         }
+
+
+        Sleep(100);
     }
-    // auto-managed resources have fallen out of scope
-    // just need to free up everything else
-    PLOG_DEBUG << "destroying singletons";
+
+    // Unattach hooks and release any manually managed resources
+    PLOG_DEBUG << "Unattaching hooks";
+    D3D11Hook::release();
+
+    // Destroy singletons (order matters)
+    PLOG_DEBUG << "Destroying singletons";
     ModuleHookManager::destroy();
     D3D11Hook::destroy();
-    ModuleCache::destroy();
+    ModuleCache::destroy(); // Best to do this last
 
 
-    PLOG_DEBUG << "end of logging";
+    PLOG_DEBUG << "Shutting down logging";
     stop_logging();
 }
 
