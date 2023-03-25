@@ -16,8 +16,6 @@ void D3D11Hook::initialize()
 {
 	PLOG_INFO << "creating D3D11 hooks";
     // Hook dx11 present and resizebuffers
-		auto builder = safetyhook::Factory::acquire();
-
 		auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
 		auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9EBC0 });
 		void* p_oldPresent;
@@ -35,8 +33,8 @@ void D3D11Hook::initialize()
 		PLOG_DEBUG << "oldPresent: " << p_oldPresent;
 		PLOG_DEBUG << "oldResizeBuffers: " << p_oldResizeBuffers;
 
-		get().mHookPresent = builder.create_inline(p_oldPresent, &newDX11Present);
-		get().mHookResizeBuffers = builder.create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
+		get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
+		get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
 
 }
 
@@ -120,7 +118,7 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 const std::string testString = "testttting";
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-
+	std::scoped_lock<std::mutex> lock(D3D11Hook::mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 	D3D11Hook& instance = get();
 	// This flag will only be set to true on D3D11Hook destruction
 	// We will destroy the hook ourselves then return original present
@@ -190,7 +188,9 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 
 HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
+	std::scoped_lock<std::mutex> lock(D3D11Hook::mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 	D3D11Hook& instance = get();
+
 	// Need to release mainRenderTargetView before calling ResizeBuffers
 	if (instance.m_pMainRenderTargetView != nullptr)
 	{
@@ -232,32 +232,8 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 void D3D11Hook::release()
 {
 	D3D11Hook& instance = get();
-	// Hook destruction
-	// Check if present hook exists
-	if (instance.mHookPresent.target() != 0)
-	{
-		// set the kill flag
-		D3D11Hook::killPresentHook = true;
-
-		// Wait for newPresent to kill the hook itself - it will communicate that by setting the flag back to false
-		// with timeout for failure
-		int wait = 0;
-		while (D3D11Hook::killPresentHook)
-		{
-			Sleep(10);
-			wait++;
-
-			if (wait > 100)
-			{
-				// Kill the hook ourselves since newPresent doesn't want to do it, apparently
-				PLOG_ERROR << "Manually killing present hook";
-				instance.mHookPresent.reset();
-				break;
-			}
-		}
-	}
-
-	// We can safely destroy mHookResizeBuffers since the chances that it's running while this release() is called is neglible
+	// Destroy the hooks
+	instance.mHookPresent.reset();
 	instance.mHookResizeBuffers.reset();
 
 	// D3D resource releasing:

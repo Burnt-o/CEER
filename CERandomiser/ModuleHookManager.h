@@ -72,6 +72,17 @@ public:
 
 	static void destroy()
 	{
+		ModuleHookManager& instance = get();
+		// We must detach the module-relative hooks before unhooking the library load/unload functions
+		// otherwise we could have a stale reference issue
+		instance.detachAllHooks();
+
+		instance.mHook_LoadLibraryA.reset();
+		instance.mHook_LoadLibraryW.reset();
+		instance.mHook_LoadLibraryExA.reset();
+		instance.mHook_LoadLibraryExW.reset();
+		instance.mHook_FreeLibrary.reset();
+
 		get().~ModuleHookManager();
 	}
 

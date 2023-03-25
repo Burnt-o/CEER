@@ -45,8 +45,7 @@
 
 // External Libraries
 // hooking
-#include <SafetyHook.hpp>
-
+#include <safetyhook.hpp>
 // logging
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>

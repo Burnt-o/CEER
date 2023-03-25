@@ -2,7 +2,8 @@
 #include "multilevel_pointer.h"
 
 
-
+// A small wrapper for safetyhooks InlineHook and MidHook, for hooks to dynamically loaded/unloaded modules
+// For use with ModuleHookManager
 // Hooks attach automatically on module load, if mWantsToBeAttached. 
 class ModuleHookBase {
 private:
@@ -35,16 +36,7 @@ public:
 	void setWantsToBeAttached(bool value);
 
 
-	// This method forces an attach NOW if mWantsToBeAttached, so we don't have to wait for module load
-	// This is called by the child constructors but is public too
-	bool forceAttachIfWanted()
-	{
-		if (mWantsToBeAttached)
-		{
-			attach();
-		}
-		return isHookInstalled();
-	}
+
 
 };
 
@@ -58,9 +50,10 @@ public:
 	ModuleInlineHook(const std::wstring& hook_name, MultilevelPointer* original_func, void* new_func, bool startEnabled = false)
 		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
-		// If startEnabled is true, hooks will also try to force an immediate attach on construction
-		// otherwise they will only attach when module is first loaded (by ModuleHookManager)
-		forceAttachIfWanted();
+		if (startEnabled)
+		{
+			attach();
+		}
 	}
 	
 	 ~ModuleInlineHook() final { detach(); } // Detach hook on destruction //TODO I think I can safely remove this
@@ -71,12 +64,11 @@ public:
 
 
 
-	safetyhook::InlineHook& getInlineHook();
+	safetyhook::InlineHook& getInlineHook(); // Useful for calling original function
 
 	bool isHookInstalled() const final;
 
-private:
-	void hook_install(void* old_func, void* new_func);
+
 };
 
 
@@ -93,9 +85,10 @@ public:
 	ModuleMidHook(const std::wstring& hook_name, MultilevelPointer* original_func, safetyhook::MidHookFn new_func, bool startEnabled = false)
 		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
-		// If startEnabled is true, hooks will also try to force an immediate attach on construction
-		// otherwise they will only attach when module is first loaded (by ModuleHookManager)
-		forceAttachIfWanted();
+		if (startEnabled)
+		{
+			attach();
+		}
 	}
 	 
 	~ModuleMidHook() final { detach(); } // Detach hook on destruction //TODO I think I can safely remove this
@@ -106,9 +99,6 @@ public:
 	void detach() final;
 
 	bool isHookInstalled() const final;
-
-private:
-	void hook_install(void* old_func, safetyhook::MidHookFn new_func);
 };
 
 

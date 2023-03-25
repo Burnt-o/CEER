@@ -81,6 +81,12 @@
     <ClInclude Include="ImGuiHook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="includes\safetyhook\safetyhook.hpp">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\safetyhook\Zydis.h">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -107,21 +113,6 @@
     <ClCompile Include="multilevel_pointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="includes\safetyhook-main\src\Builder.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\safetyhook-main\src\Factory.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\safetyhook-main\src\InlineHook.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\safetyhook-main\src\MidHook.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\safetyhook-main\src\ThreadFreezer.cpp">
-      <Filter>Source Files\safetyhook</Filter>
-    </ClCompile>
     <ClCompile Include="includes\imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
@@ -142,6 +133,12 @@
     </ClCompile>
     <ClCompile Include="ImGuiHook.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook\safetyhook.cpp">
+      <Filter>Source Files\safetyhook</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\safetyhook\Zydis.c">
+      <Filter>Source Files\safetyhook</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

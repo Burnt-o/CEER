@@ -1,6 +1,0 @@
-build
-build32
-cmake-build*
-.idea
-.vscode
-.vs/

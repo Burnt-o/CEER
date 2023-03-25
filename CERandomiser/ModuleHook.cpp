@@ -13,23 +13,6 @@ const std::wstring& ModuleHookBase::getHookName() const
 }
 
 
-void ModuleInlineHook::hook_install(void* old_func, void* new_func)
-{
-	// Acquire the factory's builder which will freeze all threads and give
-	// us access to the hook creation methods.
-	auto builder = SafetyHookFactory::acquire();
-
-	this->mInlineHook = builder.create_inline(old_func, new_func);
-
-	// Once we leave this scope, builder will unfreeze all threads and our
-	// factory will be kept alive by member mInlineHook.
-}
-
-void ModuleMidHook::hook_install(void* old_func, safetyhook::MidHookFn new_func)
-{
-	auto builder = SafetyHookFactory::acquire();
-	this->mMidHook = builder.create_mid(old_func, new_func);
-}
 
 
 void ModuleInlineHook::attach()
@@ -47,7 +30,6 @@ void ModuleInlineHook::attach()
 		return;
 	}
 
-
 	void* pOriginalFunction;
 	if (!this->mOriginalFunction->resolve(&pOriginalFunction))
 	{
@@ -57,10 +39,9 @@ void ModuleInlineHook::attach()
 
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
-	hook_install(pOriginalFunction, this->mHookFunction); // need to pass latter by ref?
+	this->mInlineHook = safetyhook::create_inline(pOriginalFunction, this->mHookFunction);
 
 	PLOG_DEBUG << "inline_hook successfully attached: " << this->getHookName();
-
 
 }
 
@@ -87,11 +68,9 @@ void ModuleMidHook::attach()
 
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
-	hook_install(pOriginalFunction, this->mHookFunction);
+	this->mMidHook = safetyhook::create_mid(pOriginalFunction, this->mHookFunction);
 
 	PLOG_DEBUG << "mid_hook successfully attached: " << this->getHookName();
-	PLOG_VERBOSE << "originalFunc " << pOriginalFunction;
-	PLOG_VERBOSE << "replacedFunc " << *this->mHookFunction; //error
 }
 
 void ModuleInlineHook::detach()
@@ -158,13 +137,13 @@ safetyhook::InlineHook& ModuleInlineHook::getInlineHook()
 }
 
 
-// isHookInstalled just checks if the safetyhook types are properly constructed (hook is installed) or default-constructed (hook is not installed, all members are zero)
+
 bool ModuleInlineHook::isHookInstalled() const
 {
-	return this->mInlineHook.trampoline() != 0;
+	return this->mInlineHook.operator bool();
 }
 
 bool ModuleMidHook::isHookInstalled() const
 {
-	return this->mMidHook.target() != 0;
+	return this->mMidHook.operator bool();
 }

@@ -13,13 +13,12 @@ ModuleHookManager::ModuleHookManager()
 {
 	// We'll make global hooks here that track dll loading/unloading
 	PLOG_INFO << "Hooking module load/unload";
-	auto builder = SafetyHookFactory::acquire();
 
-	mHook_LoadLibraryA = builder.create_inline(&LoadLibraryA, &newLoadLibraryA);
-	mHook_LoadLibraryW = builder.create_inline(&LoadLibraryW, &newLoadLibraryW);
-	mHook_LoadLibraryExA = builder.create_inline(&LoadLibraryExA, &newLoadLibraryExA);
-	mHook_LoadLibraryExW = builder.create_inline(&LoadLibraryExW, &newLoadLibraryExW);
-	mHook_FreeLibrary = builder.create_inline(&FreeLibrary, &newFreeLibrary);
+	mHook_LoadLibraryA = safetyhook::create_inline(&LoadLibraryA, &newLoadLibraryA);
+	mHook_LoadLibraryW = safetyhook::create_inline(&LoadLibraryW, &newLoadLibraryW);
+	mHook_LoadLibraryExA = safetyhook::create_inline(&LoadLibraryExA, &newLoadLibraryExA);
+	mHook_LoadLibraryExW = safetyhook::create_inline(&LoadLibraryExW, &newLoadLibraryExW);
+	mHook_FreeLibrary = safetyhook::create_inline(&FreeLibrary, &newFreeLibrary);
 
 	mModuleHooksMap.reserve(6); // probably only the 6 game dll's that we might care about ever
 

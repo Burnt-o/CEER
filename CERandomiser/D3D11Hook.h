@@ -26,6 +26,7 @@ private:
 	// hook objects
 	safetyhook::InlineHook mHookPresent;
 	safetyhook::InlineHook mHookResizeBuffers;
+	static inline std::mutex mDestructionGuard; // Protects against D3D11Hook singleton destruction while hooks are executing
 
 	// hook functions
 	static DX11Present newDX11Present;
@@ -60,6 +61,11 @@ public:
 	static void release(); // gets rid of hooks and releases d3d resources
 	static void destroy() // destroys the singleton
 	{
+		// It's important that hooks are destroyed BEFORE the rest of the class is
+		// as the hook functions will try to access class members
+		// and also the d3d resources need to be manually released
+		release();
+		std::scoped_lock<std::mutex> lock(mDestructionGuard); // Hook functions lock this
 		get().~D3D11Hook();
 	}
 };
