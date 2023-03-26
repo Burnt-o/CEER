@@ -9,29 +9,7 @@ struct rgba {
 };
 
 
-const std::string testString = "testttting";
-void presentCallBackTest(D3D11Hook& D3D, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
-{
-	// Setup ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 
-	// I don't 100% understand what this does, but it must be done before we try to render
-	D3D.m_pDeviceContext->OMSetRenderTargets(1, &D3D.m_pMainRenderTargetView, NULL);
-
-	/* insert drawing */
-	// for testing
-	ImGui::GetOverlayDrawList()->AddText(ImVec2(20, 20), ImU32(0xFFFFFFFF), testString.c_str());
-
-	// Finish ImGui frame
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	// Render it !
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	return;
-}
 
 void D3D11Hook::initialize()
 {
@@ -57,29 +35,11 @@ void D3D11Hook::initialize()
 		get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
 		get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
 
-
-		// setup callback test
-		get().presentHookCallback.append(presentCallBackTest);
-
-
 }
 
-IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT __stdcall D3D11Hook::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
-	if (!res) // I think this means the ImGui window didn't have anything to handle
-	{
-		// so call the original and let it handle it
-		return CallWindowProc(D3D11Hook::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
-	}
-	else
-	{
-		return res;
-	}
-}
+
 
 void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 {
@@ -99,11 +59,7 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 		throw expected_exception("Failed to get DeviceContext");
 	}
 
-	// Use swap chain description to get MCC window handle
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	pSwapChain->GetDesc(&swapChainDesc);
-	if (!&swapChainDesc) throw expected_exception("Failed to get swap chain description");
-	m_windowHandle = swapChainDesc.OutputWindow;
+
 
 	// Use backBuffer to get MainRenderTargetView
 	ID3D11Texture2D* pBackBuffer;
@@ -114,31 +70,7 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	pBackBuffer->Release();
 	if (!m_pMainRenderTargetView) throw expected_exception("Failed to get MainRenderTargetView");
 
-	// Setup the imgui WndProc callback
-	mOldWndProc = (WNDPROC)SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)mNewWndProc);
-
-
-
-	// Setup ImGui stuff
-	PLOG_DEBUG << "Initializing ImGui";
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
-
-	if (!ImGui_ImplWin32_Init(m_windowHandle)) 
-	{
-		throw expected_exception(std::format("ImGui_ImplWin32_Init failed w/ {} ", (uint64_t)m_windowHandle).c_str());
-	};
-	if (!ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext)) 
-	{
-		throw expected_exception(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)m_pDevice, (uint64_t)m_pDeviceContext).c_str());
-	};
-
-	ImGui_ImplDX11_NewFrame(); // need to get a new frame to be able to load default font
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	ImGui::EndFrame();
-	mDefaultFont = ImGui::GetIO().Fonts->Fonts[0]; // this is crashing. Fonts[0] is invalid?
+	
 
 }
 
@@ -253,10 +185,5 @@ void D3D11Hook::release()
 		instance.m_pMainRenderTargetView = nullptr;
 	}
 
-	// restore the original wndProc
-	if (instance.mOldWndProc)
-	{
-		SetWindowLongPtrW(instance.m_windowHandle, GWLP_WNDPROC, (LONG_PTR)instance.mOldWndProc);
-		instance.mOldWndProc = nullptr;
-	}
+
 }

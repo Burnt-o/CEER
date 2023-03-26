@@ -158,7 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D11Hook.h" />
-    <ClInclude Include="ImGuiHook.h" />
+    <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="includes\imgui\imconfig.h" />
     <ClInclude Include="includes\imgui\imgui.h" />
     <ClInclude Include="includes\imgui\imgui_impl_dx11.h" />
@@ -176,6 +176,7 @@
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
     <ClInclude Include="multilevel_pointer.h" />
+    <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="enemy_randomizer.h" />
     <ClInclude Include="windows_utilities.h" />
@@ -183,7 +184,7 @@
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="ImGuiHook.cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="includes\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -221,6 +222,7 @@
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
     <ClCompile Include="enemy_randomizer.cpp" />
+    <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="windows_utilities.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

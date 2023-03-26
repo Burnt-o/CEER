@@ -6,9 +6,8 @@
 #include "ModuleCache.h"
 #include "ModuleHookManager.h"
 #include "D3D11Hook.h"
-
-
-
+#include "ImGuiManager.h"
+#include "OptionsGUI.h"
 
 void init_logging()
 {
@@ -54,11 +53,14 @@ Create a PointerManager service that stores all the pointers per game version / 
 
 
 
+
 // Main Execution Loop
 void RealMain() {
 
 
     init_logging();
+
+
     PLOG_INFO << "Randomizer initializing";
     // instantiate the singletons
     try
@@ -66,6 +68,9 @@ void RealMain() {
         ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
         D3D11Hook::initialize(); 
         ModuleHookManager::initialize();
+
+        ImGuiManager::initialize(D3D11Hook::get());
+        OptionsGUI::initialize(ImGuiManager::get());
 
     }
     catch (expected_exception& ex)
