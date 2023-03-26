@@ -9,8 +9,29 @@ struct rgba {
 };
 
 
-bool D3D11Hook::killPresentHook = false;
+const std::string testString = "testttting";
+void presentCallBackTest(D3D11Hook& D3D, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+{
+	// Setup ImGui frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
+	// I don't 100% understand what this does, but it must be done before we try to render
+	D3D.m_pDeviceContext->OMSetRenderTargets(1, &D3D.m_pMainRenderTargetView, NULL);
+
+	/* insert drawing */
+	// for testing
+	ImGui::GetOverlayDrawList()->AddText(ImVec2(20, 20), ImU32(0xFFFFFFFF), testString.c_str());
+
+	// Finish ImGui frame
+	ImGui::EndFrame();
+	ImGui::Render();
+
+	// Render it !
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	return;
+}
 
 void D3D11Hook::initialize()
 {
@@ -35,6 +56,11 @@ void D3D11Hook::initialize()
 
 		get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
 		get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
+
+
+		// setup callback test
+		get().presentHookCallback.append(presentCallBackTest);
+
 
 }
 
@@ -115,31 +141,11 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	mDefaultFont = ImGui::GetIO().Fonts->Fonts[0]; // this is crashing. Fonts[0] is invalid?
 
 }
-const std::string testString = "testttting";
+
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
 	std::scoped_lock<std::mutex> lock(D3D11Hook::mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 	D3D11Hook& instance = get();
-	// This flag will only be set to true on D3D11Hook destruction
-	// We will destroy the hook ourselves then return original present
-	if (D3D11Hook::killPresentHook)
-	{
-		PLOG_INFO << "PresentHook destroying itself from newPresent";
-		// call original present
-		HRESULT res = instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
-
-		// destroy the hook 
-		instance.mHookPresent.reset();
-
-		// set the kill flag to false to communicate this back to the constructor
-		D3D11Hook::killPresentHook = false;
-
-		// return 
-		return res;
-	}
-
-
-
 
 	if (!instance.isD3DdeviceInitialized)
 	{
@@ -161,30 +167,19 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 		
 	}
    
-	// Setup ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	// Invoke the callback
+	instance.presentHookCallback(instance, pSwapChain, SyncInterval, Flags);
 
-	// I don't 100% understand what this does, but it must be done before we try to render
-	instance.m_pDeviceContext->OMSetRenderTargets(1, &instance.m_pMainRenderTargetView, NULL);
-
-	/* insert drawing */
-	// for testing
-	ImGui::GetOverlayDrawList()->AddText(ImVec2(20, 20), ImU32(0xFFFFFFFF), testString.c_str());
-
-	// Finish ImGui frame
-	ImGui::EndFrame();
-	ImGui::Render();
-
-	// Render it !
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	
 
 
 	// Call original present
 	return instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
 
 }
+
+
+
 
 HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {

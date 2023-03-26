@@ -10,6 +10,7 @@
  extern "C" typedef HRESULT __stdcall DX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
 
 
+
 class D3D11Hook
 {
 private:
@@ -36,6 +37,8 @@ private:
 	
 	static bool killPresentHook; // used to avoid race condition when destroying PresentHook
 
+
+public:
 	// D3D stuff
 	void initializeD3Ddevice(IDXGISwapChain* pSwapChain);
 	bool isD3DdeviceInitialized = false;
@@ -44,6 +47,8 @@ private:
 	HWND m_windowHandle = nullptr;
 	ID3D11RenderTargetView* m_pMainRenderTargetView = nullptr;
 
+	// callback for present rendering
+	eventpp::CallbackList<void(D3D11Hook&, IDXGISwapChain*, UINT , UINT )> presentHookCallback;
 
 	// Imgui stuff
 	ImFont* mDefaultFont = nullptr;
