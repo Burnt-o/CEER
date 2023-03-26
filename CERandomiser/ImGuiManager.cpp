@@ -7,18 +7,15 @@
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
-
-	if (!res) // I think this means the ImGui window didn't have anything to handle
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	if (io.WantCaptureMouse)
 	{
-		// so call the original and let it handle it
+		return TRUE;
+	}
+		// else
 		return CallWindowProc(ImGuiManager::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
-	}
-	else
-	{
-		ImGui::GetIO().WantCaptureMouse = true;
-		return res;
-	}
+
 }
 
 void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
