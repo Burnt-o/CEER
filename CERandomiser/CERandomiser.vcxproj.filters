@@ -36,9 +36,6 @@
     <ClInclude Include="ModuleHook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D3D11Hook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ModuleHookManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,10 +81,16 @@
     <ClInclude Include="includes\safetyhook\Zydis.h">
       <Filter>Source Files\safetyhook</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D11Hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ImGuiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OptionsGUI.h">
+    <ClInclude Include="CEERGUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,9 +105,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ModuleHook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11Hook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="enemy_randomizer.cpp">
@@ -140,11 +140,24 @@
     <ClCompile Include="includes\safetyhook\Zydis.c">
       <Filter>Source Files\safetyhook</Filter>
     </ClCompile>
+    <ClCompile Include="D3D11Hook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OptionsGUI.cpp">
+    <ClCompile Include="CEERGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CERandomiser.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="CEER.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

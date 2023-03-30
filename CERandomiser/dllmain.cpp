@@ -7,7 +7,9 @@
 #include "ModuleHookManager.h"
 #include "D3D11Hook.h"
 #include "ImGuiManager.h"
-#include "OptionsGUI.h"
+#include "CEERGUI.h"
+
+
 
 void init_logging()
 {
@@ -38,25 +40,16 @@ void stop_logging()
 
 
 /* GENERAL TODO:: 
-Probably change HookManager to be ModuleHookManager
-    It should only manage hooks that are module relative
-Hook/InlineHook/MidHook -> ModuleHook/ModuleInlineHook/ModuleMidHook
-    associatedModule should be mandatory
-    non-module hooks can just use the base safetyhook 
-    Refactor the ModuleHook stuff now that we've narrowed the scope of it's purpose
-Split off the d3d hook stuff into D3DHookManager and ImGuiManager
-    the latter holding a reference to the former so the latter gets destructed first
-ConfigWindow then holds ref to ImGuiManager
-Add IATLookup PointerType, for getting the address of d3d Present and ResizeBuffers
 Create a PointerManager service that stores all the pointers per game version / looks it up from the intertubes
+Add OptionState stuff
+BOY does the external window not interact good with RTSS
 */ 
 
 
 
 
 // Main Execution Loop
-void RealMain() {
-
+void RealMain(HMODULE dllHandle) {
 
     init_logging();
 
@@ -66,11 +59,14 @@ void RealMain() {
     try
     {
         ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
-        D3D11Hook::initialize(); 
         ModuleHookManager::initialize();
 
+        // Set up rendering and GUI
+        D3D11Hook::initialize();
         ImGuiManager::initialize(D3D11Hook::get());
-        OptionsGUI::initialize(ImGuiManager::get());
+        CEERGUI::initialize();
+
+
 
     }
     catch (expected_exception& ex)
@@ -79,34 +75,38 @@ void RealMain() {
         global_kill::kill_me();
     }
 
+
+
     // We live in this loop 99% of the time
     while (!global_kill::is_kill_set()) {
+       
+
         if (GetKeyState(0x23) & 0x8000) // 'End' key
         {
             PLOG_INFO << "Killing internal dll";
             global_kill::kill_me();
         }
 
-        if (GetKeyState(0x24) & 0x8000) // 'Home' key
+
+        if (GetKeyState(0x24) & 0x8000) // 'End' key
         {
-            PLOG_INFO << "enabling halo 1 enemy randomizer";
-            //hookManager->enableEnemyRandomizer();
+            PLOG_INFO << "Killing hooks";
+            ModuleHookManager::destroy();   PLOG_DEBUG << "ModuleHookManager destroyed";
+
         }
-
-
-        Sleep(100);
+       
     }
 
     // Unattach hooks and release any manually managed resources
-    PLOG_DEBUG << "Unattaching hooks";
-    D3D11Hook::release();
-
     // Destroy singletons (order matters)
-    PLOG_DEBUG << "Destroying singletons";
-    ModuleHookManager::destroy();
-    D3D11Hook::destroy();
-    ModuleCache::destroy(); // Best to do this last
+    PLOG_DEBUG << "Unattaching hooks and destroying Singletons";
+    CEERGUI::destroy();             PLOG_DEBUG << "CEERGUI destroyed";
+    ImGuiManager::release();        PLOG_DEBUG << "ImGuiManager destroyed";
+    D3D11Hook::release();           PLOG_DEBUG << "D3D11Hook destroyed";
 
+
+
+    ModuleHookManager::destroy();   PLOG_DEBUG << "ModuleHookManager destroyed";
 
     PLOG_DEBUG << "Shutting down logging";
     stop_logging();
@@ -118,7 +118,8 @@ void RealMain() {
 // will occur before they fall out of scope and will not be cleaned up properly! This is very
 // important for being able to hotload the DLL multiple times without restarting the game.
 DWORD WINAPI MainThread(HMODULE hDLL) {
-    RealMain();
+    
+    RealMain(hDLL);
 
     Sleep(200);
     FreeLibraryAndExitThread(hDLL, NULL);

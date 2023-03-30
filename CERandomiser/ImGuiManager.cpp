@@ -2,18 +2,19 @@
 #include "ImGuiManager.h"
 #include "global_kill.h"
 
-
+eventpp::CallbackList<void(D3D11Hook&, IDXGISwapChain*, UINT, UINT)>::Handle ImGuiManager::mCallbackHandle = {};
 
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	//https://www.unknowncheats.me/forum/2488829-post5.html
 	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	if (io.WantCaptureMouse)
 	{
-		return TRUE;
+		return res;
 	}
-		// else
+		// ImGui didn't handle the click so let MCC do it
 		return CallWindowProc(ImGuiManager::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
 
 }
@@ -46,11 +47,41 @@ void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwa
 		throw expected_exception(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)d3d.m_pDevice, (uint64_t)d3d.m_pDeviceContext).c_str());
 	};
 
-	ImGui_ImplDX11_NewFrame(); // need to get a new frame to be able to load default font
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	ImGui::EndFrame();
-	mDefaultFont = ImGui::GetIO().Fonts->Fonts[0]; 
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	ImGuiStyle* style = &ImGui::GetStyle();
+	style->FrameRounding = 0;
+	style->WindowBorderSize = 0;
+	style->WindowRounding = 0;
+	style->FrameBorderSize = 1;
+
+	// Colors
+	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.04f, 0.08f, 1.00f);
+	style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.90f, 0.90f, 1.00f);
+	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.29f, 0.29f, 1.00f);
+
+	style->Colors[ImGuiCol_Border] = ImVec4(0.40f, 0.50f, 0.50f, 0.38f);
+	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+
+	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.35f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.55f, 0.23f, 0.29f, 1.00f);
+	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.81f, 0.23f, 0.29f, 1.00f);
+
+	style->Colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 0.9f, 0.6f, 0.7f);
+	style->Colors[ImGuiCol_Button] = ImVec4(0.30f, 0.09f, 0.12f, 1.00f);
+	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.50f, 0.23f, 0.29f, 1.00f);
+	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.75f, 0.23f, 0.29f, 1.00f);
+
+	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.75f, 0.43f);
+
+	style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.90f, 0.70f, 0.73f, 0.31f);
+	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.05f, 0.07f, 1.00f);
+
+	//ImGui_ImplDX11_NewFrame(); // need to get a new frame to be able to load default font
+	//ImGui_ImplWin32_NewFrame();
+	//ImGui::NewFrame();
+	//ImGui::EndFrame();
+	//mDefaultFont = ImGui::GetIO().Fonts->Fonts[0]; 
 }
 
 void ImGuiManager::release()
@@ -63,10 +94,25 @@ void ImGuiManager::release()
 		instance.mOldWndProc = nullptr;
 	}
 
+	// Cleanup
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+
+	// Don't need to listen to D3D present callback anymore
+	if (mCallbackHandle)
+	{
+		D3D11Hook::get().presentHookCallback.remove(mCallbackHandle);
+		mCallbackHandle = {};
+	}
+
+	get().m_isImguiInitialized = false;
+
 }
 
 void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
+	//PLOG_VERBOSE << "ImGuiManager::onPresentHookCallback()";
 	std::scoped_lock<std::mutex> lock(mDestructionGuard); // ImGuiManager::destroy also locks this
 
 	if (!get().m_isImguiInitialized)

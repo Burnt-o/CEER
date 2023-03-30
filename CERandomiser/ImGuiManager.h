@@ -28,12 +28,13 @@ private:
 	HWND m_windowHandle = nullptr;
 	static LRESULT __stdcall mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); // Doesn't need hook cos we got SetWindowLongPtr
 	WNDPROC mOldWndProc = nullptr;
+	static eventpp::CallbackList<void(D3D11Hook&, IDXGISwapChain*, UINT, UINT)>::Handle mCallbackHandle;
 
 public:
 	eventpp::CallbackList<void()> ImGuiRenderCallback; // things that want to render w/ imgui will listen to this
 	static void initialize(D3D11Hook& d3d) // Listen to presentHookCallback
 	{
-		d3d.presentHookCallback.append(onPresentHookCallback);
+		mCallbackHandle = d3d.presentHookCallback.append(onPresentHookCallback);
 	}
 	static void release(); // release imgui resources
 	static void destroy() // destroys the singleton

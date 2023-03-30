@@ -2,7 +2,7 @@
 
 
 /// <summary>
-/// The ModuleCache singleton contains the current status of ALL loaded DLLs
+/// The ModuleCache static class contains the current status of ALL loaded DLLs
 /// With hooks to LoadLibrary/FreeLibrary (applied in HookManager) this should always be up to date.
 /// Adapted from scales' MCCTAS https://github.com/Scaless/HaloTAS/blob/master/HaloTAS/libhalotas/dll_cache.h
 /// </summary>
@@ -10,19 +10,13 @@ class ModuleCache
 {
 private:
 	// DLL Name, Base Address
-	std::unordered_map<std::wstring, MODULEINFO> mCache;
+	static std::unordered_map<std::wstring, MODULEINFO> mCache;
 
-	static ModuleCache& get() {
-		static ModuleCache instance;
-		return instance;
-	}
 
-	// constructor hidden
-	ModuleCache() = default;
-	~ModuleCache()
-	{
-		PLOG_VERBOSE << "ModuleCache destroyed";
-	}
+
+	// static class
+	ModuleCache() = delete;
+	~ModuleCache() = delete;
 
 
 
@@ -46,10 +40,7 @@ public:
 	ModuleCache(ModuleCache& other) = delete;
 	ModuleCache& operator=(const ModuleCache&) = delete;
 
-	static void destroy()
-	{
-		get().~ModuleCache();
-	}
+
 };
 
 

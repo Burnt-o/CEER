@@ -43,7 +43,7 @@ void ModuleHookManager::detachAllHooks() {
 // Called by newFreeLibrary, unhooks any hooks tied to the unloading module
 void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilename) 
 {
-
+	std::cout << "a" << std::endl;
 	// Get a ref to the module-hooks map
 	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = ModuleHookManager::get().mModuleHooksMap;
 
@@ -63,6 +63,7 @@ void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilenam
 // Called by newLoadLibraries, attaches any hooks (that want to be enabled) associated with the loading module
 void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath) 
 {
+	std::cout << "b" << std::endl;;
 	// Need to get the name of the module from the libPath arguement
 	std::filesystem::path path = libPath;
 	auto libFilename = path.filename().generic_wstring();

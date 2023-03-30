@@ -52,8 +52,9 @@
 #include <plog/Initializers/ConsoleInitializer.h>
 
 // imgui
-
-//#include "imgui/imgui_stdlib.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
 
 // directx 11
 #include <d3d11.h>

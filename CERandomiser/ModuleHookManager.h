@@ -83,7 +83,7 @@ public:
 		instance.mHook_LoadLibraryExW.reset();
 		instance.mHook_FreeLibrary.reset();
 
-		get().~ModuleHookManager();
+		//get().~ModuleHookManager();
 	}
 
 };

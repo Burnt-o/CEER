@@ -34,7 +34,7 @@ private:
 	
 
 
-public:
+public: // TODO: make this not public without breaking everything
 	// D3D stuff
 	void initializeD3Ddevice(IDXGISwapChain* pSwapChain);
 	bool isD3DdeviceInitialized = false;

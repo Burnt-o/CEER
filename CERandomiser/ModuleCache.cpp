@@ -3,13 +3,13 @@
 
 
 // Adapted from scales' MCCTAS https://github.com/Scaless/HaloTAS/blob/master/HaloTAS/libhalotas/dll_cache.cpp
+std::unordered_map<std::wstring, MODULEINFO> ModuleCache::mCache = {};
 
 void ModuleCache::initialize()
 {
-	auto& instance = get();
 
 	// Clear the cache
-	instance.mCache.clear();
+	ModuleCache::mCache.clear();
 
 	// Fill with current values
 	HMODULE hMods[1024];
@@ -26,7 +26,7 @@ void ModuleCache::initialize()
 				MODULEINFO info;
 				if (GetModuleInformation(hProcess, hMods[i], &info, sizeof(info))) {
 					std::wstring name{ szModName };
-					instance.mCache.emplace(name, info);
+					ModuleCache::mCache.emplace(name, info);
 				}
 			}
 		}
@@ -35,17 +35,16 @@ void ModuleCache::initialize()
 
 bool ModuleCache::addModuleToCache(const std::wstring& moduleName, HMODULE moduleHandle)
 {
-	auto& instance = get();
 
 	// check if it's in the cache already
-	if (auto it = instance.mCache.find(moduleName); it != instance.mCache.end()) {
+	if (auto it = ModuleCache::mCache.find(moduleName); it != ModuleCache::mCache.end()) {
 		return true;
 	}
 
 	// if not, add to cache
 	MODULEINFO info;
 	if (GetModuleInformation(GetCurrentProcess(), moduleHandle, &info, sizeof(info))) {
-		instance.mCache.emplace(moduleName, info);
+		ModuleCache::mCache.emplace(moduleName, info);
 		return true;
 	}
 	else 
@@ -58,9 +57,8 @@ bool ModuleCache::addModuleToCache(const std::wstring& moduleName, HMODULE modul
 
 bool ModuleCache::removeModuleFromCache(const std::wstring& moduleName)
 {
-	auto& instance = get();
-	if (auto it = instance.mCache.find(moduleName); it != instance.mCache.end()) {
-		instance.mCache.erase(it);
+	if (auto it = ModuleCache::mCache.find(moduleName); it != ModuleCache::mCache.end()) {
+		ModuleCache::mCache.erase(it);
 		return true;
 	}
 
@@ -69,8 +67,7 @@ bool ModuleCache::removeModuleFromCache(const std::wstring& moduleName)
 
 std::optional<HMODULE> ModuleCache::getModuleHandle(const std::wstring& moduleName)
 {
-	auto& instance = get();
-	if (auto it = instance.mCache.find(moduleName); it != instance.mCache.end()) {
+	if (auto it = ModuleCache::mCache.find(moduleName); it != ModuleCache::mCache.end()) {
 		return (HMODULE)it->second.lpBaseOfDll;
 	}
 
@@ -79,8 +76,7 @@ std::optional<HMODULE> ModuleCache::getModuleHandle(const std::wstring& moduleNa
 
 std::optional<MODULEINFO> ModuleCache::getModuleInfo(const std::wstring& moduleName)
 {
-	auto& instance = get();
-	if (auto it = instance.mCache.find(moduleName); it != instance.mCache.end()) {
+	if (auto it = ModuleCache::mCache.find(moduleName); it != ModuleCache::mCache.end()) {
 		return it->second;
 	}
 
@@ -89,8 +85,7 @@ std::optional<MODULEINFO> ModuleCache::getModuleInfo(const std::wstring& moduleN
 
 bool ModuleCache::isModuleInCache(const std::wstring& moduleName)
 {
-	auto& instance = get();
-	auto it = instance.mCache.find(moduleName);
-	return it != instance.mCache.end();
+	auto it = ModuleCache::mCache.find(moduleName);
+	return it != ModuleCache::mCache.end();
 
 }

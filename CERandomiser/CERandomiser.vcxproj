@@ -132,6 +132,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,6 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -176,9 +178,10 @@
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
     <ClInclude Include="multilevel_pointer.h" />
-    <ClInclude Include="OptionsGUI.h" />
+    <ClInclude Include="CEERGUI.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="enemy_randomizer.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="windows_utilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -222,8 +225,14 @@
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
     <ClCompile Include="enemy_randomizer.cpp" />
-    <ClCompile Include="OptionsGUI.cpp" />
+    <ClCompile Include="CEERGUI.cpp" />
     <ClCompile Include="windows_utilities.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CERandomiser.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="CEER.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -1,9 +1,10 @@
 #include "pch.h"
-#include "OptionsGUI.h"
+#include "CEERGUI.h"
 #include "global_kill.h"
 
 bool test_checkbox = false;
 float test_slider = 0.3f;
+eventpp::CallbackList<void()>::Handle CEERGUI::mCallbackHandle = {};
 
 struct rgb {
 	float r, g, b;
@@ -12,26 +13,24 @@ struct rgb {
 int test_buttonPressCount = 0;
 
 rgb test_coloredit;
-void OptionsGUI::initializeOptionsGUI()
+void CEERGUI::initializeCEERGUI()
 {
 	ImGui::SetWindowSize(ImVec2(300, 300));
 
 	get().windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 }
 
-void OptionsGUI::release()
-{
 
-}
-
-void OptionsGUI::onImGuiRenderCallback()
+void CEERGUI::onImGuiRenderCallback()
 {
+	std::scoped_lock<std::mutex> lock(mDestructionGuard); // CEERGUI::destroy also locks this
+	//PLOG_VERBOSE << "CEERGUI::onImGuiRenderCallback()";
 	if (!get().m_OptionsGUIinitialized)
 	{
 		PLOG_INFO << "Initializing OptionsGUI";
 		try
 		{
-			initializeOptionsGUI();
+			initializeCEERGUI();
 			get().m_OptionsGUIinitialized = true;
 		}
 		catch (expected_exception& ex)
