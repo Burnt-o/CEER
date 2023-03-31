@@ -12,7 +12,7 @@ LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	if (io.WantCaptureMouse)
 	{
-		return res;
+		return TRUE;
 	}
 		// ImGui didn't handle the click so let MCC do it
 		return CallWindowProc(ImGuiManager::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
@@ -29,7 +29,7 @@ void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwa
 	m_windowHandle = swapChainDesc.OutputWindow;
 
 	// Setup the imgui WndProc callback
-	mOldWndProc = (WNDPROC)SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)mNewWndProc);
+	mOldWndProc = (WNDPROC)SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)&mNewWndProc);
 
 
 	// Setup ImGui stuff
@@ -77,11 +77,9 @@ void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwa
 	style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.90f, 0.70f, 0.73f, 0.31f);
 	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.05f, 0.07f, 1.00f);
 
-	//ImGui_ImplDX11_NewFrame(); // need to get a new frame to be able to load default font
-	//ImGui_ImplWin32_NewFrame();
-	//ImGui::NewFrame();
-	//ImGui::EndFrame();
-	//mDefaultFont = ImGui::GetIO().Fonts->Fonts[0]; 
+	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.f, 0.f, 0.f, 0.f);
+	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.35f, 0.09f, 0.12f, 0.8f);
+
 }
 
 void ImGuiManager::release()
@@ -112,7 +110,7 @@ void ImGuiManager::release()
 
 void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-	//PLOG_VERBOSE << "ImGuiManager::onPresentHookCallback()";
+
 	std::scoped_lock<std::mutex> lock(mDestructionGuard); // ImGuiManager::destroy also locks this
 
 	if (!get().m_isImguiInitialized)
@@ -132,6 +130,15 @@ void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapCh
 			return;
 		}
 	}
+
+	MSG msg;
+	while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+	{
+		::TranslateMessage(&msg);
+		::DispatchMessage(&msg);
+
+	}
+
 
 	// Start ImGui frame
 	ImGui_ImplDX11_NewFrame();

@@ -171,6 +171,7 @@
     <ClInclude Include="includes\imgui\imstb_truetype.h" />
     <ClInclude Include="includes\safetyhook\safetyhook.hpp" />
     <ClInclude Include="includes\safetyhook\Zydis.h" />
+    <ClInclude Include="MirrorMode.h" />
     <ClInclude Include="ModuleCache.h" />
     <ClInclude Include="expected_exception.h" />
     <ClInclude Include="global_kill.h" />
@@ -220,6 +221,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="MirrorMode.cpp" />
     <ClCompile Include="ModuleCache.cpp" />
     <ClCompile Include="ModuleHook.cpp" />
     <ClCompile Include="ModuleHookManager.cpp" />

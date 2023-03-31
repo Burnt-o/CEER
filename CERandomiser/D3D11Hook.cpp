@@ -3,6 +3,12 @@
 
 #include "global_kill.h"
 
+DX11Present* D3D11Hook::m_pOriginalPresent = nullptr;
+DX11ResizeBuffers* D3D11Hook::m_pOriginalResizeBuffers = nullptr;
+DX11Present** D3D11Hook::m_ppPresent = nullptr;
+DX11ResizeBuffers** D3D11Hook::m_ppResizeBuffers = nullptr;
+
+
 struct rgba {
     float r, g, b, a;
     rgba(float ir, float ig, float ib, float ia) : r(ir), g(ig), b(ib), a(ia) {}
@@ -13,27 +19,107 @@ struct rgba {
 
 void D3D11Hook::initialize()
 {
+
+
+#ifdef USE_VMT_HOOK
+	enum class IDXGISwapChainVMT {
+		QueryInterface,
+		AddRef,
+		Release,
+		SetPrivateData,
+		SetPrivateDataInterface,
+		GetPrivateData,
+		GetParent,
+		GetDevice,
+		Present,
+		GetBuffer,
+		SetFullscreenState,
+		GetFullscreenState,
+		GetDesc,
+		ResizeBuffers,
+		ResizeTarget,
+		GetContainingOutput,
+		GetFrameStatistics,
+		GetLastPresentCount,
+	};
+
+
+	ID3D11Device* pDummyDevice = nullptr;
+	IDXGISwapChain* pDummySwapchain = nullptr;
+
+	// Create a dummy device, get swapchain vmt, hook present.
+	D3D_FEATURE_LEVEL featLevel;
+	DXGI_SWAP_CHAIN_DESC sd{ 0 };
+	sd.BufferCount = 1;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.Height = 800;
+	sd.BufferDesc.Width = 600;
+	sd.BufferDesc.RefreshRate = { 60, 1 };
+	sd.OutputWindow = GetForegroundWindow();
+	sd.Windowed = TRUE;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+	if (FAILED(hr))
+	{
+		PLOG_FATAL << "failed to create dummy d3d device and swapchain";
+		return;
+	}
+
+	// Get swapchain vmt
+	void** pVMT = *(void***)pDummySwapchain;
+
+	// Get Present's address out of vmt
+	m_pOriginalPresent = (DX11Present*)pVMT[(UINT)IDXGISwapChainVMT::Present];
+	m_ppPresent = (DX11Present**)&pVMT[(UINT)IDXGISwapChainVMT::Present];
+	PLOG_INFO << "PRESENT: " << m_pOriginalPresent;
+	PLOG_INFO << "PRESENT pointer: " << m_ppPresent;
+
+	// Get resizeBuffers too
+	m_pOriginalResizeBuffers = (DX11ResizeBuffers*)pVMT[(UINT)IDXGISwapChainVMT::ResizeBuffers];
+	m_ppResizeBuffers = (DX11ResizeBuffers**)&pVMT[(UINT)IDXGISwapChainVMT::ResizeBuffers];
+	PLOG_INFO << "RESIZEBUFFERS: " << m_pOriginalResizeBuffers;
+	PLOG_INFO << "RESIZEBUFFERS pointer: " << m_ppResizeBuffers;
+
+	// Don't need the dummy device anymore
+	safe_release(pDummySwapchain);
+	safe_release(pDummyDevice);
+
+	PLOG_DEBUG << "rewriting present pointer";
+	// Rewrite the present pointer to instead point to our newPresent
+	// Need access tho!
+	patch_pointer(m_ppPresent, (uintptr_t)& newDX11Present);
+	// resizeBuffers too
+	patch_pointer(m_ppResizeBuffers, (uintptr_t)&newDX11ResizeBuffers);
+
+#else
 	PLOG_INFO << "creating D3D11 hooks";
-    // Hook dx11 present and resizebuffers
-		auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
-		auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9EBC0 });
-		void* p_oldPresent;
-		void* p_oldResizeBuffers;
-		if (!mlp_oldPresent->resolve(&p_oldPresent))
-		{
-			throw expected_exception("D3D11 hook unable to resolve Present");
-		}
+	// Hook dx11 present and resizebuffers
+	auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
+	auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9EBC0 });
+	void* p_oldPresent;
+	void* p_oldResizeBuffers;
+	if (!mlp_oldPresent->resolve(&p_oldPresent))
+	{
+		throw expected_exception("D3D11 hook unable to resolve Present");
+	}
 
-		if (!mlp_oldResizeBuffers->resolve(&p_oldResizeBuffers))
-		{
-			throw expected_exception("D3D11 hook unable to resolve ResizeBuffers");
-		}
+	if (!mlp_oldResizeBuffers->resolve(&p_oldResizeBuffers))
+	{
+		throw expected_exception("D3D11 hook unable to resolve ResizeBuffers");
+	}
 
-		PLOG_DEBUG << "oldPresent: " << p_oldPresent;
-		PLOG_DEBUG << "oldResizeBuffers: " << p_oldResizeBuffers;
+	PLOG_DEBUG << "oldPresent: " << p_oldPresent;
+	PLOG_DEBUG << "oldResizeBuffers: " << p_oldResizeBuffers;
 
-		get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
-		get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
+	get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
+	get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
+#endif // USE_VMT_HOOK
+
+
+
 
 }
 
@@ -85,6 +171,7 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 		{
 			instance.initializeD3Ddevice(pSwapChain);
 			instance.isD3DdeviceInitialized = true;
+			PLOG_DEBUG << "D3D device initialized";
 		}
 		catch (expected_exception& ex)
 		{
@@ -94,7 +181,12 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 			global_kill::kill_me();
 
 			// Call original present
+#ifdef USE_VMT_HOOK
+			return m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
+#else
 			return instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
+#endif
+
 		}
 		
 	}
@@ -106,7 +198,11 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 
 
 	// Call original present
+#ifdef USE_VMT_HOOK
+	return m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
+#else
 	return instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
+#endif
 
 }
 
@@ -126,7 +222,12 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	}
 
 	// Call original ResizeBuffers
+#ifdef USE_VMT_HOOK
+	HRESULT hr =  m_pOriginalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+#else
 	HRESULT hr = instance.mHookResizeBuffers.call<HRESULT, IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT>(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags); // Will return this at the end
+#endif
+
 
 	// Resetup the mainRenderTargetView
 	ID3D11Texture2D* pBackBuffer;
@@ -136,18 +237,6 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	instance.m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &instance.m_pMainRenderTargetView);
 	pBackBuffer->Release();
 	if (!instance.m_pMainRenderTargetView) throw expected_exception("Failed to get MainRenderTargetView");
-
-	instance.m_pDeviceContext->OMSetRenderTargets(1, &instance.m_pMainRenderTargetView, NULL); //TODO: is this necessary ? we don't do this in init
-
-	// setup the viewport. TODO: is this necessary? we don't do this in init
-	D3D11_VIEWPORT viewport;
-	viewport.Width = Width;
-	viewport.Height = Height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	instance.m_pDeviceContext->RSSetViewports(1, &viewport);
 
 	// We could grab the new window Height and Width too here if we cared about that, but I don't.
 
@@ -160,30 +249,20 @@ void D3D11Hook::release()
 {
 	D3D11Hook& instance = get();
 	// Destroy the hooks
+#ifdef USE_VMT_HOOK
+	// rewrite the pointers to go back to the original value
+	patch_pointer(m_ppPresent, (uintptr_t)m_pOriginalPresent);
+	// resizeBuffers too
+	patch_pointer(m_ppResizeBuffers, (uintptr_t)m_pOriginalResizeBuffers);
+#else
 	instance.mHookPresent.reset();
 	instance.mHookResizeBuffers.reset();
+#endif
 
 	// D3D resource releasing:
 	// need to call release on the device https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3dswapchain9-getdevice
-	if (instance.m_pDevice)
-	{
-		instance.m_pDevice->Release();
-		instance.m_pDevice = nullptr;
-	}
-
-	// and the device context
-	if (instance.m_pDeviceContext)
-	{
-		instance.m_pDeviceContext->Release();
-		instance.m_pDeviceContext = nullptr;
-	}
-
-	// and the mainRenderTargetView
-	if (instance.m_pMainRenderTargetView)
-	{
-		instance.m_pMainRenderTargetView->Release();
-		instance.m_pMainRenderTargetView = nullptr;
-	}
-
-
+	safe_release(instance.m_pDevice);
+	safe_release(instance.m_pDeviceContext);
+	safe_release(instance.m_pMainRenderTargetView);
+	
 }

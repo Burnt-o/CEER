@@ -7,6 +7,7 @@
  extern "C" typedef HRESULT __stdcall DX11Present(IDXGISwapChain * pSwapChain, UINT SyncInterval, UINT Flags);
  extern "C" typedef HRESULT __stdcall DX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
 
+#define USE_VMT_HOOK
 
 
 class D3D11Hook
@@ -23,9 +24,18 @@ public:
 	}
 private:
 
+
+#ifdef USE_VMT_HOOK
+	static DX11Present* m_pOriginalPresent;
+	static DX11ResizeBuffers* m_pOriginalResizeBuffers;
+	static DX11Present** m_ppPresent;
+	static DX11ResizeBuffers** m_ppResizeBuffers;
+#else
 	// hook objects
 	safetyhook::InlineHook mHookPresent;
 	safetyhook::InlineHook mHookResizeBuffers;
+#endif // USE_VMT_HOOK
+
 	static inline std::mutex mDestructionGuard; // Protects against D3D11Hook singleton destruction while hooks are executing
 
 	// hook functions

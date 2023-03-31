@@ -22,6 +22,11 @@ private:
 
 	ImGuiWindowFlags windowFlags;
 
+
+
+	bool m_WindowOpen = true;
+
+
 public:
 	static void initialize() // Listen to ImGuiRenderCallback
 	{

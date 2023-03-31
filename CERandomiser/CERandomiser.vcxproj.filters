@@ -93,6 +93,9 @@
     <ClInclude Include="CEERGUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MirrorMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CEERGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MirrorMode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

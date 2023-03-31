@@ -9,6 +9,8 @@
 #include "ImGuiManager.h"
 #include "CEERGUI.h"
 
+#include "MirrorMode.h"
+
 
 
 void init_logging()
@@ -40,11 +42,77 @@ void stop_logging()
 
 
 /* GENERAL TODO:: 
+IAT pointer
+IAT hook
 Create a PointerManager service that stores all the pointers per game version / looks it up from the intertubes
 Add OptionState stuff
-BOY does the external window not interact good with RTSS
+
 */ 
 
+enum class IDXGISwapChainVMT {
+    QueryInterface,
+    AddRef,
+    Release,
+    SetPrivateData,
+    SetPrivateDataInterface,
+    GetPrivateData,
+    GetParent,
+    GetDevice,
+    Present,
+    GetBuffer,
+    SetFullscreenState,
+    GetFullscreenState,
+    GetDesc,
+    ResizeBuffers,
+    ResizeTarget,
+    GetContainingOutput,
+    GetFrameStatistics,
+    GetLastPresentCount,
+};
+
+
+#define safe_release(p) if (p) { p->Release(); p = nullptr; } 
+
+bool IATLookupTest() //https://github.com/guided-hacking/GH_D3D11_Hook/blob/master/GH_D3D11_Hook/DllMain.cpp
+{
+    ID3D11Device* pDevice = nullptr;
+    IDXGISwapChain* pSwapchain = nullptr;
+
+    // Create a dummy device, get swapchain vmt, hook present.
+    D3D_FEATURE_LEVEL featLevel;
+    DXGI_SWAP_CHAIN_DESC sd{ 0 };
+    sd.BufferCount = 1;
+    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.BufferDesc.Height = 800;
+    sd.BufferDesc.Width = 600;
+    sd.BufferDesc.RefreshRate = { 60, 1 };
+    sd.OutputWindow = GetForegroundWindow();
+    sd.Windowed = TRUE;
+    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    sd.SampleDesc.Count = 1;
+    sd.SampleDesc.Quality = 0;
+    HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pSwapchain, &pDevice, &featLevel, nullptr);
+    if (FAILED(hr))
+    {
+        PLOG_FATAL << "failed to create dummy d3d device and swapchain";
+        return false;
+    }
+
+    // Get swapchain vmt
+    void** pVMT = *(void***)pSwapchain;
+
+    // Get Present's address out of vmt
+    void* ogPresent = pVMT[(UINT)IDXGISwapChainVMT::Present];
+    void* pPresent = &pVMT[(UINT)IDXGISwapChainVMT::Present];
+    PLOG_INFO << "PRESENT: " << ogPresent;
+    PLOG_INFO << "PRESENT pointer: " << pPresent;
+
+    safe_release(pSwapchain);
+    safe_release(pDevice);
+
+    return true;
+}
 
 
 
@@ -52,6 +120,10 @@ BOY does the external window not interact good with RTSS
 void RealMain(HMODULE dllHandle) {
 
     init_logging();
+
+
+    //IATLookupTest();
+
 
 
     PLOG_INFO << "Randomizer initializing";
@@ -66,7 +138,7 @@ void RealMain(HMODULE dllHandle) {
         ImGuiManager::initialize(D3D11Hook::get());
         CEERGUI::initialize();
 
-
+        //MirrorMode::initialize();
 
     }
     catch (expected_exception& ex)
