@@ -7,15 +7,9 @@
 
 namespace OptionsState
 {
+	//std::mutex optionsStateMutex;
 
-
-	std::mutex optionsStateMutex;
-	Option EnemyRandomiserEnabled;
-
-
-
-
-
+	extern Option<bool> EnemyRandomiserEnabled;
 
 };
 

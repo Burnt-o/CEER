@@ -64,7 +64,7 @@ void RealMain(HMODULE dllHandle)
         ModuleCache::initialize();
         std::unique_ptr<ModuleHookManager> mhm = std::make_unique<ModuleHookManager>();
         std::unique_ptr<D3D11Hook> d3d = std::make_unique<D3D11Hook>();
-        std::unique_ptr<ImGuiManager> imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookCallback);
+        std::unique_ptr<ImGuiManager> imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
         std::unique_ptr<OptionsGUI> optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
 
         // We live in this loop 99% of the time

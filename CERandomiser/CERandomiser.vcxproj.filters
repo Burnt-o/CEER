@@ -19,38 +19,17 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{8d50ac2a-fcb1-4dc7-b3fc-bd8d4a09c12b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Services">
+      <UniqueIdentifier>{140bc533-6f2c-4451-9138-701beae435a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Global">
+      <UniqueIdentifier>{43cfbde5-1ac8-47f1-904f-288926581f9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes">
+      <UniqueIdentifier>{6caf362c-4b29-429b-8f00-ef61c9e0c99c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windows_utilities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="global_kill.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleCache.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleHook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleHookManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="enemy_randomizer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="midhook_context_interpreter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="expected_exception.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="multilevel_pointer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\imgui\imconfig.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
@@ -81,47 +60,59 @@
     <ClInclude Include="includes\safetyhook\Zydis.h">
       <Filter>Source Files\safetyhook</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="D3D11Hook.h">
-      <Filter>Header Files</Filter>
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleHookManager.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleCache.h">
+      <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="OptionsGUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MirrorMode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="OptionsState.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="windows_utilities.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="global_kill.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="MirrorMode.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="enemy_randomizer.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="expected_exception.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleHook.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="multilevel_pointer.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="midhook_context_interpreter.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows_utilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleCache.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleHook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="enemy_randomizer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleHookManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="multilevel_pointer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="includes\imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
@@ -147,18 +138,42 @@
       <Filter>Source Files\safetyhook</Filter>
     </ClCompile>
     <ClCompile Include="D3D11Hook.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleHookManager.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleCache.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="OptionsGUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MirrorMode.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="OptionsState.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="MirrorMode.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy_randomizer.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="windows_utilities.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="multilevel_pointer.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleHook.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

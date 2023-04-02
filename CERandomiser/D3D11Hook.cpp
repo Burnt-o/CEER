@@ -170,7 +170,7 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 	}
    
 	// Invoke the callback
-	d3d->presentHookCallback(d3d->m_pDevice, d3d->m_pDeviceContext, pSwapChain, d3d->m_pMainRenderTargetView);
+	d3d->presentHookEvent(d3d->m_pDevice, d3d->m_pDeviceContext, pSwapChain, d3d->m_pMainRenderTargetView);
 
 	// Call original present
 	return d3d->m_pOriginalPresent(pSwapChain, SyncInterval, Flags);

@@ -179,6 +179,7 @@
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
     <ClInclude Include="multilevel_pointer.h" />
+    <ClInclude Include="Option.h" />
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
     <ClInclude Include="pch.h" />
@@ -228,6 +229,7 @@
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
     <ClCompile Include="enemy_randomizer.cpp" />
+    <ClCompile Include="Option.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="windows_utilities.cpp" />

@@ -14,13 +14,14 @@
 class D3D11Hook
 {
 private:
-	 static D3D11Hook* instance; 	// private Singleton instance so static hooks/callbacks can access
+	 static D3D11Hook* instance; 	// Private Singleton instance so static hooks/callbacks can access
 	 std::mutex mDestructionGuard; // Protects against Singleton destruction while hooks are executing
 
-	 // our hook functions
+	 // Our hook functions
 	 static DX11Present newDX11Present;
 	 static DX11ResizeBuffers newDX11ResizeBuffers;
 
+	 // For a VMT hook we need to keep track of the original functions and the VMT entry containing the function
 	 // Pointers to original functions
 	 DX11Present* m_pOriginalPresent = nullptr;
 	 DX11ResizeBuffers* m_pOriginalResizeBuffers = nullptr;
