@@ -64,13 +64,13 @@ public:
 
 	static void initialize()
 	{
-		auto mlp_cameraData = MultilevelPointer::make(L"halo1.dll", { 0x01AC7840, 0xF0 });
-		//auto mlp_cameraData = MultilevelPointer::make(L"halo1.dll", { 0x01AC7840, 0x130 });
+		//auto mlp_cameraData = MultilevelPointer::make(L"halo1.dll", { 0x01AC7840, 0xF0 });
+		auto mlp_cameraData = MultilevelPointer::make(L"halo1.dll", { 0x01AC7840, 0x130 });
 		mlp_cameraData->resolve(&get().p_cameraData);
 
 
 		// this really should be a modulehook
-		auto mlp_cameraHook = MultilevelPointer::make(L"halo1.dll", { 0x7618B });
+		auto mlp_cameraHook = MultilevelPointer::make(L"halo1.dll", { 0x2E91FD });
 		void* p_cameraHook;
 		if (!mlp_cameraHook->resolve(&p_cameraHook))
 		{
@@ -84,6 +84,13 @@ public:
 	{
 
 	
+	}
+
+	static void destroy()
+	{
+		std::scoped_lock<std::mutex> lock(mDestructionGuard);
+		get().mHookCamera.reset();
+		get().~MirrorMode();
 	}
 };
 

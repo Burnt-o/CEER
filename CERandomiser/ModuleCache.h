@@ -36,9 +36,11 @@ public:
 	static bool isModuleInCache(const std::wstring& moduleName);
 
 
-	// no copying
-	ModuleCache(ModuleCache& other) = delete;
-	ModuleCache& operator=(const ModuleCache&) = delete;
+	// Banned operations for singleton
+	ModuleCache(const ModuleCache& arg) = delete; // Copy constructor
+	ModuleCache(const ModuleCache&& arg) = delete;  // Move constructor
+	ModuleCache& operator=(const ModuleCache& arg) = delete; // Assignment operator
+	ModuleCache& operator=(const ModuleCache&& arg) = delete; // Move operator
 
 
 };

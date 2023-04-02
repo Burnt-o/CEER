@@ -2,8 +2,9 @@
 #include "ImGuiManager.h"
 #include "global_kill.h"
 
-eventpp::CallbackList<void(D3D11Hook&, IDXGISwapChain*, UINT, UINT)>::Handle ImGuiManager::mCallbackHandle = {};
+ImGuiManager* ImGuiManager::instance = nullptr;
 
+WNDPROC ImGuiManager::mOldWndProc = nullptr;
 IMGUI_IMPL_API LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -15,11 +16,11 @@ LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 		return TRUE;
 	}
 		// ImGui didn't handle the click so let MCC do it
-		return CallWindowProc(ImGuiManager::get().mOldWndProc, hWnd, uMsg, wParam, lParam);
+		return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
 
 }
 
-void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IDXGISwapChain* pSwapChain, ID3D11RenderTargetView* pMainRenderTargetView)
 {
 
 	// Use swap chain description to get MCC window handle
@@ -42,9 +43,9 @@ void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwa
 	{
 		throw expected_exception(std::format("ImGui_ImplWin32_Init failed w/ {} ", (uint64_t)m_windowHandle).c_str());
 	};
-	if (!ImGui_ImplDX11_Init(d3d.m_pDevice, d3d.m_pDeviceContext))
+	if (!ImGui_ImplDX11_Init(pDevice, pDeviceContext))
 	{
-		throw expected_exception(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)d3d.m_pDevice, (uint64_t)d3d.m_pDeviceContext).c_str());
+		throw expected_exception(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)pDevice, (uint64_t)pDeviceContext).c_str());
 	};
 
 	// Setup Dear ImGui style
@@ -78,18 +79,20 @@ void ImGuiManager::initializeImGuiResources(D3D11Hook& d3d, IDXGISwapChain* pSwa
 	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.05f, 0.07f, 1.00f);
 
 	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.f, 0.f, 0.f, 0.f);
-	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.35f, 0.09f, 0.12f, 0.8f);
+	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.35f, 0.09f, 0.12f, 0.7f);
 
 }
 
-void ImGuiManager::release()
+
+ImGuiManager::~ImGuiManager()
 {
-	ImGuiManager& instance = get();
+
+	std::scoped_lock<std::mutex> lock(mDestructionGuard); // onPresentHookCallback also locks this
 		// restore the original wndProc
-	if (instance.mOldWndProc)
+	if (mOldWndProc)
 	{
-		SetWindowLongPtrW(instance.m_windowHandle, GWLP_WNDPROC, (LONG_PTR)instance.mOldWndProc);
-		instance.mOldWndProc = nullptr;
+		SetWindowLongPtrW(m_windowHandle, GWLP_WNDPROC, (LONG_PTR)mOldWndProc);
+		mOldWndProc = nullptr;
 	}
 
 	// Cleanup
@@ -98,28 +101,29 @@ void ImGuiManager::release()
 	ImGui::DestroyContext();
 
 	// Don't need to listen to D3D present callback anymore
-	if (mCallbackHandle)
+	if (mCallbackHandle && pPresentHookEvent)
 	{
-		D3D11Hook::get().presentHookCallback.remove(mCallbackHandle);
+		pPresentHookEvent.remove(mCallbackHandle);
 		mCallbackHandle = {};
 	}
 
-	get().m_isImguiInitialized = false;
+	m_isImguiInitialized = false;
 
 }
 
-void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+void ImGuiManager::onPresentHookEvent(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IDXGISwapChain* pSwapChain, ID3D11RenderTargetView* pMainRenderTargetView)
 {
 
-	std::scoped_lock<std::mutex> lock(mDestructionGuard); // ImGuiManager::destroy also locks this
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard); // ImGuiManager::destroy also locks this
 
-	if (!get().m_isImguiInitialized)
+#pragma region init
+	if (!instance->m_isImguiInitialized)
 	{
 		PLOG_INFO << "Initializing ImGuiManager";
 		try
 		{
-			get().initializeImGuiResources(d3d, pSwapChain, SyncInterval, Flags);
-			get().m_isImguiInitialized = true;
+			instance->initializeImGuiResources(pDevice, pDeviceContext, pSwapChain, pMainRenderTargetView);
+			instance->m_isImguiInitialized = true;
 		}
 		catch (expected_exception& ex)
 		{
@@ -130,7 +134,9 @@ void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapCh
 			return;
 		}
 	}
+#pragma endregion init
 
+	//TODO: check if this is necessary
 	MSG msg;
 	while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
 	{
@@ -146,10 +152,10 @@ void ImGuiManager::onPresentHookCallback(D3D11Hook& d3d, IDXGISwapChain* pSwapCh
 	ImGui::NewFrame();
 
 	// I don't 100% understand what this does, but it must be done before we try to render
-	d3d.m_pDeviceContext->OMSetRenderTargets(1, &d3d.m_pMainRenderTargetView, NULL);
+	pDeviceContext->OMSetRenderTargets(1, &pMainRenderTargetView, NULL);
 
 	// invoke callback of anything that wants to render with ImGui
-	get().ImGuiRenderCallback();
+	instance->ImGuiRenderCallback();
 
 	// Finish ImGui frame
 	ImGui::EndFrame();

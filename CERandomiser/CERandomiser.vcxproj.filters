@@ -90,10 +90,13 @@
     <ClInclude Include="ImGuiManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CEERGUI.h">
+    <ClInclude Include="OptionsGUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MirrorMode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -149,10 +152,13 @@
     <ClCompile Include="ImGuiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CEERGUI.cpp">
+    <ClCompile Include="OptionsGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MirrorMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionsState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

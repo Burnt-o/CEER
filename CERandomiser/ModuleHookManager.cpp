@@ -6,11 +6,17 @@
 
 #include "enemy_randomizer.h"
 
-
+ModuleHookManager* ModuleHookManager::instance = nullptr;
 
 
 ModuleHookManager::ModuleHookManager()
 {
+	if (instance != nullptr)
+	{ 
+		throw expected_exception("Cannot have more than one ModuleHookManager");
+	}
+	instance = this;
+
 	// We'll make global hooks here that track dll loading/unloading
 	PLOG_INFO << "Hooking module load/unload";
 
@@ -21,9 +27,25 @@ ModuleHookManager::ModuleHookManager()
 	mHook_FreeLibrary = safetyhook::create_inline(&FreeLibrary, &newFreeLibrary);
 
 	mModuleHooksMap.reserve(6); // probably only the 6 game dll's that we might care about ever
-
+	PLOG_VERBOSE << "Hooking module load/unload done";
 }
 
+ModuleHookManager::~ModuleHookManager()
+{
+	PLOG_VERBOSE << "ModuleHookManager destructor called";
+
+	// We must detach the module-relative hooks before unhooking the library load/unload functions
+	// otherwise we could have a stale reference issue
+	detachAllHooks();
+
+	instance->mHook_LoadLibraryA.reset();
+	instance->mHook_LoadLibraryW.reset();
+	instance->mHook_LoadLibraryExA.reset();
+	instance->mHook_LoadLibraryExW.reset();
+	instance->mHook_FreeLibrary.reset();
+
+	instance = nullptr;
+}
 
 
 // This only called on global_kill
@@ -45,7 +67,7 @@ void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilenam
 {
 	std::cout << "a" << std::endl;
 	// Get a ref to the module-hooks map
-	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = ModuleHookManager::get().mModuleHooksMap;
+	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = instance->mModuleHooksMap;
 
 	// Is the currently unloading library in our map?
 	auto it = moduleHooksMap.find(libFilename.data());
@@ -69,7 +91,7 @@ void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath)
 	auto libFilename = path.filename().generic_wstring();
 
 	// Get a ref to the module-hooks map
-	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = ModuleHookManager::get().mModuleHooksMap;
+	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = instance->mModuleHooksMap;
 
 	// Is the currently loading module in our map?
 	auto it = moduleHooksMap.find(libFilename.data());
@@ -94,7 +116,7 @@ void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath)
 
 // the hook-redirected functions
 HMODULE ModuleHookManager::newLoadLibraryA(LPCSTR lpLibFileName) {
-	auto result = ModuleHookManager::get().mHook_LoadLibraryA.call< HMODULE, LPCSTR > (lpLibFileName);
+	auto result = instance->mHook_LoadLibraryA.call< HMODULE, LPCSTR > (lpLibFileName);
 
 	auto wLibFileName = str_to_wstr(lpLibFileName);
 	PLOG_DEBUG << "LoadLibraryA: " << wLibFileName;
@@ -105,7 +127,8 @@ HMODULE ModuleHookManager::newLoadLibraryA(LPCSTR lpLibFileName) {
 }
 
 HMODULE ModuleHookManager::newLoadLibraryW(LPCWSTR lpLibFileName) {
-	auto result = ModuleHookManager::get().mHook_LoadLibraryW.call<HMODULE, LPCWSTR>(lpLibFileName);
+	PLOG_VERBOSE << "c";
+	auto result = instance->mHook_LoadLibraryW.call<HMODULE, LPCWSTR>(lpLibFileName);
 
 	PLOG_DEBUG << L"LoadLibraryW: " << lpLibFileName;
 	ModuleCache::addModuleToCache(lpLibFileName, result);
@@ -115,7 +138,7 @@ HMODULE ModuleHookManager::newLoadLibraryW(LPCWSTR lpLibFileName) {
 }
 
 HMODULE ModuleHookManager::newLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
-	auto result = ModuleHookManager::get().mHook_LoadLibraryExA.call<HMODULE, LPCSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
+	auto result = instance->mHook_LoadLibraryExA.call<HMODULE, LPCSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
 
 	auto wLibFileName = str_to_wstr(lpLibFileName);
 	PLOG_DEBUG << L"LoadLibraryExA: " << wLibFileName;
@@ -126,7 +149,7 @@ HMODULE ModuleHookManager::newLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile,
 }
 
 HMODULE ModuleHookManager::newLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
-	auto result = ModuleHookManager::get().mHook_LoadLibraryExW.call<HMODULE, LPCWSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
+	auto result = instance->mHook_LoadLibraryExW.call<HMODULE, LPCWSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
 
 	PLOG_DEBUG << L"LoadLibraryExW: " << lpLibFileName;
 	ModuleCache::addModuleToCache(lpLibFileName, result);
@@ -148,6 +171,6 @@ BOOL ModuleHookManager::newFreeLibrary(HMODULE hLibModule) {
 
 	preModuleUnload_UpdateHooks(filename);
 	ModuleCache::removeModuleFromCache(filename);
-	return ModuleHookManager::get().mHook_FreeLibrary.call<BOOL, HMODULE>(hLibModule);
+	return instance->mHook_FreeLibrary.call<BOOL, HMODULE>(hLibModule);
 }
 

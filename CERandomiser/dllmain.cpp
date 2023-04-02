@@ -4,12 +4,14 @@
 #include "windows_utilities.h"
 #include "global_kill.h"
 #include "ModuleCache.h"
-#include "ModuleHookManager.h"
+
 #include "D3D11Hook.h"
 #include "ImGuiManager.h"
-#include "CEERGUI.h"
-
+#include "OptionsGUI.h"
+#include "OptionsState.h"
 #include "MirrorMode.h"
+
+
 
 
 
@@ -49,136 +51,61 @@ Add OptionState stuff
 
 */ 
 
-enum class IDXGISwapChainVMT {
-    QueryInterface,
-    AddRef,
-    Release,
-    SetPrivateData,
-    SetPrivateDataInterface,
-    GetPrivateData,
-    GetParent,
-    GetDevice,
-    Present,
-    GetBuffer,
-    SetFullscreenState,
-    GetFullscreenState,
-    GetDesc,
-    ResizeBuffers,
-    ResizeTarget,
-    GetContainingOutput,
-    GetFrameStatistics,
-    GetLastPresentCount,
-};
-
-
-#define safe_release(p) if (p) { p->Release(); p = nullptr; } 
-
-bool IATLookupTest() //https://github.com/guided-hacking/GH_D3D11_Hook/blob/master/GH_D3D11_Hook/DllMain.cpp
-{
-    ID3D11Device* pDevice = nullptr;
-    IDXGISwapChain* pSwapchain = nullptr;
-
-    // Create a dummy device, get swapchain vmt, hook present.
-    D3D_FEATURE_LEVEL featLevel;
-    DXGI_SWAP_CHAIN_DESC sd{ 0 };
-    sd.BufferCount = 1;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.Height = 800;
-    sd.BufferDesc.Width = 600;
-    sd.BufferDesc.RefreshRate = { 60, 1 };
-    sd.OutputWindow = GetForegroundWindow();
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pSwapchain, &pDevice, &featLevel, nullptr);
-    if (FAILED(hr))
-    {
-        PLOG_FATAL << "failed to create dummy d3d device and swapchain";
-        return false;
-    }
-
-    // Get swapchain vmt
-    void** pVMT = *(void***)pSwapchain;
-
-    // Get Present's address out of vmt
-    void* ogPresent = pVMT[(UINT)IDXGISwapChainVMT::Present];
-    void* pPresent = &pVMT[(UINT)IDXGISwapChainVMT::Present];
-    PLOG_INFO << "PRESENT: " << ogPresent;
-    PLOG_INFO << "PRESENT pointer: " << pPresent;
-
-    safe_release(pSwapchain);
-    safe_release(pDevice);
-
-    return true;
-}
 
 
 
 // Main Execution Loop
-void RealMain(HMODULE dllHandle) {
-
+void RealMain(HMODULE dllHandle) 
+{
     init_logging();
-
-
-    //IATLookupTest();
-
-
-
     PLOG_INFO << "Randomizer initializing";
-    // instantiate the singletons
     try
     {
-        ModuleCache::initialize(); // First so ModuleOffset pointers can resolve
-        ModuleHookManager::initialize();
+        ModuleCache::initialize();
+        std::unique_ptr<ModuleHookManager> mhm = std::make_unique<ModuleHookManager>();
+        std::unique_ptr<D3D11Hook> d3d = std::make_unique<D3D11Hook>();
+        std::unique_ptr<ImGuiManager> imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookCallback);
+        std::unique_ptr<OptionsGUI> optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
 
-        // Set up rendering and GUI
-        D3D11Hook::initialize();
-        ImGuiManager::initialize(D3D11Hook::get());
-        CEERGUI::initialize();
+        // We live in this loop 99% of the time
+        while (!global_kill::is_kill_set()) {
 
-        //MirrorMode::initialize();
+
+            if (GetKeyState(0x23) & 0x8000) // 'End' key
+            {
+                PLOG_INFO << "Killing internal dll";
+                global_kill::kill_me();
+            }
+
+
+            //if (!mirror && GetKeyState(0x24) & 0x8000) // 'Home' key
+            //{
+            //    MirrorMode::initialize();
+            //    mirror = true;
+            //}
+
+        }
+
 
     }
     catch (expected_exception& ex)
     {
-        PLOG_FATAL << "Failed initializing singletons: " << ex.what();
+        PLOG_FATAL << "Failed initializing: " << ex.what();
         global_kill::kill_me();
     }
 
+    // Auto managed resources have fallen out of scope
 
 
-    // We live in this loop 99% of the time
-    while (!global_kill::is_kill_set()) {
-       
-
-        if (GetKeyState(0x23) & 0x8000) // 'End' key
-        {
-            PLOG_INFO << "Killing internal dll";
-            global_kill::kill_me();
-        }
+    bool mirror = false;
 
 
-        if (GetKeyState(0x24) & 0x8000) // 'End' key
-        {
-            PLOG_INFO << "Killing hooks";
-            ModuleHookManager::destroy();   PLOG_DEBUG << "ModuleHookManager destroyed";
 
-        }
-       
+
+    if (mirror)
+    {
+        MirrorMode::destroy();
     }
-
-    // Unattach hooks and release any manually managed resources
-    // Destroy singletons (order matters)
-    PLOG_DEBUG << "Unattaching hooks and destroying Singletons";
-    CEERGUI::destroy();             PLOG_DEBUG << "CEERGUI destroyed";
-    ImGuiManager::release();        PLOG_DEBUG << "ImGuiManager destroyed";
-    D3D11Hook::release();           PLOG_DEBUG << "D3D11Hook destroyed";
-
-
-
-    ModuleHookManager::destroy();   PLOG_DEBUG << "ModuleHookManager destroyed";
 
     PLOG_DEBUG << "Shutting down logging";
     stop_logging();
@@ -189,7 +116,8 @@ void RealMain(HMODULE dllHandle) {
 // Do NOT put any allocations in this function because the call to FreeLibraryAndExitThread()
 // will occur before they fall out of scope and will not be cleaned up properly! This is very
 // important for being able to hotload the DLL multiple times without restarting the game.
-DWORD WINAPI MainThread(HMODULE hDLL) {
+DWORD WINAPI MainThread(HMODULE hDLL) 
+{
     
     RealMain(hDLL);
 

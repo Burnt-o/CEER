@@ -1,6 +1,6 @@
 #pragma once
 
-
+// Kills dllmain RealMain() thread
 class global_kill
 {
 private:

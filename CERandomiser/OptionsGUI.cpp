@@ -1,38 +1,44 @@
 #include "pch.h"
-#include "CEERGUI.h"
+#include "OptionsGUI.h"
 #include "global_kill.h"
 
-bool test_checkbox = false;
-float test_slider = 0.3f;
-eventpp::CallbackList<void()>::Handle CEERGUI::mCallbackHandle = {};
+OptionsGUI* OptionsGUI::instance = nullptr;
 
-struct rgb {
-	float r, g, b;
-};
 
-int test_buttonPressCount = 0;
+OptionsGUI::~OptionsGUI()
+{
+	std::scoped_lock<std::mutex> lock(mDestructionGuard); // onPresentHookCallback also locks this
+	if (mCallbackHandle && pImGuiRenderEvent)
+	{
+		pImGuiRenderEvent.remove(mCallbackHandle);
+		mCallbackHandle = {};
+	}
 
-rgb test_coloredit;
-void CEERGUI::initializeCEERGUI()
+	instance = nullptr;
+}
+
+void OptionsGUI::initializeCEERGUI()
 {
 
-	//ImGui::SetNextWindowCollapsed(false);
+	ImGui::SetNextWindowCollapsed(false);
 	ImGui::SetWindowSize(ImVec2(300, 300));
-	get().windowFlags =  ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 }
 
 
-void CEERGUI::onImGuiRenderCallback()
+void OptionsGUI::onImGuiRenderCallback()
 {
-	std::scoped_lock<std::mutex> lock(mDestructionGuard); // CEERGUI::destroy also locks this
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard); 
+
+#pragma region init
 	//PLOG_VERBOSE << "CEERGUI::onImGuiRenderCallback()";
-	if (!get().m_OptionsGUIinitialized)
+	if (instance->m_OptionsGUIinitialized)
 	{
 		PLOG_INFO << "Initializing OptionsGUI";
 		try
 		{
-			initializeCEERGUI();
-			get().m_OptionsGUIinitialized = true;
+			instance->initializeCEERGUI();
+			instance->m_OptionsGUIinitialized = true;
 		}
 		catch (expected_exception& ex)
 		{
@@ -43,14 +49,30 @@ void CEERGUI::onImGuiRenderCallback()
 			return;
 		}
 	}
+#pragma endregion init
+
+	instance->renderOptionsGUI();
+
+}
 
 
+bool test_checkbox = false;
+float test_slider = 0.3f;
+
+struct rgb {
+	float r, g, b;
+};
+
+int test_buttonPressCount = 0;
+
+rgb test_coloredit;
 
 
-
+void OptionsGUI::renderOptionsGUI()
+{
 
 	ImGui::SetNextWindowSize(ImVec2(300, 300));
-	bool windowOpen = ImGui::Begin("CE Enemy Randomiser!", NULL, get().windowFlags);                          // Create a window called "Hello, world!" and append into it.
+	bool windowOpen = ImGui::Begin("CE Enemy Randomiser!", NULL, windowFlags);                          // Create a window called "Hello, world!" and append into it.
 
 
 

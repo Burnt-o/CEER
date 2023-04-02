@@ -8,10 +8,14 @@
 
 void MirrorMode::mirrorCamera(SafetyHookContext& ctx)
 {
-
+	std::scoped_lock<std::mutex> lock(mDestructionGuard);
+	PLOG_DEBUG << "calculating mirrored camera";
 		matrix* cameraData = (matrix*)get().p_cameraData;
 
 		matrix newMatrix = *cameraData * get().reflectionMatrix;
-        *cameraData = newMatrix;
+		PLOG_DEBUG << "mirrored camera calculated, writing";
+		std::memcpy(cameraData, &newMatrix, sizeof(matrix));
+		//patch_memory(cameraData, &newMatrix, sizeof(matrix));
+        //*cameraData = newMatrix;
 	
 }

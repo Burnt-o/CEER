@@ -8,13 +8,9 @@
 class ModuleHookManager
 {
 private:
-	ModuleHookManager(); // constructor private
 
-	// singleton accessor
-	static ModuleHookManager& get() {
-		static ModuleHookManager instance;
-		return instance;
-	}
+	static ModuleHookManager* instance;
+
 
 	// Where we keep all the module relative hooks (key = name of module, value = list of all hooks for that module).
 	std::unordered_map	<std::wstring, std::vector
@@ -44,46 +40,22 @@ private:
 	static void preModuleUnload_UpdateHooks(std::wstring_view libFilename); // called by newFreeLibrary
 	static void postModuleLoad_UpdateHooks(std::wstring_view libPath); // called by newLoadLibraries
 
-public:
-	static void initialize()
-	{
-		get();
-	}
-
-	~ModuleHookManager()
-	{
-		PLOG_VERBOSE << "ModuleHookManager destructor called";
-	}
-
-
 	void detachAllHooks();
 
-	static void addHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> newHook)
+public:
+
+	ModuleHookManager(); 
+
+	~ModuleHookManager();
+
+
+
+	void addHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> newHook)
 	{
 		// Note: [] operator creates the moduleName key if it didn't already exist in the map
-		get().mModuleHooksMap[moduleName].emplace_back(newHook);
-	}
-
-	// banned operations for singleton
-	ModuleHookManager(const ModuleHookManager& arg) = delete; // Copy constructor
-	ModuleHookManager(const ModuleHookManager&& arg) = delete;  // Move constructor
-	ModuleHookManager& operator=(const ModuleHookManager& arg) = delete; // Assignment operator
-	ModuleHookManager& operator=(const ModuleHookManager&& arg) = delete; // Move operator
-
-	static void destroy()
-	{
-		ModuleHookManager& instance = get();
-		// We must detach the module-relative hooks before unhooking the library load/unload functions
-		// otherwise we could have a stale reference issue
-		instance.detachAllHooks();
-
-		instance.mHook_LoadLibraryA.reset();
-		instance.mHook_LoadLibraryW.reset();
-		instance.mHook_LoadLibraryExA.reset();
-		instance.mHook_LoadLibraryExW.reset();
-		instance.mHook_FreeLibrary.reset();
-
-		//get().~ModuleHookManager();
+		mModuleHooksMap[moduleName].emplace_back(newHook);
 	}
 
 };
+
+

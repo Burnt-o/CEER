@@ -40,9 +40,6 @@
 
 
 
-
-
-
 // External Libraries
 // hooking
 #include <safetyhook.hpp>

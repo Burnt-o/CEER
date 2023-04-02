@@ -3,11 +3,8 @@
 
 #include "global_kill.h"
 
-DX11Present* D3D11Hook::m_pOriginalPresent = nullptr;
-DX11ResizeBuffers* D3D11Hook::m_pOriginalResizeBuffers = nullptr;
-DX11Present** D3D11Hook::m_ppPresent = nullptr;
-DX11ResizeBuffers** D3D11Hook::m_ppResizeBuffers = nullptr;
 
+D3D11Hook* D3D11Hook::instance = nullptr;
 
 struct rgba {
     float r, g, b, a;
@@ -15,34 +12,38 @@ struct rgba {
 };
 
 
+enum class IDXGISwapChainVMT {
+	QueryInterface,
+	AddRef,
+	Release,
+	SetPrivateData,
+	SetPrivateDataInterface,
+	GetPrivateData,
+	GetParent,
+	GetDevice,
+	Present,
+	GetBuffer,
+	SetFullscreenState,
+	GetFullscreenState,
+	GetDesc,
+	ResizeBuffers,
+	ResizeTarget,
+	GetContainingOutput,
+	GetFrameStatistics,
+	GetLastPresentCount,
+};
 
 
-void D3D11Hook::initialize()
+
+
+D3D11Hook::D3D11Hook()
 {
 
-
-#ifdef USE_VMT_HOOK
-	enum class IDXGISwapChainVMT {
-		QueryInterface,
-		AddRef,
-		Release,
-		SetPrivateData,
-		SetPrivateDataInterface,
-		GetPrivateData,
-		GetParent,
-		GetDevice,
-		Present,
-		GetBuffer,
-		SetFullscreenState,
-		GetFullscreenState,
-		GetDesc,
-		ResizeBuffers,
-		ResizeTarget,
-		GetContainingOutput,
-		GetFrameStatistics,
-		GetLastPresentCount,
-	};
-
+	if (instance != nullptr)
+	{
+		throw expected_exception("Cannot have more than one D3D11Hook");
+	}
+	instance = this;
 
 	ID3D11Device* pDummyDevice = nullptr;
 	IDXGISwapChain* pDummySwapchain = nullptr;
@@ -94,29 +95,6 @@ void D3D11Hook::initialize()
 	// resizeBuffers too
 	patch_pointer(m_ppResizeBuffers, (uintptr_t)&newDX11ResizeBuffers);
 
-#else
-	PLOG_INFO << "creating D3D11 hooks";
-	// Hook dx11 present and resizebuffers
-	auto mlp_oldPresent = MultilevelPointer::make(L"d3d11.dll", { 0x9E5D0 });
-	auto mlp_oldResizeBuffers = MultilevelPointer::make(L"d3d11.dll", { 0x9EBC0 });
-	void* p_oldPresent;
-	void* p_oldResizeBuffers;
-	if (!mlp_oldPresent->resolve(&p_oldPresent))
-	{
-		throw expected_exception("D3D11 hook unable to resolve Present");
-	}
-
-	if (!mlp_oldResizeBuffers->resolve(&p_oldResizeBuffers))
-	{
-		throw expected_exception("D3D11 hook unable to resolve ResizeBuffers");
-	}
-
-	PLOG_DEBUG << "oldPresent: " << p_oldPresent;
-	PLOG_DEBUG << "oldResizeBuffers: " << p_oldResizeBuffers;
-
-	get().mHookPresent = safetyhook::create_inline(p_oldPresent, &newDX11Present);
-	get().mHookResizeBuffers = safetyhook::create_inline(p_oldResizeBuffers, &newDX11ResizeBuffers);
-#endif // USE_VMT_HOOK
 
 
 
@@ -160,17 +138,20 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 
 }
 
+// static 
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-	std::scoped_lock<std::mutex> lock(D3D11Hook::mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
-	D3D11Hook& instance = get();
+	auto d3d = instance;
+	
+	std::scoped_lock<std::mutex> lock(d3d->mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 
-	if (!instance.isD3DdeviceInitialized)
+
+	if (!d3d->isD3DdeviceInitialized)
 	{
 		try
 		{
-			instance.initializeD3Ddevice(pSwapChain);
-			instance.isD3DdeviceInitialized = true;
+			d3d->initializeD3Ddevice(pSwapChain);
+			d3d->isD3DdeviceInitialized = true;
 			PLOG_DEBUG << "D3D device initialized";
 		}
 		catch (expected_exception& ex)
@@ -181,52 +162,39 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 			global_kill::kill_me();
 
 			// Call original present
-#ifdef USE_VMT_HOOK
-			return m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
-#else
-			return instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
-#endif
+			return d3d->m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
+
 
 		}
 		
 	}
    
 	// Invoke the callback
-	instance.presentHookCallback(instance, pSwapChain, SyncInterval, Flags);
-
-	
-
+	d3d->presentHookCallback(d3d->m_pDevice, d3d->m_pDeviceContext, pSwapChain, d3d->m_pMainRenderTargetView);
 
 	// Call original present
-#ifdef USE_VMT_HOOK
-	return m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
-#else
-	return instance.mHookPresent.call<HRESULT, IDXGISwapChain*, UINT, UINT>(pSwapChain, SyncInterval, Flags);
-#endif
+	return d3d->m_pOriginalPresent(pSwapChain, SyncInterval, Flags);
 
 }
 
 
 
-
+// static
 HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-	std::scoped_lock<std::mutex> lock(D3D11Hook::mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
-	D3D11Hook& instance = get();
+	auto d3d = instance;
+
+	std::scoped_lock<std::mutex> lock(d3d->mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 
 	// Need to release mainRenderTargetView before calling ResizeBuffers
-	if (instance.m_pMainRenderTargetView != nullptr)
+	if (d3d->m_pMainRenderTargetView != nullptr)
 	{
-		instance.m_pDeviceContext->OMSetRenderTargets(0, 0, 0);
-		instance.m_pMainRenderTargetView->Release();
+		d3d->m_pDeviceContext->OMSetRenderTargets(0, 0, 0);
+		d3d->m_pMainRenderTargetView->Release();
 	}
 
 	// Call original ResizeBuffers
-#ifdef USE_VMT_HOOK
-	HRESULT hr =  m_pOriginalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-#else
-	HRESULT hr = instance.mHookResizeBuffers.call<HRESULT, IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT>(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags); // Will return this at the end
-#endif
+	HRESULT hr = d3d->m_pOriginalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 
 
 	// Resetup the mainRenderTargetView
@@ -234,9 +202,9 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
 	if (!pBackBuffer) throw expected_exception("Failed to get BackBuffer");
 
-	instance.m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &instance.m_pMainRenderTargetView);
+	d3d->m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &d3d->m_pMainRenderTargetView);
 	pBackBuffer->Release();
-	if (!instance.m_pMainRenderTargetView) throw expected_exception("Failed to get MainRenderTargetView");
+	if (!d3d->m_pMainRenderTargetView) throw expected_exception("Failed to get MainRenderTargetView");
 
 	// We could grab the new window Height and Width too here if we cared about that, but I don't.
 
@@ -245,24 +213,26 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 
 // Safely destroys hooks
 // Releases D3D resources, if we acquired them
-void D3D11Hook::release()
+D3D11Hook::~D3D11Hook()
 {
-	D3D11Hook& instance = get();
+// It's important that hooks are destroyed BEFORE the rest of the class is
+// as the hook functions will try to access class members
+// and also the d3d resources need to be manually released
+
+	std::scoped_lock<std::mutex> lock(mDestructionGuard); // Hook functions lock this
+
 	// Destroy the hooks
-#ifdef USE_VMT_HOOK
 	// rewrite the pointers to go back to the original value
 	patch_pointer(m_ppPresent, (uintptr_t)m_pOriginalPresent);
 	// resizeBuffers too
 	patch_pointer(m_ppResizeBuffers, (uintptr_t)m_pOriginalResizeBuffers);
-#else
-	instance.mHookPresent.reset();
-	instance.mHookResizeBuffers.reset();
-#endif
 
 	// D3D resource releasing:
 	// need to call release on the device https://learn.microsoft.com/en-us/windows/win32/api/d3d9helper/nf-d3d9helper-idirect3dswapchain9-getdevice
-	safe_release(instance.m_pDevice);
-	safe_release(instance.m_pDeviceContext);
-	safe_release(instance.m_pMainRenderTargetView);
+	
+	safe_release(m_pDevice);
+	safe_release(m_pDeviceContext);
+	safe_release(m_pMainRenderTargetView);
+	instance = nullptr;
 	
 }

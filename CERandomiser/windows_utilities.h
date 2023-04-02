@@ -6,3 +6,4 @@ std::string wstr_to_str(const std::wstring wstr);
 
 
 void patch_pointer(void* dest_address, uintptr_t new_address);
+void patch_memory(void* dest_address, void* src_address, size_t size);
