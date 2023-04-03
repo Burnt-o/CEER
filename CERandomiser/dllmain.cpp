@@ -10,7 +10,8 @@
 #include "OptionsGUI.h"
 #include "OptionsState.h"
 #include "MirrorMode.h"
-
+#include "LevelLoadHook.h"
+#include "EnemyRandomiser.h"
 
 
 
@@ -62,10 +63,17 @@ void RealMain(HMODULE dllHandle)
     try
     {
         ModuleCache::initialize();
-        std::unique_ptr<ModuleHookManager> mhm = std::make_unique<ModuleHookManager>();
-        std::unique_ptr<D3D11Hook> d3d = std::make_unique<D3D11Hook>();
-        std::unique_ptr<ImGuiManager> imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
-        std::unique_ptr<OptionsGUI> optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
+        auto mhm = std::make_unique<ModuleHookManager>();
+        auto d3d = std::make_unique<D3D11Hook>();
+        auto imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
+        auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
+
+        auto lvl = std::make_unique<LevelLoadHook>();
+
+        // TODO: we should make the public events private and only allow public access by ref
+        auto nme = std::make_unique<EnemyRandomiser>(OptionsState::EnemyRandomiserEnabled.valueChangedEvent, lvl->levelLoadEvent);
+
+
 
         // We live in this loop 99% of the time
         while (!global_kill::is_kill_set()) {

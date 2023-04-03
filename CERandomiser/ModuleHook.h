@@ -42,12 +42,12 @@ public:
 
 class ModuleInlineHook : public ModuleHookBase {
 private:
-	MultilevelPointer* mOriginalFunction = nullptr;
+	std::shared_ptr<MultilevelPointer> mOriginalFunction;
 	void* mHookFunction;
 	safetyhook::InlineHook mInlineHook;
 
 public:
-	ModuleInlineHook(const std::wstring& hook_name, MultilevelPointer* original_func, void* new_func, bool startEnabled = false)
+	ModuleInlineHook(const std::wstring& hook_name, std::shared_ptr<MultilevelPointer> original_func, void* new_func, bool startEnabled = false)
 		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
 		if (startEnabled)
@@ -77,12 +77,13 @@ public:
 class ModuleMidHook : public ModuleHookBase {
 
 private:
-	MultilevelPointer* mOriginalFunction = nullptr;
+	std::shared_ptr<MultilevelPointer> mOriginalFunction;
 	safetyhook::MidHookFn mHookFunction;
 	safetyhook::MidHook mMidHook;
 
 public:
-	ModuleMidHook(const std::wstring& hook_name, MultilevelPointer* original_func, safetyhook::MidHookFn new_func, bool startEnabled = false)
+	//TODO: honestly we should just copy the string name, and MLP. 
+	ModuleMidHook(const std::wstring& hook_name, std::shared_ptr<MultilevelPointer> original_func, safetyhook::MidHookFn new_func, bool startEnabled = false)
 		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
 		if (startEnabled)

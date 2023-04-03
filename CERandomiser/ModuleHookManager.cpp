@@ -4,7 +4,6 @@
 
 #include "ModuleCache.h"
 
-#include "enemy_randomizer.h"
 
 ModuleHookManager* ModuleHookManager::instance = nullptr;
 
@@ -62,10 +61,12 @@ void ModuleHookManager::detachAllHooks() {
 }
 
 
+
+
+
 // Called by newFreeLibrary, unhooks any hooks tied to the unloading module
 void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilename) 
 {
-	std::cout << "a" << std::endl;
 	// Get a ref to the module-hooks map
 	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = instance->mModuleHooksMap;
 
@@ -85,7 +86,6 @@ void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilenam
 // Called by newLoadLibraries, attaches any hooks (that want to be enabled) associated with the loading module
 void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath) 
 {
-	std::cout << "b" << std::endl;;
 	// Need to get the name of the module from the libPath arguement
 	std::filesystem::path path = libPath;
 	auto libFilename = path.filename().generic_wstring();
@@ -114,12 +114,31 @@ void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath)
 }
 
 
+
+// For debugging/logging the below functions, logs only if the affected module is one of the ones we care about
+#ifdef CEER_DEBUG
+
+std::set<std::wstring> gameDLLNames{ L"halo1.dll", L"halo2.dll", L"halo3.dll", L"halo3odst.dll", L"haloreach.dll", L"halo4.dll" };
+
+#define printGameDLL(callingfunc, dllname) if (gameDLLNames.contains(dllname)) \
+						{	\
+							PLOG_INFO << callingfunc << dllname;	\
+						}	\
+
+#endif // CEER_DEBUG
+
+
+
 // the hook-redirected functions
 HMODULE ModuleHookManager::newLoadLibraryA(LPCSTR lpLibFileName) {
 	auto result = instance->mHook_LoadLibraryA.call< HMODULE, LPCSTR > (lpLibFileName);
 
 	auto wLibFileName = str_to_wstr(lpLibFileName);
-	PLOG_DEBUG << "LoadLibraryA: " << wLibFileName;
+
+#ifdef CEER_DEBUG
+	printGameDLL(L"LoadLibraryA: ", wLibFileName)
+#endif
+
 	ModuleCache::addModuleToCache(wLibFileName, result);
 	postModuleLoad_UpdateHooks(wLibFileName);
 
@@ -127,10 +146,12 @@ HMODULE ModuleHookManager::newLoadLibraryA(LPCSTR lpLibFileName) {
 }
 
 HMODULE ModuleHookManager::newLoadLibraryW(LPCWSTR lpLibFileName) {
-	PLOG_VERBOSE << "c";
 	auto result = instance->mHook_LoadLibraryW.call<HMODULE, LPCWSTR>(lpLibFileName);
 
-	PLOG_DEBUG << L"LoadLibraryW: " << lpLibFileName;
+#ifdef CEER_DEBUG
+	printGameDLL(L"LoadLibraryW: ", lpLibFileName)
+#endif
+
 	ModuleCache::addModuleToCache(lpLibFileName, result);
 	postModuleLoad_UpdateHooks(lpLibFileName);
 
@@ -141,7 +162,11 @@ HMODULE ModuleHookManager::newLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile,
 	auto result = instance->mHook_LoadLibraryExA.call<HMODULE, LPCSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
 
 	auto wLibFileName = str_to_wstr(lpLibFileName);
-	PLOG_DEBUG << L"LoadLibraryExA: " << wLibFileName;
+
+#ifdef CEER_DEBUG
+	printGameDLL(L"LoadLibraryExA: ", wLibFileName)
+#endif
+;
 	ModuleCache::addModuleToCache(wLibFileName, result);
 	postModuleLoad_UpdateHooks(wLibFileName);
 
@@ -151,7 +176,9 @@ HMODULE ModuleHookManager::newLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile,
 HMODULE ModuleHookManager::newLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags) {
 	auto result = instance->mHook_LoadLibraryExW.call<HMODULE, LPCWSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
 
-	PLOG_DEBUG << L"LoadLibraryExW: " << lpLibFileName;
+#ifdef CEER_DEBUG
+	printGameDLL(L"LoadLibraryExW: ", lpLibFileName)
+#endif
 	ModuleCache::addModuleToCache(lpLibFileName, result);
 	postModuleLoad_UpdateHooks(lpLibFileName);
 
@@ -159,15 +186,18 @@ HMODULE ModuleHookManager::newLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile
 }
 
 BOOL ModuleHookManager::newFreeLibrary(HMODULE hLibModule) {
-	PLOG_DEBUG << L"FreeLibrary";
-	
 
 	wchar_t moduleFilePath[MAX_PATH];
 	GetModuleFileName(hLibModule, moduleFilePath, sizeof(moduleFilePath) / sizeof(TCHAR));
-	PLOG_DEBUG << L"FreeLibrary: " << moduleFilePath;
+
+
 
 	std::filesystem::path path = moduleFilePath;
 	auto filename = path.filename().generic_wstring();
+
+#ifdef CEER_DEBUG
+	printGameDLL(L"FreeLibrary: ", filename)
+#endif
 
 	preModuleUnload_UpdateHooks(filename);
 	ModuleCache::removeModuleFromCache(filename);

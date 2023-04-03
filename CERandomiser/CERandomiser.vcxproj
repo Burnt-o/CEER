@@ -120,7 +120,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;CERANDOMISER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CEER_DEBUG;_DEBUG;CERANDOMISER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -160,6 +160,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D11Hook.h" />
+    <ClInclude Include="EnemyRandomiser.h" />
+    <ClInclude Include="HaloEnums.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="includes\imgui\imconfig.h" />
     <ClInclude Include="includes\imgui\imgui.h" />
@@ -171,6 +173,7 @@
     <ClInclude Include="includes\imgui\imstb_truetype.h" />
     <ClInclude Include="includes\safetyhook\safetyhook.hpp" />
     <ClInclude Include="includes\safetyhook\Zydis.h" />
+    <ClInclude Include="LevelLoadHook.h" />
     <ClInclude Include="MirrorMode.h" />
     <ClInclude Include="ModuleCache.h" />
     <ClInclude Include="expected_exception.h" />
@@ -183,13 +186,13 @@
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="enemy_randomizer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="windows_utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="EnemyRandomiser.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="includes\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -223,12 +226,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="LevelLoadHook.cpp" />
     <ClCompile Include="MirrorMode.cpp" />
     <ClCompile Include="ModuleCache.cpp" />
     <ClCompile Include="ModuleHook.cpp" />
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="multilevel_pointer.cpp" />
-    <ClCompile Include="enemy_randomizer.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />

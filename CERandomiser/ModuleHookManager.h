@@ -14,11 +14,11 @@ private:
 
 	// Where we keep all the module relative hooks (key = name of module, value = list of all hooks for that module).
 	std::unordered_map	<std::wstring, std::vector
-									<
-										std::shared_ptr<ModuleHookBase>
-									>
-						> mModuleHooksMap;
-	
+		<
+		std::shared_ptr<ModuleHookBase>
+		>
+	> mModuleHooksMap;
+
 
 	// Hooks on module load/unload functions.
 	// These are attached on ModuleHookManager construction
@@ -36,7 +36,7 @@ private:
 	static HMODULE newLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
 	static BOOL newFreeLibrary(HMODULE hLibModule);
 
-	
+
 	static void preModuleUnload_UpdateHooks(std::wstring_view libFilename); // called by newFreeLibrary
 	static void postModuleLoad_UpdateHooks(std::wstring_view libPath); // called by newLoadLibraries
 
@@ -44,16 +44,49 @@ private:
 
 public:
 
-	ModuleHookManager(); 
+	ModuleHookManager();
 
 	~ModuleHookManager();
 
 
 
-	void addHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> newHook)
+	static void addHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> newHook)
 	{
 		// Note: [] operator creates the moduleName key if it didn't already exist in the map
-		mModuleHooksMap[moduleName].emplace_back(newHook);
+		instance->mModuleHooksMap[moduleName].emplace_back(newHook);
+	}
+
+
+	static void removeHook(const std::wstring& hookName)
+	{
+		for (auto moduleList : instance->mModuleHooksMap)
+		{
+			auto vec = moduleList.second;
+
+			// Element getting erased removes shared pointer. If ref count 0 the ModuleHook will be destroyed, the destructor will call detach() in case it's attached
+			vec.erase(std::ranges::begin(std::ranges::remove_if(vec,
+				[hookName](const std::shared_ptr<ModuleHookBase>& hook) { return hook.get()->getHookName() == hookName; }
+				)));
+
+			
+			//vec.erase(std::remove_if(vec.begin(), vec.end(),
+			//	[hookName](const std::shared_ptr<ModuleHookBase>& hook) { return hook.get()->getHookName() == hookName; }), 
+			//	vec.end());
+			
+		}
+	}
+
+	static void removeHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> hookToRemove)
+	{
+		if (instance->mModuleHooksMap.contains(moduleName))
+		{
+			auto position = std::ranges::find(instance->mModuleHooksMap[moduleName], hookToRemove);
+
+			if (position == instance->mModuleHooksMap[moduleName].end())
+				return;
+
+			instance->mModuleHooksMap[moduleName].erase(position);
+		}
 	}
 
 };

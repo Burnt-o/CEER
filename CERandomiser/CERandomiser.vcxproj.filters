@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -27,6 +23,10 @@
     </Filter>
     <Filter Include="Classes">
       <UniqueIdentifier>{6caf362c-4b29-429b-8f00-ef61c9e0c99c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Global\Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,9 +93,6 @@
     <ClInclude Include="MirrorMode.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="enemy_randomizer.h">
-      <Filter>Services</Filter>
-    </ClInclude>
     <ClInclude Include="expected_exception.h">
       <Filter>Global</Filter>
     </ClInclude>
@@ -109,7 +106,16 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="Option.h">
-      <Filter>Header Files</Filter>
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelLoadHook.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyRandomiser.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloEnums.h">
+      <Filter>Global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,9 +167,6 @@
     <ClCompile Include="MirrorMode.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="enemy_randomizer.cpp">
-      <Filter>Services</Filter>
-    </ClCompile>
     <ClCompile Include="windows_utilities.cpp">
       <Filter>Global</Filter>
     </ClCompile>
@@ -174,7 +177,13 @@
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="Option.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelLoadHook.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyRandomiser.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

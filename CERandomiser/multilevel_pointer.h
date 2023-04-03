@@ -29,16 +29,17 @@ public:
 
 	// Factory methods
 	// Pointer is relative to the exe address
-	static MultilevelPointer* make(const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(const std::vector<int64_t>& offsets);
+	//static MultilevelPointer* make(const std::vector<int64_t>& offsets);
 
 	// Pointer is relative to some void* baseAddress
-	static MultilevelPointer* make(void* const& baseAddress, const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(void* const& baseAddress, const std::vector<int64_t>& offsets);
 
 	// Pointer is relative to a module eg halo1.dll
-	static MultilevelPointer* make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets);
 
 	// Pointer is already fully resolved (used for stuff that never changes address)
-	static MultilevelPointer* make(void* const& baseAddress);
+	static std::shared_ptr<MultilevelPointer> make(void* const& baseAddress);
 
 	// The useful stuff
 	virtual bool resolve(void** resolvedOut) const = 0; // Overriden in derived classes
@@ -58,6 +59,21 @@ public:
 		return true;
 	}
 
+	template<typename T>
+	bool readArrayData(T* resolvedOut, size_t arraySize) const
+	{
+		if (typeid(T) == typeid(std::string))
+		{
+			return readString(*(std::string*)resolvedOut);
+		}
+
+		void* address;
+		if (!this->resolve(&address)) return false;
+
+		memcpy(resolvedOut, address, arraySize);
+		return true;
+	}
+
 	static std::string GetLastError()
 	{
 		return mLastError.str();
@@ -73,7 +89,7 @@ namespace PointerTypes // So we don't pollute global namespace
 		const std::vector<int64_t> mOffsets;
 		static void* mEXEAddress;
 	public:
-		explicit ExeOffset(const std::vector<int64_t>& offsets) : mOffsets(offsets) {}
+		explicit ExeOffset(const std::vector<int64_t> offsets) : mOffsets(offsets) {}
 		bool MultilevelPointer::resolve(void** resolvedOut) const override;
 	};
 
@@ -82,7 +98,7 @@ namespace PointerTypes // So we don't pollute global namespace
 		void* mBaseAddress;
 		const std::vector<int64_t> mOffsets;
 	public:
-		explicit BaseOffset(void* const& baseAddress, const std::vector<int64_t>& offsets) : mBaseAddress(baseAddress), mOffsets(offsets) {}
+		explicit BaseOffset(void* const& baseAddress, const std::vector<int64_t> offsets) : mBaseAddress(baseAddress), mOffsets(offsets) {}
 		bool MultilevelPointer::resolve(void** resolvedOut) const override;
 		void updateBaseAddress(void* const& baseAddress);
 	};
@@ -92,7 +108,7 @@ namespace PointerTypes // So we don't pollute global namespace
 		const std::wstring mModuleName;
 		const std::vector<int64_t> mOffsets;
 	public:
-		explicit ModuleOffset(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets) : mModuleName(moduleName), mOffsets(offsets) {}
+		explicit ModuleOffset(const std::wstring_view& moduleName, const std::vector<int64_t> offsets) : mModuleName(moduleName), mOffsets(offsets) {}
 		bool MultilevelPointer::resolve(void** resolvedOut) const override;
 	};
 

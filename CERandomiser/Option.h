@@ -14,14 +14,16 @@ public:
 		: isInputValid(inputValidator), value(defaultValue), valueDisplay(defaultValue)
 	{}
 
-	eventpp::CallbackList<void(T& newValue)> valueChangedEvent;
+	// Onus is on listeners to check if newValue != oldValue, if it cares (it'll also know the type and how to compare them)
+	eventpp::CallbackList<void(T& newValue, T& oldValue)> valueChangedEvent;
 
 	void SetValue()
 	{
 		if (isInputValid(valueDisplay))
 		{
+			T oldValue = value;
 			value = valueDisplay;
-			valueChangedEvent(value);
+			valueChangedEvent(value, oldValue);
 		}
 		else
 		{
