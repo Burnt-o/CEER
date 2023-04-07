@@ -24,6 +24,7 @@
     <ProjectGuid>{46e21734-5fbb-4f50-8a69-36705ef8944a}</ProjectGuid>
     <RootNamespace>CERandomiser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -132,7 +133,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;libcurl.lib;version.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)includes\curl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,6 +150,7 @@
       <AdditionalIncludeDirectories>$(WindowsSdkDir);$(SolutionDir)includes;$(SolutionDir)includes\eventpp\include;$(SolutionDir)includes\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,7 +158,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\dev\vcpkg\vcpkg\installed\x64-windows-static\lib;$(SolutionDir)includes\curl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -186,6 +190,7 @@
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PointerManager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="windows_utilities.h" />
   </ItemGroup>
@@ -235,6 +240,7 @@
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
+    <ClCompile Include="PointerManager.cpp" />
     <ClCompile Include="windows_utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +248,14 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="CEER.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="CEERPointerData.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CEERPointerData.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

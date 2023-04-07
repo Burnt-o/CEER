@@ -12,6 +12,9 @@
 #include "MirrorMode.h"
 #include "LevelLoadHook.h"
 #include "EnemyRandomiser.h"
+#include "PointerManager.h"
+
+#include "curl\curl.h"
 
 
 
@@ -54,14 +57,15 @@ Add OptionState stuff
 
 
 
-
 // Main Execution Loop
 void RealMain(HMODULE dllHandle) 
 {
     init_logging();
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     PLOG_INFO << "Randomizer initializing";
     try
     {
+        auto ptr = std::make_unique<PointerManager>();
         ModuleCache::initialize();
         auto mhm = std::make_unique<ModuleHookManager>();
         auto d3d = std::make_unique<D3D11Hook>();
@@ -72,7 +76,6 @@ void RealMain(HMODULE dllHandle)
 
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::EnemyRandomiserEnabled.valueChangedEvent, lvl->levelLoadEvent);
-
 
 
         // We live in this loop 99% of the time
@@ -99,11 +102,14 @@ void RealMain(HMODULE dllHandle)
     catch (expected_exception& ex)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
+        std::cout << "Enter any command to shutdown CEER";
         global_kill::kill_me();
+        std::string dontcare;
+        std::cin >> dontcare;
     }
 
     // Auto managed resources have fallen out of scope
-
+    std::cout << "Shutting down";
 
     bool mirror = false;
 
@@ -114,6 +120,8 @@ void RealMain(HMODULE dllHandle)
     {
         MirrorMode::destroy();
     }
+
+    curl_global_cleanup();
 
     PLOG_DEBUG << "Shutting down logging";
     stop_logging();
@@ -139,6 +147,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
+
     DWORD dwThreadID;
 
     if (ul_reason_for_call == DLL_PROCESS_ATTACH) {

@@ -24,7 +24,7 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{6caf362c-4b29-429b-8f00-ef61c9e0c99c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Global\Header Files">
+    <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
@@ -117,6 +117,9 @@
     <ClInclude Include="HaloEnums.h">
       <Filter>Global</Filter>
     </ClInclude>
+    <ClInclude Include="PointerManager.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -185,6 +188,9 @@
     <ClCompile Include="EnemyRandomiser.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="PointerManager.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CERandomiser.rc">
@@ -195,5 +201,10 @@
     <Image Include="CEER.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="CEERPointerData.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
