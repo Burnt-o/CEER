@@ -87,7 +87,7 @@
     <ClInclude Include="resource.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsUtitlies.h">
+    <ClInclude Include="WindowsUtilities.h">
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="GlobalKill.h">
@@ -185,7 +185,7 @@
     <ClCompile Include="MirrorMode.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsUtitlies.cpp">
+    <ClCompile Include="WindowsUtilities.cpp">
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="MultilevelPointer.cpp">

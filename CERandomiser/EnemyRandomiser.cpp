@@ -3,7 +3,7 @@
 
 EnemyRandomiser* EnemyRandomiser::instance = nullptr;
 
-void EnemyRandomiser::onEnemyRandomiserEnabledChanged(bool& newValue, bool& oldValue)
+void EnemyRandomiser::onMasterToggleChanged(bool& newValue, bool& oldValue)
 {
 	if (newValue && !oldValue)
 	{

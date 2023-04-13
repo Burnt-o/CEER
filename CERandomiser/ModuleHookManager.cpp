@@ -12,7 +12,7 @@ ModuleHookManager::ModuleHookManager()
 {
 	if (instance != nullptr)
 	{ 
-		throw expected_exception("Cannot have more than one ModuleHookManager");
+		throw ExpectedException("Cannot have more than one ModuleHookManager");
 	}
 	instance = this;
 
@@ -68,7 +68,7 @@ void ModuleHookManager::detachAllHooks() {
 void ModuleHookManager::preModuleUnload_UpdateHooks(std::wstring_view libFilename) 
 {
 	// Get a ref to the module-hooks map
-	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = instance->mModuleHooksMap;
+	const auto& moduleHooksMap = instance->mModuleHooksMap;
 
 	// Is the currently unloading library in our map?
 	auto it = moduleHooksMap.find(libFilename.data());
@@ -91,7 +91,7 @@ void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath)
 	auto libFilename = path.filename().generic_wstring();
 
 	// Get a ref to the module-hooks map
-	const std::unordered_map<std::wstring, std::vector<std::shared_ptr<ModuleHookBase>>>& moduleHooksMap = instance->mModuleHooksMap;
+	const auto& moduleHooksMap = instance->mModuleHooksMap;
 
 	// Is the currently loading module in our map?
 	auto it = moduleHooksMap.find(libFilename.data());

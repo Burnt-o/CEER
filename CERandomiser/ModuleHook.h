@@ -7,13 +7,13 @@
 // Hooks attach automatically on module load, if mWantsToBeAttached. 
 class ModuleHookBase {
 private:
-	std::wstring mHookName; // just used for logging
+	std::wstring mAssociatedModule;
 	bool mWantsToBeAttached = false; // This flag determines if the hook will try to *attach* or *detach* when its module is loaded in
 	void updateHookState(); // just called by setWantsToBeAttached, tries to force attach if value is true
 
 protected:
-	ModuleHookBase(const std::wstring& hook_name, bool startEnabled)
-		: mHookName(hook_name), mWantsToBeAttached(startEnabled)
+	ModuleHookBase(const std::wstring associatedModule, bool startEnabled)
+		: mAssociatedModule(associatedModule), mWantsToBeAttached(startEnabled)
 	{
 	}
 
@@ -29,7 +29,7 @@ public:
 	virtual bool isHookInstalled() const = 0;
 
 	// Common functions
-	const std::wstring& getHookName() const;
+	const std::wstring& getAssociatedModule() const;
 
 	// get/set for mWantsToBeAttached
 	bool getWantsToBeAttached() const;
@@ -46,17 +46,20 @@ private:
 	void* mHookFunction;
 	safetyhook::InlineHook mInlineHook;
 
-public:
-	ModuleInlineHook(const std::wstring& hook_name, std::shared_ptr<MultilevelPointer> original_func, void* new_func, bool startEnabled = false)
-		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
+	ModuleInlineHook(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, void* new_func, bool startEnabled = false)
+		: ModuleHookBase(associatedModule, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
 		if (startEnabled)
 		{
 			attach();
 		}
 	}
+
+public:
+
+	static std::unique_ptr<ModuleInlineHook> make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, void* new_func, bool startEnabled = false);
 	
-	 ~ModuleInlineHook() final { detach(); } // Detach hook on destruction //TODO I think I can safely remove this
+	~ModuleInlineHook() final;
 	 ModuleInlineHook(const ModuleInlineHook&) = delete;
 	 ModuleInlineHook& operator=(const ModuleInlineHook&) = delete;
 	void attach() final;
@@ -81,18 +84,20 @@ private:
 	safetyhook::MidHookFn mHookFunction;
 	safetyhook::MidHook mMidHook;
 
-public:
-	//TODO: honestly we should just copy the string name, and MLP. 
-	ModuleMidHook(const std::wstring& hook_name, std::shared_ptr<MultilevelPointer> original_func, safetyhook::MidHookFn new_func, bool startEnabled = false)
-		: ModuleHookBase(hook_name, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
+	ModuleMidHook(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, safetyhook::MidHookFn new_func, bool startEnabled = false)
+		: ModuleHookBase(associatedModule, startEnabled), mOriginalFunction(original_func), mHookFunction(new_func)
 	{
 		if (startEnabled)
 		{
 			attach();
 		}
 	}
+
+public:
+
+	static std::unique_ptr<ModuleMidHook> make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, safetyhook::MidHookFn new_func, bool startEnabled = false);
 	 
-	~ModuleMidHook() final { detach(); } // Detach hook on destruction //TODO I think I can safely remove this
+	~ModuleMidHook() final; 
 	ModuleMidHook(const ModuleMidHook&) = delete;
 	ModuleMidHook& operator=(const ModuleMidHook&) = delete;
 

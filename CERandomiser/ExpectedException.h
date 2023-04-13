@@ -1,6 +1,6 @@
 #pragma once
 
-//#define throw_except(x) throw expected_exception(std::format("{} @ {}:{}", x, __FILE__, __LINE__)
+//#define throw_except(x) throw ExpectedException(std::format("{} @ {}:{}", x, __FILE__, __LINE__)
 
 // Class used for exceptions that are the result of us checking for various bad conditions etc, 
 // where we can usually gracefully handle the exception by just not doing the thing we were trying to do

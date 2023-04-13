@@ -44,7 +44,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw expected_exception("Cannot have more than one ImGuiManager");
+			throw ExpectedException("Cannot have more than one ImGuiManager");
 		}
 		instance = this;
 		mCallbackHandle = pPresentHookEvent.append(onPresentHookEvent);

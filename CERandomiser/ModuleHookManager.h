@@ -8,14 +8,15 @@
 class ModuleHookManager
 {
 private:
-
+	friend class ModuleInlineHook;
+	friend class ModuleMidHook;
 	static ModuleHookManager* instance;
 
 
 	// Where we keep all the module relative hooks (key = name of module, value = list of all hooks for that module).
 	std::unordered_map	<std::wstring, std::vector
 		<
-		std::shared_ptr<ModuleHookBase>
+		ModuleHookBase*
 		>
 	> mModuleHooksMap;
 
@@ -42,41 +43,14 @@ private:
 
 	void detachAllHooks();
 
-public:
-
-	ModuleHookManager();
-
-	~ModuleHookManager();
-
-
-
-	static void addHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> newHook)
+	static void addHook(const std::wstring& moduleName, ModuleHookBase* newHook)
 	{
 		// Note: [] operator creates the moduleName key if it didn't already exist in the map
 		instance->mModuleHooksMap[moduleName].emplace_back(newHook);
 	}
 
 
-	static void removeHook(const std::wstring& hookName)
-	{
-		for (auto moduleList : instance->mModuleHooksMap)
-		{
-			auto vec = moduleList.second;
-
-			// Element getting erased removes shared pointer. If ref count 0 the ModuleHook will be destroyed, the destructor will call detach() in case it's attached
-			vec.erase(std::ranges::begin(std::ranges::remove_if(vec,
-				[hookName](const std::shared_ptr<ModuleHookBase>& hook) { return hook.get()->getHookName() == hookName; }
-				)));
-
-			
-			//vec.erase(std::remove_if(vec.begin(), vec.end(),
-			//	[hookName](const std::shared_ptr<ModuleHookBase>& hook) { return hook.get()->getHookName() == hookName; }), 
-			//	vec.end());
-			
-		}
-	}
-
-	static void removeHook(const std::wstring& moduleName, std::shared_ptr<ModuleHookBase> hookToRemove)
+	static void removeHook(const std::wstring& moduleName, ModuleHookBase* hookToRemove)
 	{
 		if (instance->mModuleHooksMap.contains(moduleName))
 		{
@@ -88,6 +62,16 @@ public:
 			instance->mModuleHooksMap[moduleName].erase(position);
 		}
 	}
+
+public:
+
+	ModuleHookManager();
+
+	~ModuleHookManager();
+
+
+
+
 
 };
 

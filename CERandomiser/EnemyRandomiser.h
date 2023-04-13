@@ -1,6 +1,6 @@
 #pragma once
 #include "HaloEnums.h"
-
+#include "ModuleHook.h"
 
 class EnemyRandomiser
 {
@@ -8,15 +8,15 @@ private:
 	static EnemyRandomiser* instance; // Private Singleton instance so static hooks/callbacks can access
 	std::mutex mDestructionGuard; // Protects against Singleton destruction while callbacks are executing
 
-	// handle to our callback of OptionsState::EnemyRandomiserEnabled so we can remove it in destructor
-	eventpp::CallbackList<void(bool&, bool&)>::Handle mEnabledCallbackHandle = {};
-	eventpp::CallbackList<void(bool&, bool&)>& mEnabledEvent;
+	// handle to our callback of OptionsState::MasterToggle so we can remove it in destructor
+	eventpp::CallbackList<void(bool&, bool&)>::Handle mMasterToggleCallbackHandle = {};
+	eventpp::CallbackList<void(bool&, bool&)>& mMasterToggleEvent;
 	// handle to our callback of LevelLoadHook so we can remove it in destructor
 	eventpp::CallbackList<void(HaloLevel)>::Handle mLevelLoadCallbackHandle = {};
 	eventpp::CallbackList<void(HaloLevel)>& mLevelLoadEvent;
 
-	// What we run when EnemyRandomiserEnabled changes
-	static void onEnemyRandomiserEnabledChanged(bool& newValue, bool& oldValue);
+	// What we run when masterToggle changes
+	static void onMasterToggleChanged(bool& newValue, bool& oldValue);
 
 	// What we run when new level is loaded changes
 	static void onLevelLoadEvent(HaloLevel newLevel);
@@ -27,18 +27,32 @@ private:
 	// Hooks check this and run init if true
 	bool needToLoadGameData = false;
 
+
+	// Hooks
+	std::shared_ptr<ModuleMidHook> actvSpawnHook;
+	std::shared_ptr<ModuleMidHook> encounterSpawnHook;
+
+	// Hook Functions
+	static void actvSpawnHookFunction(SafetyHookContext ctx);
+	static void encounterSpawnHookFunction(SafetyHookContext ctx);
+
+	// Game Data
+	static void loadGameData();
+	//TODO
+
+
 public:
 	explicit EnemyRandomiser(eventpp::CallbackList<void(bool&, bool&)>& enabledEvent, eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent)
-		: mEnabledEvent(enabledEvent), mLevelLoadEvent(levelLoadEvent)
+		: mMasterToggleEvent(enabledEvent), mLevelLoadEvent(levelLoadEvent)
 	{
 		if (instance != nullptr)
 		{
-			throw expected_exception("Cannot have more than one EnemyRandomiser");
+			throw ExpectedException("Cannot have more than one EnemyRandomiser");
 		}
 		instance = this;
 
 		// Listen to the events we care about
-		mEnabledCallbackHandle = enabledEvent.append(&onEnemyRandomiserEnabledChanged);
+		mMasterToggleCallbackHandle = enabledEvent.append(&onMasterToggleChanged);
 		mLevelLoadCallbackHandle = levelLoadEvent.append(&onLevelLoadEvent);
 
 		// Set up our hooks
@@ -50,7 +64,7 @@ public:
 	{
 		std::scoped_lock<std::mutex> lock(mDestructionGuard);
 		// Unsubscribe events
-		mEnabledEvent.remove(mEnabledCallbackHandle);
+		mMasterToggleEvent.remove(mMasterToggleCallbackHandle);
 		mLevelLoadEvent.remove(mLevelLoadCallbackHandle);
 
 		//TODO: destroy hooks

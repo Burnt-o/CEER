@@ -198,7 +198,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PointerManager.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="WindowsUtitlies.h" />
+    <ClInclude Include="WindowsUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
@@ -253,7 +253,7 @@
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="PointerManager.cpp" />
-    <ClCompile Include="WindowsUtitlies.cpp" />
+    <ClCompile Include="WindowsUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CERandomiser.rc" />

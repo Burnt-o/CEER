@@ -44,7 +44,7 @@ private:
 	}
 
 	// Hook that invokes event
-	std::shared_ptr<ModuleMidHook> levelLoadHook;
+	std::unique_ptr<ModuleMidHook> levelLoadHook;
 
 
 	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
@@ -62,7 +62,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw expected_exception("Cannot have more than one LevelLoadHook");
+			throw ExpectedException("Cannot have more than one LevelLoadHook");
 		}
 		instance = this;
 
@@ -73,7 +73,7 @@ public:
 			MLP_currentLevelName = PointerManager::getMultilevelPointer("MLP_currentLevelName");
 			MLP_levelLoadHook = PointerManager::getMultilevelPointer("MLP_levelLoadHook");
 		}
-		catch (expected_exception& ex)
+		catch (ExpectedException& ex)
 		{
 			ex.prepend("LevelLoadHook could not resolve pointers: ");
 			throw ex;
@@ -82,25 +82,17 @@ public:
 
 
 		// Set up the hook 
-		
-		levelLoadHook = std::make_shared<ModuleMidHook>(
-			L"levelLoadHook", 
+		levelLoadHook = ModuleMidHook::make(
+			L"levelLoadHook",
 			MLP_levelLoadHook,
 			(safetyhook::MidHookFn)&hookFunction,
 			true);
-		
-		// Add to the moduleHookManager so it is appopiately loaded/unloaded on dll load/unload
-		ModuleHookManager::addHook(L"halo1.dll", levelLoadHook);
-		// Try attaching it right now in case halo1.dll already loaded
-		levelLoadHook.get()->attach();
+	
 	}
 
 	~LevelLoadHook()
 	{
 		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-
-		ModuleHookManager::removeHook(L"levelLoadHook");
-
 		instance = nullptr;
 	}
 

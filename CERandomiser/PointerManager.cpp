@@ -48,7 +48,7 @@ std::shared_ptr<MultilevelPointer> PointerManager::getMultilevelPointer(std::str
     if (!get().impl.get()->mMultilevelPointerData.contains(dataName))
     {
         PLOG_ERROR << "EE " << dataName;
-    throw expected_exception(std::format("pointerData was null for {}", dataName));
+    throw ExpectedException(std::format("pointerData was null for {}", dataName));
     }
 
     return get().impl.get()->mMultilevelPointerData.at(dataName);
@@ -60,7 +60,7 @@ std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInte
     if (!get().impl.get()->mMidhookContextInterpreterData.contains(dataName))
     {
         PLOG_ERROR << "EE " << dataName;
-        throw expected_exception(std::format("pointerData was null for {0}", dataName));
+        throw ExpectedException(std::format("pointerData was null for {0}", dataName));
     }
 
     return get().impl.get()->mMidhookContextInterpreterData.at(dataName);
@@ -80,7 +80,7 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
         PLOG_INFO << "downloading pointerData.xml";
         downloadXML("https://raw.githubusercontent.com/Burnt-o/HaloCheckpointManager/HCM2/HCM3/PointerData.xml");
     }
-    catch (expected_exception ex)
+    catch (ExpectedException ex)
     {
         PLOG_ERROR << "Failed to download CEER PointerData xml, trying local backup";
     }
@@ -130,7 +130,7 @@ std::string PointerManager::PointerManagerImpl::readLocalXML()
     {
         std::stringstream er;
         er << "Failed to open file : " << GetLastError() << std::endl << "at: " << pathToFile;
-        throw expected_exception(er.str().c_str());
+        throw ExpectedException(er.str().c_str());
     }
 
 }
@@ -175,7 +175,7 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
 
         CURLcode ec;
         if ((ec = curl_easy_perform(curl.get())) != CURLE_OK)
-            throw expected_exception(curl_easy_strerror(ec));
+            throw ExpectedException(curl_easy_strerror(ec));
 
     }
 
@@ -193,7 +193,7 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
     {
         std::stringstream er;
         er << "Failed to write file : " << GetLastError() << std::endl << "at: " << pathToFile;
-        throw expected_exception(er.str().c_str());
+        throw ExpectedException(er.str().c_str());
     }
 
 }
@@ -205,7 +205,7 @@ std::string getFileVersion(const char* filename)
     DWORD dwHandle, size = GetFileVersionInfoSizeA(filename, &dwHandle);
     if (size == 0)
     {
-        throw expected_exception(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
+        throw ExpectedException(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
 
     }
 
@@ -215,14 +215,14 @@ std::string getFileVersion(const char* filename)
 
     if (!GetFileVersionInfoA(filename, dwHandle, size, buffer.data()))
     {
-        throw expected_exception(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
+        throw ExpectedException(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
     }
 
     VS_FIXEDFILEINFO* pvi;
     size = sizeof(VS_FIXEDFILEINFO);
     if (!VerQueryValueA(buffer.data(), "\\", (LPVOID*)&pvi, (unsigned int*)&size))
     {
-        throw expected_exception(std::format("VerQueryValueA failed, error: {}", GetLastError()));
+        throw ExpectedException(std::format("VerQueryValueA failed, error: {}", GetLastError()));
     }
     std::string outVersionInfo = std::format("{}.{}.{}.{}",
         pvi->dwProductVersionMS >> 16,
@@ -248,11 +248,11 @@ std::string PointerManager::PointerManagerImpl::getCurrentMCCVersion()
     PLOG_DEBUG << "size: " << outCurrentMCCVersion.size();
     if (outCurrentMCCVersion.size() != 10)
     {
-        throw expected_exception("mccVersionInfo was incorrect size!");
+        throw ExpectedException("mccVersionInfo was incorrect size!");
     }
     if (!outCurrentMCCVersion.starts_with("1."))
     {
-        throw expected_exception("mccVersionInfo did not start with \"1.\"!");
+        throw ExpectedException("mccVersionInfo did not start with \"1.\"!");
     }
 
     return outCurrentMCCVersion;
@@ -274,7 +274,7 @@ void PointerManager::PointerManagerImpl::parseXML(std::string& xml)
         er << "Error description: " << result.description() << "\n";
         er << "Error offset: " << result.offset << " (error at [..." << (xml.c_str() + result.offset) << "]\n\n";
         er << "xml in question: \n\n" << xml;
-        throw expected_exception(er.str());
+        throw ExpectedException(er.str());
     }
 
     xml_node root = doc.child("root");
@@ -345,7 +345,7 @@ int64_t stringToInt(std::string& string)
     }
     catch (std::invalid_argument ex)
     {
-        throw expected_exception(std::format("Error parsing string to int: {}", string));
+        throw ExpectedException(std::format("Error parsing string to int: {}", string));
     }
 
 }

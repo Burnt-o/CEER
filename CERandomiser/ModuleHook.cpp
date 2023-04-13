@@ -2,22 +2,46 @@
 #include "ModuleHook.h"
 //#include "pointer.h"
 #include "ModuleCache.h"
+#include "ModuleHookManager.h"
 
-
-
-
-// The hook name is just used for logging (ie logging attach/detach events)
-const std::wstring& ModuleHookBase::getHookName() const
+std::unique_ptr<ModuleInlineHook> ModuleInlineHook::make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, void* new_func, bool startEnabled)
 {
-	return this->mHookName;
+	auto ptr = std::unique_ptr< ModuleInlineHook>(new ModuleInlineHook(associatedModule, original_func, new_func, startEnabled));
+	ModuleHookManager::addHook(associatedModule, ptr.get());
+	return ptr;
+
+}
+
+std::unique_ptr<ModuleMidHook> ModuleMidHook::make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, safetyhook::MidHookFn new_func, bool startEnabled)
+{
+	auto ptr = std::unique_ptr< ModuleMidHook>(new ModuleMidHook(associatedModule, original_func, new_func, startEnabled));
+	ModuleHookManager::addHook(associatedModule, ptr.get());
+	return ptr;
 }
 
 
+const std::wstring& ModuleHookBase::getAssociatedModule() const
+{
+	return this->mAssociatedModule;
+}
+
+ModuleInlineHook::~ModuleInlineHook()
+{
+	detach();
+	ModuleHookManager::removeHook(getAssociatedModule(), this);
+
+}
+
+ModuleMidHook::~ModuleMidHook()
+{
+	detach();
+	ModuleHookManager::removeHook(getAssociatedModule(), this);
+}
 
 
 void ModuleInlineHook::attach()
 {
-	PLOG_DEBUG << "inline_hook attempting attach: " << getHookName();
+	PLOG_DEBUG << "inline_hook attempting attach: " << getAssociatedModule();
 	PLOG_VERBOSE << "hookFunc " << this->mHookFunction;
 	if (this->isHookInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
@@ -41,13 +65,13 @@ void ModuleInlineHook::attach()
 
 	this->mInlineHook = safetyhook::create_inline(pOriginalFunction, this->mHookFunction);
 
-	PLOG_DEBUG << "inline_hook successfully attached: " << this->getHookName();
+	PLOG_DEBUG << "inline_hook successfully attached: " << this->getAssociatedModule();
 
 }
 
 void ModuleMidHook::attach()
 {
-	PLOG_DEBUG << "mid_hook attempting attach: " << this->getHookName();
+	PLOG_DEBUG << "mid_hook attempting attach: " << this->getAssociatedModule();
 	if (this->isHookInstalled()) {
 		PLOG_DEBUG << "attach failed: hook already installed";
 		return;
@@ -70,31 +94,31 @@ void ModuleMidHook::attach()
 
 	this->mMidHook = safetyhook::create_mid(pOriginalFunction, this->mHookFunction);
 
-	PLOG_DEBUG << "mid_hook successfully attached: " << this->getHookName();
+	PLOG_DEBUG << "mid_hook successfully attached: " << this->getAssociatedModule();
 }
 
 void ModuleInlineHook::detach()
 {
-	PLOG_DEBUG << "detaching hook: " << this->getHookName();
+	PLOG_DEBUG << "detaching hook: " << this->getAssociatedModule();
 	if (!this->isHookInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
 	this->mInlineHook = {};
-	PLOG_DEBUG << "successfully detached " << this->getHookName();
+	PLOG_DEBUG << "successfully detached " << this->getAssociatedModule();
 }
 
 void ModuleMidHook::detach()
 {
-	PLOG_DEBUG << "detaching hook: " << this->getHookName();
+	PLOG_DEBUG << "detaching hook: " << this->getAssociatedModule();
 	if (!this->isHookInstalled()) {
 		PLOG_DEBUG << "already detached";
 		return;
 	}
 
 	this->mMidHook = {};
-	PLOG_DEBUG << "successfully detached " << this->getHookName();
+	PLOG_DEBUG << "successfully detached " << this->getAssociatedModule();
 }
 
 

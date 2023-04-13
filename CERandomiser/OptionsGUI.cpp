@@ -41,7 +41,7 @@ void OptionsGUI::onImGuiRenderEvent()
 			instance->initializeCEERGUI();
 			instance->m_OptionsGUIinitialized = true;
 		}
-		catch (expected_exception& ex)
+		catch (ExpectedException& ex)
 		{
 			PLOG_FATAL << "Failed to initialize OptionsGUI, info: " << std::endl
 				<< ex.what() << std::endl

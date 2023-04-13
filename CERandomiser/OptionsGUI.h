@@ -35,7 +35,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw expected_exception("Cannot have more than one OptionsGUI");
+			throw ExpectedException("Cannot have more than one OptionsGUI");
 		}
 		instance = this;
 

@@ -120,7 +120,7 @@ void RealMain(HMODULE dllHandle)
 
 
     }
-    catch (expected_exception& ex)
+    catch (ExpectedException& ex)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
         std::cout << "Enter any command to shutdown CEER";
