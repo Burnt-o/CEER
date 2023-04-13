@@ -397,5 +397,5 @@ void PointerManager::PointerManagerImpl::instantiateMultilevelPointer(pugi::xml_
 
 void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pugi::xml_node versionEntry, std::string entryName)
 {
-    //mMidhookContextInterpreterData[entry.attribute("Name").value()] =
+    throw E_NOTIMPL;
 }

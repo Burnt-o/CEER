@@ -186,19 +186,19 @@
     <ClInclude Include="LevelLoadHook.h" />
     <ClInclude Include="MirrorMode.h" />
     <ClInclude Include="ModuleCache.h" />
-    <ClInclude Include="expected_exception.h" />
+    <ClInclude Include="ExpectedException.h" />
     <ClInclude Include="GlobalKill.h" />
     <ClInclude Include="ModuleHook.h" />
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
-    <ClInclude Include="multilevel_pointer.h" />
+    <ClInclude Include="MultilevelPointer.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PointerManager.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="windows_utilities.h" />
+    <ClInclude Include="WindowsUtitlies.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
@@ -248,12 +248,12 @@
     <ClCompile Include="ModuleCache.cpp" />
     <ClCompile Include="ModuleHook.cpp" />
     <ClCompile Include="ModuleHookManager.cpp" />
-    <ClCompile Include="multilevel_pointer.cpp" />
+    <ClCompile Include="MultilevelPointer.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="PointerManager.cpp" />
-    <ClCompile Include="windows_utilities.cpp" />
+    <ClCompile Include="WindowsUtitlies.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CERandomiser.rc" />

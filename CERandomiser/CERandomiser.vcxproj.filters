@@ -87,7 +87,7 @@
     <ClInclude Include="resource.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="windows_utilities.h">
+    <ClInclude Include="WindowsUtitlies.h">
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="GlobalKill.h">
@@ -96,13 +96,13 @@
     <ClInclude Include="MirrorMode.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="expected_exception.h">
+    <ClInclude Include="ExpectedException.h">
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="ModuleHook.h">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="multilevel_pointer.h">
+    <ClInclude Include="MultilevelPointer.h">
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="midhook_context_interpreter.h">
@@ -185,10 +185,10 @@
     <ClCompile Include="MirrorMode.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="windows_utilities.cpp">
+    <ClCompile Include="WindowsUtitlies.cpp">
       <Filter>Global</Filter>
     </ClCompile>
-    <ClCompile Include="multilevel_pointer.cpp">
+    <ClCompile Include="MultilevelPointer.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="ModuleHook.cpp">

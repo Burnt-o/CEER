@@ -61,9 +61,9 @@
 
 
 // Custom utilities
-#include "expected_exception.h"
+#include "ExpectedException.h"
 
-#include "windows_utilities.h"
+#include "WindowsUtilities.h"
 
 
 

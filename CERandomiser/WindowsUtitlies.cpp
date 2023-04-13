@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "windows_utilities.h"
+#include "WindowsUtilities.h"
 
 
 std::wstring str_to_wstr(const std::string str)

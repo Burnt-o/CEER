@@ -1,6 +1,6 @@
 #pragma once
 
-#include "multilevel_pointer.h"
+#include "MultilevelPointer.h"
 #include "midhook_context_interpreter.h"
 
 // Uses libcurl to download PointerData.xml from the github page,

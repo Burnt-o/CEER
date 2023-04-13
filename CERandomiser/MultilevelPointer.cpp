@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "multilevel_pointer.h"
+#include "MultilevelPointer.h"
 #include "ModuleCache.h"
-#include "windows_utilities.h"
+#include "WindowsUtilities.h"
 
 // static, only needs to be set once
 void* PointerTypes::ExeOffset::mEXEAddress = nullptr;

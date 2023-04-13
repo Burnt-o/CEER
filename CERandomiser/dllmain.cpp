@@ -1,7 +1,7 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
 
-#include "windows_utilities.h"
+#include "WindowsUtilities.h"
 #include "GlobalKill.h"
 #include "ModuleCache.h"
 
