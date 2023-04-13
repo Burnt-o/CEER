@@ -33,7 +33,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw new expected_exception("Cannot have more than one EnemyRandomiser");
+			throw expected_exception("Cannot have more than one EnemyRandomiser");
 		}
 		instance = this;
 

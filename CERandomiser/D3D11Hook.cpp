@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "D3D11Hook.h"
 
-#include "global_kill.h"
+#include "GlobalKill.h"
 
 
 D3D11Hook* D3D11Hook::instance = nullptr;
@@ -159,7 +159,7 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 			PLOG_FATAL << "Failed to initialize d3d device, info: " << std::endl
 				<< ex.what() << std::endl
 				<< "CEER will now automatically close down";
-			global_kill::kill_me();
+			GlobalKill::killMe();
 
 			// Call original present
 			return d3d->m_pOriginalPresent(pSwapChain, SyncInterval, Flags);

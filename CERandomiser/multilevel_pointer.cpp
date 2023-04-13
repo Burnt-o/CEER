@@ -9,25 +9,25 @@ void* PointerTypes::ExeOffset::mEXEAddress = nullptr;
 
 
 // static factory methods
-std::shared_ptr<MultilevelPointer> MultilevelPointer::make(const std::vector<int64_t>& offsets)
+std::shared_ptr<MultilevelPointer> MultilevelPointer::make(const std::vector<int64_t> offsets)
 {
 	return std::make_shared<PointerTypes::ExeOffset>(offsets);
 }
 
 // Pointer is relative to some void* baseAddress
-std::shared_ptr<MultilevelPointer> MultilevelPointer::make(void* const& baseAddress, const std::vector<int64_t>& offsets)
+std::shared_ptr<MultilevelPointer> MultilevelPointer::make(void* const baseAddress, const std::vector<int64_t> offsets)
 {
 	return std::make_shared<PointerTypes::BaseOffset>(baseAddress, offsets);
 }
 
 // Pointer is relative to a module eg halo1.dll
-std::shared_ptr<MultilevelPointer> MultilevelPointer::make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets)
+std::shared_ptr<MultilevelPointer> MultilevelPointer::make(const std::wstring_view moduleName, const std::vector<int64_t> offsets)
 {
 	return std::make_shared<PointerTypes::ModuleOffset>(moduleName, offsets);
 }
 
 // Pointer is already fully resolved (used for stuff that never changes address)
-std::shared_ptr<MultilevelPointer> MultilevelPointer::make(void* const& baseAddress)
+std::shared_ptr<MultilevelPointer> MultilevelPointer::make(void* const baseAddress)
 {
 	return std::make_shared<PointerTypes::Resolved>(baseAddress);
 }

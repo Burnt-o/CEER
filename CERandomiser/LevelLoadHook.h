@@ -2,6 +2,7 @@
 #include "ModuleHookManager.h"
 #include "multilevel_pointer.h"
 #include "HaloEnums.h"
+#include "PointerManager.h"
 // Hooks H1 Level loading and fires an event when it happens
 class LevelLoadHook
 {
@@ -12,11 +13,12 @@ private:
 	// Function we run when hook runs
 	static void hookFunction(SafetyHookContext ctx)
 	{
+		PLOG_VERBOSE << "levelLoadHookFunction running";
 		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 		// Find the current level
 		char currentLevel[4];
-		if (!instance->pCurrentLevelName->readArrayData(&currentLevel, 4))
+		if (!instance->MLP_currentLevelName->readArrayData(&currentLevel, 4))
 		{
 			PLOG_ERROR << "Failed to read current level: " << MultilevelPointer::GetLastError();
 			return;
@@ -46,7 +48,9 @@ private:
 
 
 	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
-	std::shared_ptr<MultilevelPointer> pCurrentLevelName = MultilevelPointer::make(L"halo1.dll", { 0x2AF8288 });
+	std::shared_ptr<MultilevelPointer> MLP_currentLevelName;
+	std::shared_ptr<MultilevelPointer> MLP_levelLoadHook;
+	//std::shared_ptr<MultilevelPointer> pCurrentLevelName = MultilevelPointer::make(L"halo1.dll", { 0x2AF8288 });
 
 public:
 
@@ -62,11 +66,26 @@ public:
 		}
 		instance = this;
 
+		
+		// Get pointers
+		try
+		{
+			MLP_currentLevelName = PointerManager::getMultilevelPointer("MLP_currentLevelName");
+			MLP_levelLoadHook = PointerManager::getMultilevelPointer("MLP_levelLoadHook");
+		}
+		catch (expected_exception& ex)
+		{
+			ex.prepend("LevelLoadHook could not resolve pointers: ");
+			throw ex;
+		}
+
+
 
 		// Set up the hook 
+		
 		levelLoadHook = std::make_shared<ModuleMidHook>(
 			L"levelLoadHook", 
-			MultilevelPointer::make(L"halo1.dll", { 0xAA074D }),
+			MLP_levelLoadHook,
 			(safetyhook::MidHookFn)&hookFunction,
 			true);
 		

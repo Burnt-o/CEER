@@ -29,17 +29,17 @@ public:
 
 	// Factory methods
 	// Pointer is relative to the exe address
-	static std::shared_ptr<MultilevelPointer> make(const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(const std::vector<int64_t> offsets);
 	//static MultilevelPointer* make(const std::vector<int64_t>& offsets);
 
 	// Pointer is relative to some void* baseAddress
-	static std::shared_ptr<MultilevelPointer> make(void* const& baseAddress, const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(void* const baseAddress, const std::vector<int64_t> offsets);
 
 	// Pointer is relative to a module eg halo1.dll
-	static std::shared_ptr<MultilevelPointer> make(const std::wstring_view& moduleName, const std::vector<int64_t>& offsets);
+	static std::shared_ptr<MultilevelPointer> make(const std::wstring_view moduleName, const std::vector<int64_t> offsets);
 
 	// Pointer is already fully resolved (used for stuff that never changes address)
-	static std::shared_ptr<MultilevelPointer> make(void* const& baseAddress);
+	static std::shared_ptr<MultilevelPointer> make(void* const baseAddress);
 
 	// The useful stuff
 	virtual bool resolve(void** resolvedOut) const = 0; // Overriden in derived classes

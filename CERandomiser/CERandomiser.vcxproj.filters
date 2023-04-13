@@ -28,6 +28,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Source Files\pugixml">
+      <UniqueIdentifier>{f38b1629-57dc-45e1-bee7-b812ac91fd53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\imgui\imconfig.h">
@@ -87,7 +90,7 @@
     <ClInclude Include="windows_utilities.h">
       <Filter>Global</Filter>
     </ClInclude>
-    <ClInclude Include="global_kill.h">
+    <ClInclude Include="GlobalKill.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="MirrorMode.h">
@@ -119,6 +122,18 @@
     </ClInclude>
     <ClInclude Include="PointerManager.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\pugixml\src\pugiconfig.hpp">
+      <Filter>Source Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\pugixml\src\pugixml.hpp">
+      <Filter>Source Files\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="ExportedFunctions.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="InitParameter.h">
+      <Filter>Global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +205,15 @@
     </ClCompile>
     <ClCompile Include="PointerManager.cpp">
       <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\pugixml\src\pugixml.cpp">
+      <Filter>Source Files\pugixml</Filter>
+    </ClCompile>
+    <ClCompile Include="ExportedFunctions.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="InitParameter.cpp">
+      <Filter>Global</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

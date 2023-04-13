@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "OptionsGUI.h"
-#include "global_kill.h"
+#include "GlobalKill.h"
 #include "OptionsState.h"
 OptionsGUI* OptionsGUI::instance = nullptr;
 
@@ -46,7 +46,7 @@ void OptionsGUI::onImGuiRenderEvent()
 			PLOG_FATAL << "Failed to initialize OptionsGUI, info: " << std::endl
 				<< ex.what() << std::endl
 				<< "CEER will now automatically close down";
-			global_kill::kill_me();
+			GlobalKill::killMe();
 			return;
 		}
 	}

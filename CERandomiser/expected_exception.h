@@ -24,4 +24,9 @@ public:
 		return this->message;
 	}
 
+	 void prepend(std::string pre)
+	 {
+		 this->message = std::string(pre + this->message).c_str();
+	 }
+
 };

@@ -79,9 +79,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\net6.0</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\net6.0</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -125,7 +127,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(WindowsSdkDir);$(SolutionDir)includes;$(SolutionDir)includes\eventpp\include;$(SolutionDir)includes\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir);$(SolutionDir)includes;$(SolutionDir)includes\eventpp\include;$(SolutionDir)includes\pugixml\src;$(SolutionDir)includes\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -147,7 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(WindowsSdkDir);$(SolutionDir)includes;$(SolutionDir)includes\eventpp\include;$(SolutionDir)includes\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WindowsSdkDir);$(SolutionDir)includes;$(SolutionDir)includes\eventpp\include;$(SolutionDir)includes\pugixml\src;$(SolutionDir)includes\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -165,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="D3D11Hook.h" />
     <ClInclude Include="EnemyRandomiser.h" />
+    <ClInclude Include="ExportedFunctions.h" />
     <ClInclude Include="HaloEnums.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="includes\imgui\imconfig.h" />
@@ -175,13 +178,16 @@
     <ClInclude Include="includes\imgui\imstb_rectpack.h" />
     <ClInclude Include="includes\imgui\imstb_textedit.h" />
     <ClInclude Include="includes\imgui\imstb_truetype.h" />
+    <ClInclude Include="includes\pugixml\src\pugiconfig.hpp" />
+    <ClInclude Include="includes\pugixml\src\pugixml.hpp" />
     <ClInclude Include="includes\safetyhook\safetyhook.hpp" />
     <ClInclude Include="includes\safetyhook\Zydis.h" />
+    <ClInclude Include="InitParameter.h" />
     <ClInclude Include="LevelLoadHook.h" />
     <ClInclude Include="MirrorMode.h" />
     <ClInclude Include="ModuleCache.h" />
     <ClInclude Include="expected_exception.h" />
-    <ClInclude Include="global_kill.h" />
+    <ClInclude Include="GlobalKill.h" />
     <ClInclude Include="ModuleHook.h" />
     <ClInclude Include="ModuleHookManager.h" />
     <ClInclude Include="midhook_context_interpreter.h" />
@@ -198,6 +204,7 @@
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EnemyRandomiser.cpp" />
+    <ClCompile Include="ExportedFunctions.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="includes\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -223,6 +230,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="includes\pugixml\src\pugixml.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="includes\safetyhook\safetyhook.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -231,6 +242,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="InitParameter.cpp" />
     <ClCompile Include="LevelLoadHook.cpp" />
     <ClCompile Include="MirrorMode.cpp" />
     <ClCompile Include="ModuleCache.cpp" />

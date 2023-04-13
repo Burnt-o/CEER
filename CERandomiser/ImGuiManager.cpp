@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "ImGuiManager.h"
-#include "global_kill.h"
+#include "GlobalKill.h"
 
 ImGuiManager* ImGuiManager::instance = nullptr;
 
@@ -130,7 +130,7 @@ void ImGuiManager::onPresentHookEvent(ID3D11Device* pDevice, ID3D11DeviceContext
 			PLOG_FATAL << "Failed to initialize ImGui, info: " << std::endl
 				<< ex.what() << std::endl
 				<< "CEER will now automatically close down";
-			global_kill::kill_me();
+			GlobalKill::killMe();
 			return;
 		}
 	}

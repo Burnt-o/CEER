@@ -2,7 +2,7 @@
 #include "pch.h"
 
 #include "windows_utilities.h"
-#include "global_kill.h"
+#include "GlobalKill.h"
 #include "ModuleCache.h"
 
 #include "D3D11Hook.h"
@@ -15,7 +15,7 @@
 #include "PointerManager.h"
 
 #include "curl\curl.h"
-
+#include "InitParameter.h"
 
 
 
@@ -63,29 +63,50 @@ void RealMain(HMODULE dllHandle)
     init_logging();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     PLOG_INFO << "Randomizer initializing";
+
+
+
+    // wait for init parameters from the injector
+    auto startTime = GetTickCount64();
+    constexpr ULONGLONG timeoutMilliseconds = 10 * 1000;
+    while (g_ourInitParameters == nullptr)
+    {
+        // Escape in case injector fails to call the Initialize function
+        if (GlobalKill::isKillSet() || GetTickCount64() - startTime > timeoutMilliseconds)
+        {
+            return;
+        }
+        Sleep(50);
+    }
+
+    PLOG_DEBUG << "initParameter.injectorPath: " << g_ourInitParameters->injectorPath;
+
+
+
+
     try
     {
-        auto ptr = std::make_unique<PointerManager>();
         ModuleCache::initialize();
         auto mhm = std::make_unique<ModuleHookManager>();
         auto d3d = std::make_unique<D3D11Hook>();
         auto imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
         auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
 
-        auto lvl = std::make_unique<LevelLoadHook>();
+        auto ptr = std::make_unique<PointerManager>(); // must be after moduleCache but before anything that uses it in it's constructor
 
+        auto lvl = std::make_unique<LevelLoadHook>();
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::EnemyRandomiserEnabled.valueChangedEvent, lvl->levelLoadEvent);
 
 
         // We live in this loop 99% of the time
-        while (!global_kill::is_kill_set()) {
+        while (!GlobalKill::isKillSet()) {
 
 
             if (GetKeyState(0x23) & 0x8000) // 'End' key
             {
                 PLOG_INFO << "Killing internal dll";
-                global_kill::kill_me();
+                GlobalKill::killMe();
             }
 
 
@@ -103,7 +124,7 @@ void RealMain(HMODULE dllHandle)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
         std::cout << "Enter any command to shutdown CEER";
-        global_kill::kill_me();
+        GlobalKill::killMe();
         std::string dontcare;
         std::cin >> dontcare;
     }

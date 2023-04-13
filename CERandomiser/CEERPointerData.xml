@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+	<VersionedEntry Name="MLP_currentLevelName" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2CA07CC</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2AF8288</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
 	
+	
+	
+	<!--scan nw "C6 44 24 30 01 0f b6 44 24 30", halo1.dll result-->
+	<VersionedEntry Name="MLP_levelLoadHook" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xA965ED</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xAA074D</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
 </root>
