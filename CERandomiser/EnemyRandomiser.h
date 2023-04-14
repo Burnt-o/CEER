@@ -28,6 +28,9 @@ private:
 	// Hooks check this and run init if true
 	bool needToLoadGameData = false;
 
+	// Pointers
+	std::shared_ptr<MultilevelPointer> spawnPositionRNG;
+
 
 	// Hooks
 	std::shared_ptr<ModuleMidHook> actvSpawnHook;
@@ -41,7 +44,9 @@ private:
 	std::shared_ptr<MidhookContextInterpreter> encounterSpawnFunctionContext;
 
 	// Game Data
-	static void loadGameData();
+	static bool loadGameData();
+	uint64_t ourSeed = 0x12345678;
+	uint32_t* spawnPositionRNGResolved = nullptr;
 	//TODO
 
 
@@ -59,9 +64,11 @@ public:
 		mMasterToggleCallbackHandle = enabledEvent.append(&onMasterToggleChanged);
 		mLevelLoadCallbackHandle = levelLoadEvent.append(&onLevelLoadEvent);
 
-		// Set up our hooks
+		// Set up our hooks and get our pointers
 		try
 		{
+			spawnPositionRNG = PointerManager::getMultilevelPointer("spawnPositionRNG");
+
 			auto actvSpawnFunction = PointerManager::getMultilevelPointer("actvSpawnFunction");
 			actvSpawnFunctionContext = PointerManager::getMidhookContextInterpreter("actvSpawnFunctionContext");
 

@@ -28,14 +28,18 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 {
 	enum 
 	{
-		actvIndex
+		actvIndex,
+		encounterIndex,
+		squadIndex,
+		unitIndex
 	};
 
 	auto* ctxInterpreter = instance->actvSpawnFunctionContext.get();
 
 	if (instance->needToLoadGameData)
 	{
-		loadGameData();
+		if (!loadGameData())
+			return;
 	}
 
 	auto* actvIndexRef = ctxInterpreter->getParameterRef(ctx, actvIndex);	
@@ -46,6 +50,8 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 
 }
 
+// This function unrandomises spawn position RNG
+// It runs once per squad spawn and sets the spawn-position-rng value to a mix of encIndex, sqdIndex, and our seed
 void EnemyRandomiser::encounterSpawnHookFunction(SafetyHookContext& ctx)
 {
 	enum 
@@ -58,16 +64,26 @@ void EnemyRandomiser::encounterSpawnHookFunction(SafetyHookContext& ctx)
 
 	if (instance->needToLoadGameData)
 	{
-		loadGameData();
+		if (!loadGameData())
+			return;
 	}
+	auto* encounterIndexRef = ctxInterpreter->getParameterRef(ctx, encounterIndex);
+	auto* squadIndexRef = ctxInterpreter->getParameterRef(ctx, squadIndex);
+	srand(instance->ourSeed + *encounterIndexRef + (*squadIndexRef * 100));
+	*instance->spawnPositionRNGResolved = rand() % 0x100;
 
-	PLOG_DEBUG << "encounter spawning, enc: " << *ctxInterpreter->getParameterRef(ctx, encounterIndex) 
-		<< ", sqd: " << *ctxInterpreter->getParameterRef(ctx, squadIndex);
 }
 
-void EnemyRandomiser::loadGameData()
+bool EnemyRandomiser::loadGameData()
 {
 	PLOG_DEBUG << "here's where we would load the game data, enemies etc";
+	if (!instance->spawnPositionRNG.get()->resolve((void**)&instance->spawnPositionRNGResolved))
+	{
+		PLOG_ERROR << "could not resolve spawnPositionRNG";
+		return false;
+	}
+	
 
 	instance->needToLoadGameData = false;
+	return true;
 }

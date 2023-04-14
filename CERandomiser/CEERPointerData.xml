@@ -46,7 +46,10 @@
 	<VersionedEntry Name="actvSpawnFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.2645.0.0">
 			<ParameterRegisters>
-				<actvIndex>rcx</actvIndex> 
+				<actvIndex>rcx</actvIndex>
+				<encounterIndex>r12</encounterIndex>
+				<squadIndex>r13</squadIndex>
+				<unitIndex>rdx</unitIndex>
 			</ParameterRegisters>
 		</Version>
 	</VersionedEntry>
@@ -63,9 +66,20 @@
 	<VersionedEntry Name="encounterSpawnFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.2645.0.0">
 			<Parameters>
-				<encounterIndex>r11</encounterIndex>
+				<encounterIndex>r12</encounterIndex>
 				<squadIndex>rsi</squadIndex>
 			</Parameters>
 		</Version>
 	</VersionedEntry>
+
+	<VersionedEntry Name="spawnPositionRNG" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x02879388</Offset>
+				<Offset>0x764</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+	
 </root>
