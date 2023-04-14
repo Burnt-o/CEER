@@ -47,8 +47,8 @@ std::shared_ptr<MultilevelPointer> PointerManager::getMultilevelPointer(std::str
 {
     if (!get().impl.get()->mMultilevelPointerData.contains(dataName))
     {
-        PLOG_ERROR << "EE " << dataName;
-    throw ExpectedException(std::format("pointerData was null for {}", dataName));
+        PLOG_ERROR << "no valid pointer data for " << dataName;
+        throw ExpectedException(std::format("pointerData was null for {}", dataName));
     }
 
     return get().impl.get()->mMultilevelPointerData.at(dataName);
@@ -59,7 +59,7 @@ std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInte
 {
     if (!get().impl.get()->mMidhookContextInterpreterData.contains(dataName))
     {
-        PLOG_ERROR << "EE " << dataName;
+        PLOG_ERROR << "no valid pointer data for " << dataName;
         throw ExpectedException(std::format("pointerData was null for {0}", dataName));
     }
 
@@ -390,12 +390,39 @@ void PointerManager::PointerManagerImpl::instantiateMultilevelPointer(pugi::xml_
         return;
     }
 
-    PLOG_DEBUG << "putting it in the map: " << entryName;
+    PLOG_DEBUG << "MultilevelPointer added to map: " << entryName;
     mMultilevelPointerData.try_emplace(entryName, result);
 
 }
 
+
 void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pugi::xml_node versionEntry, std::string entryName)
 {
-    throw E_NOTIMPL;
+    std::shared_ptr<MidhookContextInterpreter> result;
+    std::vector<Register> parameterRegisters;
+
+    using namespace pugi;
+
+    xml_node paramArray = versionEntry.first_child();
+    for (xml_node parameter = paramArray.first_child(); parameter; parameter = parameter.next_sibling())
+    {
+        std::string registerText = parameter.text().as_string();
+        if (!stringToRegister.contains(registerText))
+        {
+            throw ExpectedException(std::format("invalid parameter string when parsing MidhookContextInterpreter->{}: {}", entryName, registerText));
+        }
+
+        parameterRegisters.push_back(stringToRegister.at(registerText));
+    }
+
+    if (parameterRegisters.empty())
+    {
+        throw ExpectedException(std::format("no parameter strings found when parsing MidhookContextInterpreter {}", entryName));
+    }
+
+    result = std::make_shared<MidhookContextInterpreter>(parameterRegisters);
+
+    PLOG_DEBUG << "MidhookContextInterpreter added to map: " << entryName;
+    mMidhookContextInterpreterData.try_emplace(entryName, result);
+   
 }

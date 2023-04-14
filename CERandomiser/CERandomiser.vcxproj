@@ -190,7 +190,7 @@
     <ClInclude Include="GlobalKill.h" />
     <ClInclude Include="ModuleHook.h" />
     <ClInclude Include="ModuleHookManager.h" />
-    <ClInclude Include="midhook_context_interpreter.h" />
+    <ClInclude Include="MidhookContextInterpreter.h" />
     <ClInclude Include="MultilevelPointer.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="OptionsGUI.h" />

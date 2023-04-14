@@ -1,6 +1,7 @@
 #pragma once
 #include "HaloEnums.h"
 #include "ModuleHook.h"
+#include "PointerManager.h"
 
 class EnemyRandomiser
 {
@@ -33,8 +34,11 @@ private:
 	std::shared_ptr<ModuleMidHook> encounterSpawnHook;
 
 	// Hook Functions
-	static void actvSpawnHookFunction(SafetyHookContext ctx);
-	static void encounterSpawnHookFunction(SafetyHookContext ctx);
+	static void actvSpawnHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> actvSpawnFunctionContext;
+
+	static void encounterSpawnHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> encounterSpawnFunctionContext;
 
 	// Game Data
 	static void loadGameData();
@@ -56,7 +60,23 @@ public:
 		mLevelLoadCallbackHandle = levelLoadEvent.append(&onLevelLoadEvent);
 
 		// Set up our hooks
-		// TODO
+		try
+		{
+			auto actvSpawnFunction = PointerManager::getMultilevelPointer("actvSpawnFunction");
+			actvSpawnFunctionContext = PointerManager::getMidhookContextInterpreter("actvSpawnFunctionContext");
+
+			auto encounterSpawnFunction = PointerManager::getMultilevelPointer("encounterSpawnFunction");
+			encounterSpawnFunctionContext = PointerManager::getMidhookContextInterpreter("encounterSpawnFunctionContext");
+
+			actvSpawnHook = ModuleMidHook::make(L"halo1.dll", actvSpawnFunction, actvSpawnHookFunction, false);
+			encounterSpawnHook = ModuleMidHook::make(L"halo1.dll", encounterSpawnFunction, encounterSpawnHookFunction, false);
+		}
+		catch (ExpectedException& ex)
+		{
+			ex.prepend("EnemyRandomisercould not resolve hooks: ");
+			throw ex;
+		}
+
 
 	}
 

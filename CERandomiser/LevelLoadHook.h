@@ -11,14 +11,14 @@ private:
 	std::mutex mDestructionGuard; // Protects against Singleton destruction while callbacks are executing
 
 	// Function we run when hook runs
-	static void hookFunction(SafetyHookContext ctx)
+	static void levelLoadHookFunction(SafetyHookContext ctx)
 	{
 		PLOG_VERBOSE << "levelLoadHookFunction running";
 		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 		// Find the current level
 		char currentLevel[4];
-		if (!instance->MLP_currentLevelName->readArrayData(&currentLevel, 4))
+		if (!instance->currentLevelName->readArrayData(&currentLevel, 4))
 		{
 			PLOG_ERROR << "Failed to read current level: " << MultilevelPointer::GetLastError();
 			return;
@@ -48,9 +48,8 @@ private:
 
 
 	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
-	std::shared_ptr<MultilevelPointer> MLP_currentLevelName;
-	std::shared_ptr<MultilevelPointer> MLP_levelLoadHook;
-	//std::shared_ptr<MultilevelPointer> pCurrentLevelName = MultilevelPointer::make(L"halo1.dll", { 0x2AF8288 });
+	std::shared_ptr<MultilevelPointer> currentLevelName;
+	
 
 public:
 
@@ -70,23 +69,25 @@ public:
 		// Get pointers
 		try
 		{
-			MLP_currentLevelName = PointerManager::getMultilevelPointer("MLP_currentLevelName");
-			MLP_levelLoadHook = PointerManager::getMultilevelPointer("MLP_levelLoadHook");
+			currentLevelName = PointerManager::getMultilevelPointer("currentLevelName");
+			auto levelLoadFunction = PointerManager::getMultilevelPointer("levelLoadFunction");
+
+			// Set up the hook 
+			levelLoadHook = ModuleMidHook::make(
+				L"halo1.dll",
+				levelLoadFunction,
+				(safetyhook::MidHookFn)&levelLoadHookFunction,
+				true);
 		}
 		catch (ExpectedException& ex)
 		{
-			ex.prepend("LevelLoadHook could not resolve pointers: ");
+			ex.prepend("LevelLoadHook could not resolve hooks: ");
 			throw ex;
 		}
 
 
 
-		// Set up the hook 
-		levelLoadHook = ModuleMidHook::make(
-			L"levelLoadHook",
-			MLP_levelLoadHook,
-			(safetyhook::MidHookFn)&hookFunction,
-			true);
+
 	
 	}
 

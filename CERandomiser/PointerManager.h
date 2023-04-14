@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MultilevelPointer.h"
-#include "midhook_context_interpreter.h"
+#include "MidhookContextInterpreter.h"
 
 // Uses libcurl to download PointerData.xml from the github page,
 // instantiating all the MultilevelPointers (and other data) specific to the current MCC version we were injected into
