@@ -50,7 +50,7 @@ private:
 	safetyhook::MidHook mHookCamera;
 	static inline std::mutex mDestructionGuard; // Protects against D3D11Hook singleton destruction while hooks are executing
 
-	void* p_cameraData;
+	uintptr_t p_cameraData;
 	static void mirrorCamera(SafetyHookContext& ctx);
 	matrix reflectionMatrix = matrix(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f);
 
@@ -71,7 +71,7 @@ public:
 
 		// this really should be a modulehook
 		auto mlp_cameraHook = MultilevelPointer::make(L"halo1.dll", { 0x2E91FD });
-		void* p_cameraHook;
+		uintptr_t p_cameraHook;
 		if (!mlp_cameraHook->resolve(&p_cameraHook))
 		{
 			PLOG_FATAL << "blah mirror thing didn't resolve hook ptr";

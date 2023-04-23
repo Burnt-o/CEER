@@ -26,7 +26,7 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 	// Use swap chain description to get MCC window handle
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	pSwapChain->GetDesc(&swapChainDesc);
-	if (!&swapChainDesc) throw ExpectedException("Failed to get swap chain description");
+	if (!&swapChainDesc) throw InitException("Failed to get swap chain description");
 	m_windowHandle = swapChainDesc.OutputWindow;
 
 	// Setup the imgui WndProc callback
@@ -41,11 +41,11 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 
 	if (!ImGui_ImplWin32_Init(m_windowHandle))
 	{
-		throw ExpectedException(std::format("ImGui_ImplWin32_Init failed w/ {} ", (uint64_t)m_windowHandle).c_str());
+		throw InitException(std::format("ImGui_ImplWin32_Init failed w/ {} ", (uint64_t)m_windowHandle).c_str());
 	};
 	if (!ImGui_ImplDX11_Init(pDevice, pDeviceContext))
 	{
-		throw ExpectedException(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)pDevice, (uint64_t)pDeviceContext).c_str());
+		throw InitException(std::format("ImGui_ImplDX11_Init failed w/ {}, {} ", (uint64_t)pDevice, (uint64_t)pDeviceContext).c_str());
 	};
 
 	// Setup Dear ImGui style
@@ -125,7 +125,7 @@ void ImGuiManager::onPresentHookEvent(ID3D11Device* pDevice, ID3D11DeviceContext
 			instance->initializeImGuiResources(pDevice, pDeviceContext, pSwapChain, pMainRenderTargetView);
 			instance->m_isImguiInitialized = true;
 		}
-		catch (ExpectedException& ex)
+		catch (InitException& ex)
 		{
 			PLOG_FATAL << "Failed to initialize ImGui, info: " << std::endl
 				<< ex.what() << std::endl

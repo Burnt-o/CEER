@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+	
+	
+	
+	
+	
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -28,11 +33,13 @@
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xAA074D</Offset>
+				<Offset>0xAA095E</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
+	
+	<!--#region EnemyRandomiser-->
 	<VersionedEntry Name="actvSpawnFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
@@ -46,10 +53,31 @@
 	<VersionedEntry Name="actvSpawnFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.2645.0.0">
 			<ParameterRegisters>
-				<actvIndex>rcx</actvIndex>
+				<actvPaletteIndex>rcx</actvPaletteIndex>
 				<encounterIndex>r12</encounterIndex>
 				<squadIndex>r13</squadIndex>
 				<unitIndex>rdx</unitIndex>
+			</ParameterRegisters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB0478E</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="placeObjectFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<ParameterRegisters>
+				<objectType>r15</objectType>
+				<paletteIndex>rax</paletteIndex>
+				<objectIndex>r10</objectIndex>
+				<nameIndex>rcx</nameIndex>
 			</ParameterRegisters>
 		</Version>
 	</VersionedEntry>
@@ -72,6 +100,68 @@
 		</Version>
 	</VersionedEntry>
 
+	<VersionedEntry Name="fixUnitFactionFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB3DBD4</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="fixUnitFactionFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<currentlySpawningUnitsFaction>rax</currentlySpawningUnitsFaction>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="vehicleExitFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB4D54E</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="vehicleExitFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<vehicleExitAnimationIndex>rbp</vehicleExitAnimationIndex>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="aiGoToVehicleFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xD27E09</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="aiGoToVehicleFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<unknownCheckParam>rcx</unknownCheckParam>
+				<unknownFixParam>rdi</unknownFixParam>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="aiLoadInVehicleFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB4B6CD</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
 	<VersionedEntry Name="spawnPositionRNG" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
@@ -81,5 +171,28 @@
 			</Offsets>
 		</Version>
 	</VersionedEntry>
+	<!--#endregion EnemyRandomiser-->
 	
+	<!--#region MapReader-->
+	<VersionedEntry Name="currentCacheAddress" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2A53590</Offset>
+				<Offset>0x0</Offset>
+
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="tagDataBase" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2B5BB80</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<!--#endregion MapReader-->
 </root>

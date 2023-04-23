@@ -54,7 +54,7 @@ void ModuleInlineHook::attach()
 		return;
 	}
 
-	void* pOriginalFunction;
+	uintptr_t pOriginalFunction;
 	if (!this->mOriginalFunction->resolve(&pOriginalFunction))
 	{
 		PLOG_ERROR << "attach failed: pOriginalFunction pointer failed to resolve";
@@ -63,7 +63,7 @@ void ModuleInlineHook::attach()
 
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
-	this->mInlineHook = safetyhook::create_inline(pOriginalFunction, this->mHookFunction);
+	this->mInlineHook = safetyhook::create_inline((void*)pOriginalFunction, this->mHookFunction);
 
 	PLOG_DEBUG << "inline_hook successfully attached: " << this->getAssociatedModule();
 
@@ -83,7 +83,7 @@ void ModuleMidHook::attach()
 		return;
 	}
 
-	void* pOriginalFunction;
+	uintptr_t pOriginalFunction;
 	if (!this->mOriginalFunction->resolve(&pOriginalFunction))
 	{
 		PLOG_ERROR << "attach failed: pOriginalFunction pointer failed to resolve";
@@ -92,7 +92,7 @@ void ModuleMidHook::attach()
 
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
 
-	this->mMidHook = safetyhook::create_mid(pOriginalFunction, this->mHookFunction);
+	this->mMidHook = safetyhook::create_mid((void*)pOriginalFunction, this->mHookFunction);
 
 	PLOG_DEBUG << "mid_hook successfully attached: " << this->getAssociatedModule();
 }

@@ -41,7 +41,7 @@ D3D11Hook::D3D11Hook()
 
 	if (instance != nullptr)
 	{
-		throw ExpectedException("Cannot have more than one D3D11Hook");
+		throw InitException("Cannot have more than one D3D11Hook");
 	}
 	instance = this;
 
@@ -112,7 +112,7 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 
 	if (!SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&m_pDevice)))
 	{
-		throw ExpectedException(std::format("Failed to get D3D11Device, pSwapChain: {:x}", (uint64_t)pSwapChain).c_str());
+		throw InitException(std::format("Failed to get D3D11Device, pSwapChain: {:x}", (uint64_t)pSwapChain).c_str());
 
 	}
 
@@ -120,7 +120,7 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	m_pDevice->GetImmediateContext(&m_pDeviceContext);
 	if (!m_pDeviceContext)
 	{
-		throw ExpectedException("Failed to get DeviceContext");
+		throw InitException("Failed to get DeviceContext");
 	}
 
 
@@ -128,11 +128,11 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	// Use backBuffer to get MainRenderTargetView
 	ID3D11Texture2D* pBackBuffer;
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
-	if (!pBackBuffer) throw ExpectedException("Failed to get BackBuffer");
+	if (!pBackBuffer) throw InitException("Failed to get BackBuffer");
 
 	m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_pMainRenderTargetView);
 	pBackBuffer->Release();
-	if (!m_pMainRenderTargetView) throw ExpectedException("Failed to get MainRenderTargetView");
+	if (!m_pMainRenderTargetView) throw InitException("Failed to get MainRenderTargetView");
 
 	
 
@@ -154,7 +154,7 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 			d3d->isD3DdeviceInitialized = true;
 			PLOG_DEBUG << "D3D device initialized";
 		}
-		catch (ExpectedException& ex)
+		catch (InitException& ex)
 		{
 			PLOG_FATAL << "Failed to initialize d3d device, info: " << std::endl
 				<< ex.what() << std::endl
@@ -200,11 +200,11 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	// Resetup the mainRenderTargetView
 	ID3D11Texture2D* pBackBuffer;
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
-	if (!pBackBuffer) throw ExpectedException("Failed to get BackBuffer");
+	if (!pBackBuffer) throw InitException("Failed to get BackBuffer");
 
 	d3d->m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &d3d->m_pMainRenderTargetView);
 	pBackBuffer->Release();
-	if (!d3d->m_pMainRenderTargetView) throw ExpectedException("Failed to get MainRenderTargetView");
+	if (!d3d->m_pMainRenderTargetView) throw InitException("Failed to get MainRenderTargetView");
 
 	// We could grab the new window Height and Width too here if we cared about that, but I don't.
 

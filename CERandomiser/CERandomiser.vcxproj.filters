@@ -96,9 +96,6 @@
     <ClInclude Include="MirrorMode.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="ExpectedException.h">
-      <Filter>Global</Filter>
-    </ClInclude>
     <ClInclude Include="ModuleHook.h">
       <Filter>Classes</Filter>
     </ClInclude>
@@ -134,6 +131,21 @@
     </ClInclude>
     <ClInclude Include="InitParameter.h">
       <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="MapReader.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomExceptions.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeExceptionHandler.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiDialogBox.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="SetSeed.h">
+      <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +226,21 @@
     </ClCompile>
     <ClCompile Include="InitParameter.cpp">
       <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="MapReader.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="RuntimeExceptionHandler.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiDialogBox.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="SetSeed.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="MidhookContextInterpreter.cpp">
+      <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -53,9 +53,9 @@ namespace CSInjector
 
                 // No errors so we'll let the console window close
                 Console.WriteLine("Succesfully injected {0}!", dllToInjectName);
-                #if DEBUG
-                Console.Read();// Unless we're debugging, then we want to see the output anyway
-                #endif
+                //#if DEBUG
+                //Console.Read();// Unless we're debugging, then we want to see the output anyway
+                //#endif
 
             }
             catch (Exception ex)

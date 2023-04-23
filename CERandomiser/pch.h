@@ -39,6 +39,12 @@
 #include <set>
 #include <fstream>
 #include <source_location>
+#include <random>
+#include <algorithm>
+#include <string_view>
+#include <array>
+#include <tuple>
+#include <inttypes.h>
 
 // External Libraries
 // hooking
@@ -59,11 +65,15 @@
 #include <eventpp/eventdispatcher.h>
 #include "eventpp/callbacklist.h"
 
+// boost
+#include "boost\stacktrace.hpp"
 
 // Custom utilities
-#include "ExpectedException.h"
+#include "CustomExceptions.h"
 
 #include "WindowsUtilities.h"
+#include "RuntimeExceptionHandler.h"
+
 
 
 

@@ -6,6 +6,7 @@ class Option
 private:
 	T value;
 	T valueDisplay; // copy of value for user input
+	T defaultValue; // used in case we need to reset
 	std::function<bool(T)> isInputValid;
 public:
 
@@ -14,21 +15,28 @@ public:
 		: isInputValid(inputValidator), value(defaultValue), valueDisplay(defaultValue)
 	{}
 
-	// Onus is on listeners to check if newValue != oldValue, if it cares (it'll also know the type and how to compare them)
-	eventpp::CallbackList<void(T& newValue, T& oldValue)> valueChangedEvent;
 
-	void SetValue()
+	eventpp::CallbackList<void(T& newValue)> valueChangedEvent;
+
+	void UpdateValueWithInput()
 	{
 		if (isInputValid(valueDisplay))
 		{
-			T oldValue = value;
 			value = valueDisplay;
-			valueChangedEvent(value, oldValue);
+			valueChangedEvent(value);
 		}
 		else
 		{
 			valueDisplay = value; // reset valueDisplay back to stored value
 		}
+	}
+
+	// Called by RuntimeExceptionHandler if associated code throws an exception
+	void resetToDefaultValue()
+	{
+		value = defaultValue;
+		valueDisplay = value;
+		valueChangedEvent(value);
 	}
 
 	T& GetValue()

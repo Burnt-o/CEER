@@ -7,6 +7,7 @@
 #define useDevPointerData 1
 
 
+
 class PointerManager::PointerManagerImpl {
 
 
@@ -34,43 +35,8 @@ class PointerManager::PointerManagerImpl {
         static std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> mMidhookContextInterpreterData;
 };
 
-
-
-
-
 PointerManager::PointerManager() : impl(new PointerManagerImpl) {}
 PointerManager::~PointerManager() = default; // https://www.fluentcpp.com/2017/09/22/make-pimpl-using-unique_ptr/
-
-
-
-std::shared_ptr<MultilevelPointer> PointerManager::getMultilevelPointer(std::string dataName)
-{
-    if (!get().impl.get()->mMultilevelPointerData.contains(dataName))
-    {
-        PLOG_ERROR << "no valid pointer data for " << dataName;
-        throw ExpectedException(std::format("pointerData was null for {}", dataName));
-    }
-
-    return get().impl.get()->mMultilevelPointerData.at(dataName);
-
-}
-
-std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInterpreter(std::string dataName)
-{
-    if (!get().impl.get()->mMidhookContextInterpreterData.contains(dataName))
-    {
-        PLOG_ERROR << "no valid pointer data for " << dataName;
-        throw ExpectedException(std::format("pointerData was null for {0}", dataName));
-    }
-
-    return get().impl.get()->mMidhookContextInterpreterData.at(dataName);
-}
-
-
-std::map<std::string, std::shared_ptr<MultilevelPointer>> PointerManager::PointerManagerImpl::mMultilevelPointerData{};
-std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager::PointerManagerImpl::mMidhookContextInterpreterData{};
-
-
 
 PointerManager::PointerManagerImpl::PointerManagerImpl()
 {
@@ -80,7 +46,7 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
         PLOG_INFO << "downloading pointerData.xml";
         downloadXML("https://raw.githubusercontent.com/Burnt-o/HaloCheckpointManager/HCM2/HCM3/PointerData.xml");
     }
-    catch (ExpectedException ex)
+    catch (InitException ex)
     {
         PLOG_ERROR << "Failed to download CEER PointerData xml, trying local backup";
     }
@@ -98,6 +64,39 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
     }
 
 }
+
+
+
+std::shared_ptr<MultilevelPointer> PointerManager::getMultilevelPointer(std::string dataName)
+{
+    if (!get().impl.get()->mMultilevelPointerData.contains(dataName))
+    {
+        PLOG_ERROR << "no valid pointer data for " << dataName;
+        throw InitException(std::format("pointerData was null for {}", dataName));
+    }
+
+    return get().impl.get()->mMultilevelPointerData.at(dataName);
+
+}
+
+std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInterpreter(std::string dataName)
+{
+    if (!get().impl.get()->mMidhookContextInterpreterData.contains(dataName))
+    {
+        PLOG_ERROR << "no valid pointer data for " << dataName;
+        throw InitException(std::format("pointerData was null for {0}", dataName));
+    }
+
+    return get().impl.get()->mMidhookContextInterpreterData.at(dataName);
+}
+
+
+std::map<std::string, std::shared_ptr<MultilevelPointer>> PointerManager::PointerManagerImpl::mMultilevelPointerData{};
+std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager::PointerManagerImpl::mMidhookContextInterpreterData{};
+
+
+
+
 
 
 std::string ExePath() {
@@ -130,7 +129,7 @@ std::string PointerManager::PointerManagerImpl::readLocalXML()
     {
         std::stringstream er;
         er << "Failed to open file : " << GetLastError() << std::endl << "at: " << pathToFile;
-        throw ExpectedException(er.str().c_str());
+        throw InitException(er.str().c_str());
     }
 
 }
@@ -175,7 +174,7 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
 
         CURLcode ec;
         if ((ec = curl_easy_perform(curl.get())) != CURLE_OK)
-            throw ExpectedException(curl_easy_strerror(ec));
+            throw InitException(curl_easy_strerror(ec));
 
     }
 
@@ -193,7 +192,7 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
     {
         std::stringstream er;
         er << "Failed to write file : " << GetLastError() << std::endl << "at: " << pathToFile;
-        throw ExpectedException(er.str().c_str());
+        throw InitException(er.str().c_str());
     }
 
 }
@@ -205,7 +204,7 @@ std::string getFileVersion(const char* filename)
     DWORD dwHandle, size = GetFileVersionInfoSizeA(filename, &dwHandle);
     if (size == 0)
     {
-        throw ExpectedException(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
+        throw InitException(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
 
     }
 
@@ -215,14 +214,14 @@ std::string getFileVersion(const char* filename)
 
     if (!GetFileVersionInfoA(filename, dwHandle, size, buffer.data()))
     {
-        throw ExpectedException(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
+        throw InitException(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
     }
 
     VS_FIXEDFILEINFO* pvi;
     size = sizeof(VS_FIXEDFILEINFO);
     if (!VerQueryValueA(buffer.data(), "\\", (LPVOID*)&pvi, (unsigned int*)&size))
     {
-        throw ExpectedException(std::format("VerQueryValueA failed, error: {}", GetLastError()));
+        throw InitException(std::format("VerQueryValueA failed, error: {}", GetLastError()));
     }
     std::string outVersionInfo = std::format("{}.{}.{}.{}",
         pvi->dwProductVersionMS >> 16,
@@ -248,11 +247,11 @@ std::string PointerManager::PointerManagerImpl::getCurrentMCCVersion()
     PLOG_DEBUG << "size: " << outCurrentMCCVersion.size();
     if (outCurrentMCCVersion.size() != 10)
     {
-        throw ExpectedException("mccVersionInfo was incorrect size!");
+        throw InitException("mccVersionInfo was incorrect size!");
     }
     if (!outCurrentMCCVersion.starts_with("1."))
     {
-        throw ExpectedException("mccVersionInfo did not start with \"1.\"!");
+        throw InitException("mccVersionInfo did not start with \"1.\"!");
     }
 
     return outCurrentMCCVersion;
@@ -274,7 +273,7 @@ void PointerManager::PointerManagerImpl::parseXML(std::string& xml)
         er << "Error description: " << result.description() << "\n";
         er << "Error offset: " << result.offset << " (error at [..." << (xml.c_str() + result.offset) << "]\n\n";
         er << "xml in question: \n\n" << xml;
-        throw ExpectedException(er.str());
+        throw InitException(er.str());
     }
 
     xml_node root = doc.child("root");
@@ -345,7 +344,7 @@ int64_t stringToInt(std::string& string)
     }
     catch (std::invalid_argument ex)
     {
-        throw ExpectedException(std::format("Error parsing string to int: {}", string));
+        throw InitException(std::format("Error parsing string to int: {}", string));
     }
 
 }
@@ -409,7 +408,7 @@ void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pu
         std::string registerText = parameter.text().as_string();
         if (!stringToRegister.contains(registerText))
         {
-            throw ExpectedException(std::format("invalid parameter string when parsing MidhookContextInterpreter->{}: {}", entryName, registerText));
+            throw InitException(std::format("invalid parameter string when parsing MidhookContextInterpreter->{}: {}", entryName, registerText));
         }
 
         parameterRegisters.push_back(stringToRegister.at(registerText));
@@ -417,7 +416,7 @@ void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pu
 
     if (parameterRegisters.empty())
     {
-        throw ExpectedException(std::format("no parameter strings found when parsing MidhookContextInterpreter {}", entryName));
+        throw InitException(std::format("no parameter strings found when parsing MidhookContextInterpreter {}", entryName));
     }
 
     result = std::make_shared<MidhookContextInterpreter>(parameterRegisters);

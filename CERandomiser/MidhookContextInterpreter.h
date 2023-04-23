@@ -19,12 +19,7 @@ public:
 	explicit MidhookContextInterpreter(std::vector<Register> parameterRegisterIndices) : mParameterRegisterIndices(parameterRegisterIndices) {}
 
 	// return ref to the ctx register we want
-	uintptr_t* getParameterRef(SafetyHookContext& ctx, int parameterIndex)
-	{
-		uintptr_t* ctxArray = reinterpret_cast<uintptr_t*>(&ctx); 
-		return &ctxArray[mParameterRegisterIndices.at(parameterIndex)];
-
-	}
+	uintptr_t* getParameterRef(SafetyHookContext& ctx, int parameterIndex);
 
 };
 

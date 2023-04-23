@@ -12,7 +12,7 @@ ModuleHookManager::ModuleHookManager()
 {
 	if (instance != nullptr)
 	{ 
-		throw ExpectedException("Cannot have more than one ModuleHookManager");
+		throw InitException("Cannot have more than one ModuleHookManager");
 	}
 	instance = this;
 

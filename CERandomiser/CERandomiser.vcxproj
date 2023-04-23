@@ -78,7 +78,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\net6.0</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,8 +135,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;libcurl.lib;version.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)includes\curl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\dev\vcpkg\vcpkg\installed\x64-windows-static\lib;$(SolutionDir)includes\curl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -169,6 +169,7 @@
     <ClInclude Include="EnemyRandomiser.h" />
     <ClInclude Include="ExportedFunctions.h" />
     <ClInclude Include="HaloEnums.h" />
+    <ClInclude Include="ImGuiDialogBox.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="includes\imgui\imconfig.h" />
     <ClInclude Include="includes\imgui\imgui.h" />
@@ -184,9 +185,10 @@
     <ClInclude Include="includes\safetyhook\Zydis.h" />
     <ClInclude Include="InitParameter.h" />
     <ClInclude Include="LevelLoadHook.h" />
+    <ClInclude Include="MapReader.h" />
     <ClInclude Include="MirrorMode.h" />
     <ClInclude Include="ModuleCache.h" />
-    <ClInclude Include="ExpectedException.h" />
+    <ClInclude Include="CustomExceptions.h" />
     <ClInclude Include="GlobalKill.h" />
     <ClInclude Include="ModuleHook.h" />
     <ClInclude Include="ModuleHookManager.h" />
@@ -198,6 +200,8 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PointerManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RuntimeExceptionHandler.h" />
+    <ClInclude Include="SetSeed.h" />
     <ClInclude Include="WindowsUtilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +209,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="EnemyRandomiser.cpp" />
     <ClCompile Include="ExportedFunctions.cpp" />
+    <ClCompile Include="ImGuiDialogBox.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="includes\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -244,6 +249,8 @@
     </ClCompile>
     <ClCompile Include="InitParameter.cpp" />
     <ClCompile Include="LevelLoadHook.cpp" />
+    <ClCompile Include="MapReader.cpp" />
+    <ClCompile Include="MidhookContextInterpreter.cpp" />
     <ClCompile Include="MirrorMode.cpp" />
     <ClCompile Include="ModuleCache.cpp" />
     <ClCompile Include="ModuleHook.cpp" />
@@ -253,6 +260,8 @@
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="PointerManager.cpp" />
+    <ClCompile Include="RuntimeExceptionHandler.cpp" />
+    <ClCompile Include="SetSeed.cpp" />
     <ClCompile Include="WindowsUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>

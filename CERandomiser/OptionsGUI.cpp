@@ -41,7 +41,7 @@ void OptionsGUI::onImGuiRenderEvent()
 			instance->initializeCEERGUI();
 			instance->m_OptionsGUIinitialized = true;
 		}
-		catch (ExpectedException& ex)
+		catch (InitException& ex)
 		{
 			PLOG_FATAL << "Failed to initialize OptionsGUI, info: " << std::endl
 				<< ex.what() << std::endl
@@ -66,9 +66,15 @@ void OptionsGUI::renderOptionsGUI()
 	{
 		ImGui::Text("This is some useful text.");
 
-		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiserEnabled.GetValueDisplay()))
+
+		if (ImGui::Checkbox("Master Toggle", &OptionsState::MasterToggle.GetValueDisplay()))
 		{
-			OptionsState::EnemyRandomiserEnabled.SetValue();
+			OptionsState::MasterToggle.UpdateValueWithInput();
+		}
+
+		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiser.GetValueDisplay()))
+		{
+			OptionsState::EnemyRandomiser.UpdateValueWithInput();
 		}
 
 	}

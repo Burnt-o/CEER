@@ -13,6 +13,7 @@
 #include "LevelLoadHook.h"
 #include "EnemyRandomiser.h"
 #include "PointerManager.h"
+#include "MapReader.h"
 
 #include "curl\curl.h"
 #include "InitParameter.h"
@@ -60,10 +61,14 @@ Add OptionState stuff
 // Main Execution Loop
 void RealMain(HMODULE dllHandle) 
 {
+
+
+    //acquire_global_unhandled_exception_handler();
+
+
     init_logging();
     curl_global_init(CURL_GLOBAL_DEFAULT);
     PLOG_INFO << "Randomizer initializing";
-
 
 
     // wait for init parameters from the injector
@@ -92,11 +97,15 @@ void RealMain(HMODULE dllHandle)
         auto imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
         auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
 
+        auto exp = std::make_unique<RuntimeExceptionHandler>(imm.get()->ImGuiRenderCallback);
+
         auto ptr = std::make_unique<PointerManager>(); // must be after moduleCache but before anything that uses it in it's constructor
 
         auto lvl = std::make_unique<LevelLoadHook>();
+
+        auto map = std::make_unique<MapReader>(lvl->levelLoadEvent);
         // TODO: we should make the public events private and only allow public access by ref
-        auto nme = std::make_unique<EnemyRandomiser>(OptionsState::EnemyRandomiserEnabled.valueChangedEvent, lvl->levelLoadEvent);
+        auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
 
 
         // We live in this loop 99% of the time
@@ -120,7 +129,7 @@ void RealMain(HMODULE dllHandle)
 
 
     }
-    catch (ExpectedException& ex)
+    catch (InitException& ex)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
         std::cout << "Enter any command to shutdown CEER";
@@ -143,7 +152,7 @@ void RealMain(HMODULE dllHandle)
     }
 
     curl_global_cleanup();
-
+    //release_global_unhandled_exception_handler();
     PLOG_DEBUG << "Shutting down logging";
     stop_logging();
 }

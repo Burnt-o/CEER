@@ -3,6 +3,7 @@
 #include "MultilevelPointer.h"
 #include "HaloEnums.h"
 #include "PointerManager.h"
+#include "OptionsState.h"
 // Hooks H1 Level loading and fires an event when it happens
 class LevelLoadHook
 {
@@ -10,18 +11,15 @@ private:
 	static LevelLoadHook* instance; // Private Singleton instance so static hooks/callbacks can access
 	std::mutex mDestructionGuard; // Protects against Singleton destruction while callbacks are executing
 
-	// Function we run when hook runs
-	static void levelLoadHookFunction(SafetyHookContext ctx)
-	{
-		PLOG_VERBOSE << "levelLoadHookFunction running";
-		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
+
+	static HaloLevel getCurrentLevel() 
+	{
 		// Find the current level
 		char currentLevel[4];
 		if (!instance->currentLevelName->readArrayData(&currentLevel, 4))
 		{
-			PLOG_ERROR << "Failed to read current level: " << MultilevelPointer::GetLastError();
-			return;
+			throw CEERRuntimeException(std::format("Failed to read current level: {}", MultilevelPointer::GetLastError()));
 		}
 
 		// Set the null terminator at the end
@@ -30,15 +28,33 @@ private:
 		auto itr = std::ranges::find(instance->mapNames, currentLevel);
 		if (itr == instance->mapNames.end())
 		{
-			PLOG_ERROR << "Current level string didn't appear to be valid: " << currentLevel;
-			return;
+			throw CEERRuntimeException(std::format("Failed to read current level: {}", MultilevelPointer::GetLastError()));
 		}
 
 		// Get index of HaloLevel enum
 		int index = std::distance(instance->mapNames.begin(), itr);
+
+		return (HaloLevel)index;
+	}
+
+
+	// Function we run when hook runs
+	static void levelLoadHookFunction(SafetyHookContext ctx)
+	{
+		PLOG_VERBOSE << "levelLoadHookFunction running";
+		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+
+		try
+		{
+			HaloLevel currentLevel = getCurrentLevel();
+			fireLevelLoadEvent(currentLevel);
+		}
+		catch (CEERRuntimeException& ex)
+		{
+			RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+		}
 			
-		// Call event
-		instance->levelLoadEvent(HaloLevel(index));
+
 
 
 	}
@@ -49,10 +65,27 @@ private:
 
 	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
 	std::shared_ptr<MultilevelPointer> currentLevelName;
+
 	
 
-public:
+	
+	 static void fireLevelLoadEvent(HaloLevel currentLevel)
+	 {
+		 try
+		 {
+			 // Call event
+			 instance->levelLoadEvent(currentLevel);
+		 }
+		 catch (CEERRuntimeException& ex)
+		 { 
+			// Let runtime handler handle any exceptions thrown by listeners
+			 PLOG_ERROR << "levelLoadEvent exception caught " << ex.what();
+			 RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+		 }
+	 }
 
+public:
+	static bool isLevelAlreadyLoaded(HaloLevel& outCurrentLevel);
 	// Event we fire on level load
 	eventpp::CallbackList<void(HaloLevel)> levelLoadEvent;
 
@@ -61,7 +94,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw ExpectedException("Cannot have more than one LevelLoadHook");
+			throw InitException("Cannot have more than one LevelLoadHook");
 		}
 		instance = this;
 
@@ -79,14 +112,13 @@ public:
 				(safetyhook::MidHookFn)&levelLoadHookFunction,
 				true);
 		}
-		catch (ExpectedException& ex)
+		catch (InitException& ex)
 		{
 			ex.prepend("LevelLoadHook could not resolve hooks: ");
 			throw ex;
 		}
 
-
-
+		
 
 	
 	}

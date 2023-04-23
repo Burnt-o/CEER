@@ -2,10 +2,14 @@
 #include "OptionsState.h"
 
 
-	//std::mutex optionsStateMutex;
 namespace OptionsState
 {
-	Option<bool> EnemyRandomiserEnabled(
+	Option<bool> MasterToggle(
+		false,
+		[](bool newValue) { return true; }
+	);
+
+	Option<bool> EnemyRandomiser(
 		false,
 		[](bool newValue) { return true; }
 	);

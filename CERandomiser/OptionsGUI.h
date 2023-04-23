@@ -35,7 +35,7 @@ public:
 	{
 		if (instance != nullptr)
 		{
-			throw ExpectedException("Cannot have more than one OptionsGUI");
+			throw InitException("Cannot have more than one OptionsGUI");
 		}
 		instance = this;
 

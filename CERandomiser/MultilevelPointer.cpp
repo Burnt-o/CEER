@@ -35,7 +35,7 @@ std::shared_ptr<MultilevelPointer> MultilevelPointer::make(void* const baseAddre
 
 
 
-bool MultilevelPointer::dereferencePointer(const void* const& base, const std::vector<int64_t>& offsets, void** resolvedOut) const
+bool MultilevelPointer::dereferencePointer(const void* const& base, const std::vector<int64_t>& offsets, uintptr_t* resolvedOut) const
 {
 	uintptr_t baseAddress = (uintptr_t)base; //cast to uintptr_t so we can do math to it
 	if (offsets.size() > 0)
@@ -68,20 +68,25 @@ bool MultilevelPointer::dereferencePointer(const void* const& base, const std::v
 
 	if (IsBadReadPtr((void*)baseAddress, 8)) // check that it's still good to read now that we're done with it
 	{
+		std::stringstream offsetInfo;
+		for (int i = 0; i < offsets.size(); i++)
+		{
+			offsetInfo << std::hex << std::format("offset{}: {}", i, offsets[i]) << std::endl;
+		}
 		*SetLastErrorByRef() << "dereferencing failed after looping through offsets" << std::endl
 			<< "base: " << base << std::endl
 			<< "offsets.size() " << offsets.size() << std::endl
-			<< "base += offsets[0]: " << (void*)baseAddress << std::endl
+			<< offsetInfo.str() << std::endl
 			<< "bad read address: " << base << std::endl;
 		return false;
 	}
 
-	*resolvedOut = (void*)baseAddress;
+	* resolvedOut = baseAddress;
 	return true;;
 
 }
 
-bool PointerTypes::ExeOffset::resolve(void** resolvedOut) const
+bool PointerTypes::ExeOffset::resolve(uintptr_t* resolvedOut) const
 {
 	if (!PointerTypes::ExeOffset::mEXEAddress)
 	{
@@ -91,12 +96,12 @@ bool PointerTypes::ExeOffset::resolve(void** resolvedOut) const
 	return dereferencePointer(ExeOffset::mEXEAddress, this->mOffsets, resolvedOut);
 }
 
-bool PointerTypes::BaseOffset::resolve(void** resolvedOut) const
+bool PointerTypes::BaseOffset::resolve(uintptr_t* resolvedOut) const
 {
 	return dereferencePointer(this->mBaseAddress, this->mOffsets, resolvedOut);
 }
 
-bool PointerTypes::ModuleOffset::resolve(void** resolvedOut) const
+bool PointerTypes::ModuleOffset::resolve(uintptr_t* resolvedOut) const
 {
 	auto moduleAddress = ModuleCache::getModuleHandle(this->mModuleName);
 	if (!moduleAddress.has_value()) 
@@ -113,14 +118,14 @@ bool PointerTypes::ModuleOffset::resolve(void** resolvedOut) const
 	return dereferencePointer(moduleAddress.value(), this->mOffsets, resolvedOut);
 }
 
-bool PointerTypes::Resolved::resolve(void** resolvedOut) const
+bool PointerTypes::Resolved::resolve(uintptr_t* resolvedOut) const
 {
 	if (IsBadReadPtr(this->mBaseAddress, 1))
 	{
 		*SetLastErrorByRef() << "Resolved resolution failed, bad read pointer: " << this->mBaseAddress << std::endl;
 		return false;
 	}
-	*resolvedOut = (void*)this->mBaseAddress;
+	*resolvedOut = (uintptr_t)this->mBaseAddress;
 	return true;
 }
 
@@ -138,7 +143,8 @@ bool MultilevelPointer::readString(std::string& resolvedOut) const
 {
 
 
-	void* pString;
+
+	uintptr_t pString;
 	if (!this->resolve(&pString)) return false;
 
 	PLOG_VERBOSE << "readString parsing @" << pString;
@@ -177,7 +183,7 @@ bool MultilevelPointer::readString(std::string& resolvedOut) const
 	{
 		PLOG_VERBOSE << "short string case";
 		//short string case - the string is stored in the buffer
-		std::memcpy(potentialChars.get(), pString, strLength); // our void* is actually the char*, so we can copy that
+		std::memcpy(potentialChars.get(), (void*)pString, strLength); // our void* is actually the char*, so we can copy that
 
 	}
 	else
