@@ -271,7 +271,7 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 	if (randomizeProbability == 0.f) return; // If the probability is zero then we won't randomize the enemy
 
 
-	uint64_t seed = instance->ourSeed ^ (encounterIndex << 32 + squadIndex << 16 + unitSquadIndex); // Create a seed from the specific enemy data & XOR with the user-input seed
+	uint64_t seed = instance->ourSeed ^ ((encounterIndex << 32) + (squadIndex << 16) + unitSquadIndex); // Create a seed from the specific enemy data & XOR with the user-input seed
 	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
 	PLOG_VERBOSE << "Seed: " << std::hex << seed;
 	PLOG_VERBOSE << "gen:  " << std::hex << generator();

@@ -61,6 +61,7 @@ void OptionsGUI::renderOptionsGUI()
 {
 
 	ImGui::SetNextWindowSize(ImVec2(300, 300));
+	ImGui::SetNextWindowPos(ImVec2(10, 10));
 
 	if (ImGui::Begin("CE Enemy Randomiser!", NULL, windowFlags))  // Create window, only bother rendering children if it's not collapsed
 	{

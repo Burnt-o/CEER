@@ -26,12 +26,14 @@ class ErrorMessageBox : public ImGuiDialogBox
 {
 private:
 	std::string mErrorMessage;
+	std::string mErrorStackTrace;
 	void onImGuiRenderEvent() final;
 public:
-	explicit ErrorMessageBox(eventpp::CallbackList<void()>& renderEvent, std::string errorMessage)
-		: ImGuiDialogBox(renderEvent), mErrorMessage(errorMessage) 
+	explicit ErrorMessageBox(eventpp::CallbackList<void()>& renderEvent, std::string errorMessage, std::string stackTrace = "missing")
+		: ImGuiDialogBox(renderEvent), mErrorMessage(errorMessage) , mErrorStackTrace(stackTrace)
 	{
-		mCallbackHandle = pImGuiRenderEvent.append([this]() {ImGuiDialogBox::onImGuiRenderEvent(); });
+		mCallbackHandle = pImGuiRenderEvent.append([this]() {onImGuiRenderEvent(); });
+		PLOG_VERBOSE << "Error Message Box";
 	}
 
 

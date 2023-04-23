@@ -108,6 +108,12 @@ void RealMain(HMODULE dllHandle)
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
 
 
+
+        // test exception
+        CEERRuntimeException ex("CE Enemy Randomizer succesfully started!");
+        RuntimeExceptionHandler::handle(ex);
+
+
         // We live in this loop 99% of the time
         while (!GlobalKill::isKillSet()) {
 
@@ -118,12 +124,6 @@ void RealMain(HMODULE dllHandle)
                 GlobalKill::killMe();
             }
 
-
-            //if (!mirror && GetKeyState(0x24) & 0x8000) // 'Home' key
-            //{
-            //    MirrorMode::initialize();
-            //    mirror = true;
-            //}
 
         }
 
@@ -141,15 +141,8 @@ void RealMain(HMODULE dllHandle)
     // Auto managed resources have fallen out of scope
     std::cout << "Shutting down";
 
-    bool mirror = false;
 
 
-
-
-    if (mirror)
-    {
-        MirrorMode::destroy();
-    }
 
     curl_global_cleanup();
     //release_global_unhandled_exception_handler();

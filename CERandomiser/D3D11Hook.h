@@ -2,16 +2,30 @@
 #include "ModuleHook.h"
 #include "ModuleHookManager.h"
 
-
 // Define the DX functions we're going to hook
  extern "C" typedef HRESULT __stdcall DX11Present(IDXGISwapChain * pSwapChain, UINT SyncInterval, UINT Flags);
  extern "C" typedef HRESULT __stdcall DX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+
+ //SCALAR TO ImVec2 OPERATIONS
+ inline ImVec2 operator + (const ImVec2& v1, float s) { return ImVec2(v1.x + s, v1.y + s); }
+ inline ImVec2 operator - (const ImVec2& v1, float s) { return ImVec2(v1.x - s, v1.y - s); }
+ inline ImVec2 operator * (const ImVec2& v1, float s) { return ImVec2(v1.x * s, v1.y * s); }
+ inline ImVec2 operator / (const ImVec2& v1, float s) { return ImVec2(v1.x / s, v1.y / s); }
+
+
+ //ImVec2 TO ImVec2 OPERATIONS
+ inline ImVec2 operator + (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x + v2.x, v1.y + v2.y); }
+ inline ImVec2 operator - (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x - v2.x, v1.y - v2.y); }
+ inline ImVec2 operator * (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x * v2.x, v1.y * v2.y); }
+ inline ImVec2 operator / (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x / v2.x, v1.y / v2.y); }
 
 
  // Singleton: on construction, attaches hooks (VMT hook so our stuff shows up in OBS etc) to the games Present and ResizeBuffers function.
  // The hooks will invoke presentHookEvent for other classes to listen to.
  // On destruction, hooks will be unattached.
-class D3D11Hook
+
+ 
+ class D3D11Hook
 {
 private:
 	 static D3D11Hook* instance; 	// Private Singleton instance so static hooks/callbacks can access
@@ -38,6 +52,8 @@ private:
 	void initializeD3Ddevice(IDXGISwapChain*);
 	bool isD3DdeviceInitialized = false;
 
+	static ImVec2 mScreenSize;
+
 public:
 
 	explicit D3D11Hook();
@@ -54,6 +70,7 @@ public:
 	D3D11Hook& operator=(const D3D11Hook& arg) = delete; // Assignment operator
 	D3D11Hook& operator=(const D3D11Hook&& arg) = delete; // Move operator
 
+	static ImVec2 getScreenSize() { return mScreenSize; }
 
 
 };

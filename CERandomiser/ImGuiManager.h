@@ -62,5 +62,8 @@ public:
 	ImGuiManager& operator=(const ImGuiManager& arg) = delete; // Assignment operator
 	ImGuiManager& operator=(const ImGuiManager&& arg) = delete; // Move operator
 
+	static ImVec2 getScreenSize() { return D3D11Hook::getScreenSize(); }
+
+
 };
 

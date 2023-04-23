@@ -5,6 +5,8 @@
 
 
 D3D11Hook* D3D11Hook::instance = nullptr;
+ImVec2 D3D11Hook::mScreenSize;
+
 
 struct rgba {
     float r, g, b, a;
@@ -134,6 +136,13 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	pBackBuffer->Release();
 	if (!m_pMainRenderTargetView) throw InitException("Failed to get MainRenderTargetView");
 
+	// Store the windows size
+	D3D11_VIEWPORT pViewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE]{ 0 };
+	UINT numViewports = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+	m_pDeviceContext->RSGetViewports(&numViewports, pViewports);
+	PLOG_VERBOSE << "number of viewports: " << numViewports;
+
+	mScreenSize = { (pViewports->Width), (pViewports->Height) };
 	
 
 }
@@ -206,7 +215,8 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 	pBackBuffer->Release();
 	if (!d3d->m_pMainRenderTargetView) throw InitException("Failed to get MainRenderTargetView");
 
-	// We could grab the new window Height and Width too here if we cared about that, but I don't.
+	// Grab the new windows size
+	mScreenSize = { (float)Width, (float)Height };
 
 	return hr;
 }
