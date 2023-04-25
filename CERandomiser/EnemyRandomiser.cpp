@@ -295,6 +295,7 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 		paletteIndex,
 		objectIndex,
 		nameIndex,
+		paletteTable,
 	};
 
 	enum class objectType
@@ -313,9 +314,36 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 		SoundScenery,
 	};
 
+
+
+
 	auto* ctxInterpreter = instance->placeObjectFunctionContext.get();
 
 	auto objType = (objectType)*ctxInterpreter->getParameterRef(ctx, (int)param::objectType);
+
+	// TODO: change the whole thing to use the paletteTable magic lookup. The "objectType" param is not at all consistent 
+	if (!IsBadReadPtr((void*)ctx.rdx, 4))
+	{
+		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::reverseStringMagic("vehi"))
+		{
+			PLOG_DEBUG << "randomizing vehicle";
+			ctx.rax == rand() % 10;
+			
+		}
+		else
+		{
+			PLOG_DEBUG << "non vehi tag palette: " << std::hex << ((tagReference*)ctx.rdx)->tagGroupMagic;
+		}
+	}
+	else
+	{
+		PLOG_VERBOSE << "could not read rdx";
+	}
+
+
+
+
+
 	if (objType != objectType::Biped) return; // We only care about biped spawns
 
 	auto bipdPaletteIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::paletteIndex); // The biped Palette index of the type of unit trying to spawn
@@ -348,6 +376,8 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	auto unitRoll = instance->bipedIndexDistribution(generator); // Re-use the seed to see what new enemy we should roll into
 	PLOG_VERBOSE << "rolled biped index: " << unitRoll;
 	*ctxInterpreter->getParameterRef(ctx, (int)param::paletteIndex) = unitRoll; 	// Change the register containing the actvIndex to be the new unit
+
+
 
 }
 

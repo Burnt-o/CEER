@@ -24,6 +24,10 @@ private:
 
 	void renderOptionsGUI(); // Primary render function
 
+	std::vector<CEERRuntimeException> errorsToDisplay;
+	void renderErrorDialog();
+	
+
 	// GUI data
 	ImGuiWindowFlags windowFlags;
 	bool m_WindowOpen = true;
@@ -44,6 +48,6 @@ public:
 
 	~OptionsGUI(); // release resources
 
-
+	static void addError(CEERRuntimeException error) { instance->errorsToDisplay.push_back(error); }
 };
 

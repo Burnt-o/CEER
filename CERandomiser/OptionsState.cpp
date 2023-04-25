@@ -4,6 +4,25 @@
 
 namespace OptionsState
 {
+	Option<std::string> SeedString(
+		"gargamel",
+		[](std::string newValue)
+		{
+			if (newValue.contains('z'))
+			{
+				PLOG_DEBUG << "z detected!";
+				return false;
+			}
+			return true;
+		}
+	);
+
+	Option<bool> AutoGenerateSeed(
+		false,
+		[](bool newValue) { return true; }
+	);
+
+
 	Option<bool> MasterToggle(
 		false,
 		[](bool newValue) { return true; }
@@ -13,5 +32,8 @@ namespace OptionsState
 		false,
 		[](bool newValue) { return true; }
 	);
+
+
+
 }
 

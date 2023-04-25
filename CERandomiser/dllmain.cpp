@@ -26,7 +26,13 @@ void init_logging()
     plog::init<1>(plog::info, &fileAppender);
 
 
-    AllocConsole();
+    DWORD attachError = 0;
+    if (AttachConsole(GetCurrentProcessId()) == 0)
+    {
+        attachError = GetLastError();
+        AllocConsole();
+    }
+
     FILE* fDummy;
     freopen_s(&fDummy, "CONIN$", "r", stdin);
     freopen_s(&fDummy, "CONOUT$", "w", stderr);
@@ -38,21 +44,21 @@ void init_logging()
 
     plog::init(plog::verbose).addAppender(plog::get<1>()).addAppender(plog::get<2>());
 
+    if (attachError != 0) PLOG_INFO << "Creating new console: " << attachError;
 
 }
 
 void stop_logging()
 {
+    fclose(stdout);
+    fclose(stdin);
+    fclose(stderr);
     FreeConsole();
 }
 
 
 
 /* GENERAL TODO:: 
-IAT pointer
-IAT hook
-Create a PointerManager service that stores all the pointers per game version / looks it up from the intertubes
-Add OptionState stuff
 
 */ 
 
@@ -107,11 +113,6 @@ void RealMain(HMODULE dllHandle)
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
 
-
-
-        // test exception
-        CEERRuntimeException ex("CE Enemy Randomizer succesfully started!");
-        RuntimeExceptionHandler::handle(ex);
 
 
         // We live in this loop 99% of the time

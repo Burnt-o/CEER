@@ -141,11 +141,11 @@
     <ClInclude Include="RuntimeExceptionHandler.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiDialogBox.h">
-      <Filter>Classes</Filter>
-    </ClInclude>
     <ClInclude Include="SetSeed.h">
       <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\imgui\imgui_stdlib.h">
+      <Filter>Source Files\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -233,14 +233,17 @@
     <ClCompile Include="RuntimeExceptionHandler.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiDialogBox.cpp">
-      <Filter>Classes</Filter>
-    </ClCompile>
     <ClCompile Include="SetSeed.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="MidhookContextInterpreter.cpp">
       <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_stdlib.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\imgui\imgui_tables.cpp">
+      <Filter>Source Files\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

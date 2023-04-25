@@ -78,6 +78,7 @@
 				<paletteIndex>rax</paletteIndex>
 				<objectIndex>r10</objectIndex>
 				<nameIndex>rcx</nameIndex>
+				<nameIndex>rdx</nameIndex>
 			</ParameterRegisters>
 		</Version>
 	</VersionedEntry>
