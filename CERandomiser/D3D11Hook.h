@@ -19,6 +19,19 @@
  inline ImVec2 operator * (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x * v2.x, v1.y * v2.y); }
  inline ImVec2 operator / (const ImVec2& v1, const ImVec2& v2) { return ImVec2(v1.x / v2.x, v1.y / v2.y); }
 
+ //SCALAR TO ImVec4 OPERATIONS
+ inline ImVec4 operator + (const ImVec4& v1, float s) { return ImVec4(v1.x + s, v1.y + s, v1.z + s, v1.w + s); }
+ inline ImVec4 operator - (const ImVec4& v1, float s) { return ImVec4(v1.x - s, v1.y - s, v1.z - s, v1.w - s); }
+ inline ImVec4 operator * (const ImVec4& v1, float s) { return ImVec4(v1.x * s, v1.y * s, v1.z * s, v1.w * s); }
+ inline ImVec4 operator / (const ImVec4& v1, float s) { return ImVec4(v1.x / s, v1.y / s, v1.z / s, v1.w / s); }
+
+
+ //ImVec2 TO ImVec4 OPERATIONS
+ inline ImVec4 operator + (const ImVec4& v1, const ImVec4& v2) { return ImVec4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w); }
+ inline ImVec4 operator - (const ImVec4& v1, const ImVec4& v2) { return ImVec4(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w); }
+ inline ImVec4 operator * (const ImVec4& v1, const ImVec4& v2) { return ImVec4(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w); }
+ inline ImVec4 operator / (const ImVec4& v1, const ImVec4& v2) { return ImVec4(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z, v1.w / v2.w); }
+
 
  // Singleton: on construction, attaches hooks (VMT hook so our stuff shows up in OBS etc) to the games Present and ResizeBuffers function.
  // The hooks will invoke presentHookEvent for other classes to listen to.

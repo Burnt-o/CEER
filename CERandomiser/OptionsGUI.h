@@ -24,8 +24,12 @@ private:
 
 	void renderOptionsGUI(); // Primary render function
 
+	// sub-render functions to help my sanity
 	std::vector<CEERRuntimeException> errorsToDisplay;
 	void renderErrorDialog();
+
+	void renderAddRuleDialog();
+	void renderManageCustomGroupsDialog();
 	
 
 	// GUI data

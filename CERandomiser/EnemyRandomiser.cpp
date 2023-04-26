@@ -324,15 +324,13 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	// TODO: change the whole thing to use the paletteTable magic lookup. The "objectType" param is not at all consistent 
 	if (!IsBadReadPtr((void*)ctx.rdx, 4))
 	{
-		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::reverseStringMagic("vehi"))
+		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::reverseStringMagic("bipd"))
 		{
-			PLOG_DEBUG << "randomizing vehicle";
-			ctx.rax == rand() % 10;
-			
+			PLOG_DEBUG << "bipd happening";
 		}
 		else
 		{
-			PLOG_DEBUG << "non vehi tag palette: " << std::hex << ((tagReference*)ctx.rdx)->tagGroupMagic;
+			PLOG_DEBUG << "non bipd tag palette: " << std::hex << ((tagReference*)ctx.rdx)->tagGroupMagic;
 		}
 	}
 	else

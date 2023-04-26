@@ -34,6 +34,6 @@ namespace OptionsState
 	);
 
 
-
+	std::vector<std::unique_ptr<EnemyRandomiserRule>> currentRules; // starts empty
 }
 
