@@ -77,17 +77,21 @@ private:
 	//TODO
 
 
-	UnitInfo readActorInfo(actorTagReference* actor);
-	UnitInfo readBipedInfo(bipedTagReference* biped);
+	UnitInfo readActorInfo(const tagElement& actor);
+	UnitInfo readBipedInfo(const tagElement& biped);
 
-	void evaluateActors(actorPaletteWrapper actorPalette); 
-	void evaluateBipeds(bipedPaletteWrapper bipedPalette); 
+	void evaluateActors(); 
+	void evaluateBipeds(); 
 	
+	void evaluateActorsNew();
 
 	std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
 
-	std::map<int, UnitInfo> actorMap;
-	std::map<int, UnitInfo> bipedMap;
+	std::unordered_map<int, UnitInfo> actorMap;
+	std::unordered_map<int, UnitInfo> bipedMap;
+
+	std::map<datum, UnitInfo> datumToActorMap;
+	std::map<datum, UnitInfo> datumToBipedMap;
 
 	faction lastSpawnedUnitsFaction = faction::Undefined;
 
@@ -168,6 +172,11 @@ public:
 		//TODO: destroy hooks
 
 		instance = nullptr;
+	}
+
+	static void debug()
+	{
+		instance->evaluateActors();
 	}
 
 };

@@ -4,6 +4,9 @@
 #include "OptionsState.h"
 
 #include "EnemyRandomiserRule.h"
+
+
+#include "EnemyRandomiser.h"
 OptionsGUI* OptionsGUI::instance = nullptr;
 
 
@@ -336,8 +339,11 @@ void OptionsGUI::renderOptionsGUI()
 
 			renderEnemyRandomiserRules();
 
-			static bool blah = false;
-			ImGui::Checkbox("blah", &blah);
+
+			if (ImGui::Button("blah"))
+			{
+				EnemyRandomiser::debug();
+			}
 
 		} // End enemy randomiser settings
 

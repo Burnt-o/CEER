@@ -6,26 +6,38 @@
 // A lot of the reverse engineering here was already done by the assembly guys
 //https://github.com/XboxChaos/Assembly/blob/9c2aabd70b1d40fedc02942fca888b71f940ce10/src/Blamite/Formats/Halo1/Layouts/H1_Layouts_Core.xml
 
+
+bool datum::operator<(const datum& rhs) const
+{
+    return index < rhs.index;
+}
+
+bool datum::operator==(const datum& rhs) const
+{
+    return salt == rhs.salt;
+}
+
+constexpr uint32_t tagDataBase = 0x50000000;
+
 struct mapHeader {
-    uint32_t tagTableOffset;
+private:
+    uint32_t mTagTableOffset;
+
+public:
     datum scenarioDatum;
+    uint32_t checksum;
+    uint32_t numberOfTags;
+
+
+
+    uint32_t tagTableOffset() { return mTagTableOffset - tagDataBase; }
     // Then a bunch of other stuff I don't care about
 };
 
 
 
 
-struct tagElement { 
-    uint32_t tagGroupMagic;
-    uint32_t parentGroupMagic;
-    uint32_t grandparentGroupMagic;
-    datum tagDatum;
-    uint32_t nameOffset;
-    uint32_t offset;
-    uint32_t isInDataFile;
-    uint32_t pad;
-};
-static_assert(sizeof(tagElement) == 0x20);
+
 
 
 
@@ -52,7 +64,7 @@ private:
     //std::shared_ptr<MultilevelPointer> mlp_tagDataBase;
     uintptr_t currentCacheAddress;
     uintptr_t scenarioAddress;
-    uint32_t tagDataBase = 0x50000000;
+
     MCCString* objectNameTable;
 
 
@@ -62,8 +74,8 @@ private:
     eventpp::CallbackList<void(HaloLevel)>::Handle mLevelLoadCallbackHandle = {};
     eventpp::CallbackList<void(HaloLevel)>& mLevelLoadEvent;
 
-    tagElement* getTagElement(datum tagDatum);
-    uintptr_t getTagAddress(datum tagDatum);
+    
+    uintptr_t getTagAddress(const datum& tagDatum);
     uintptr_t getTagAddress(uint32_t tagOffset);
 
 
@@ -75,14 +87,18 @@ public:
     explicit MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent);
     ~MapReaderImpl();
 
+    tagElement* getTagElement(const datum& tagDatum);
+
     actorPaletteWrapper getActorPalette();
     bipedPaletteWrapper getBipedPalette();
-    std::string getTagName(tagReference* tag);
+    std::string getTagName(const datum& tagDatum);
 
-    bipedTagReference* getActorsBiped(actorTagReference* tag);
-    faction getBipedFaction(bipedTagReference* tag);
-
+    //datum getActorsBiped(const datum& actorDatum);
+    faction getBipedFaction(const datum& bipedDatum);
+    faction getActorsFaction(const datum& actorDatum);
     std::string getObjectName(int nameIndex);
+
+    std::span<tagElement> getTagTable();
 
     void onLevelLoadEvent(HaloLevel newLevel);     // What we run when new level is loaded changes
 };
@@ -95,7 +111,7 @@ MapReader::~MapReader() = default; // https://www.fluentcpp.com/2017/09/22/make-
 MapReader::MapReaderImpl::MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent) : mLevelLoadEvent(levelLoadEvent)
 {
     mLevelLoadCallbackHandle = levelLoadEvent.append([this](HaloLevel a) { this->onLevelLoadEvent(a); });
-    assert(reverseStringMagic("actv") == 0x61637476);
+    assert(stringToMagic("actv") == 0x61637476);
 }
 
 
@@ -120,43 +136,66 @@ MapReader::MapReaderImpl::~MapReaderImpl()
 
 }
 
-faction MapReader::MapReaderImpl::getBipedFaction(bipedTagReference* tag)
+
+faction MapReader::MapReaderImpl::getActorsFaction(const datum& actorDatum)
+{
+        constexpr int bipedTagReferenceOffset = 0x14; 
+        uintptr_t actorTag = getTagAddress(actorDatum);
+        uintptr_t bipedRef = actorTag + bipedTagReferenceOffset;
+    
+        if (IsBadReadPtr((void*)bipedRef, sizeof(bipedTagReference))) throw CEERRuntimeException(std::format("getActorsBiped got bad memory, actorTag: {:#X}, bipedRef: {:#X}", actorTag, bipedRef));
+    
+            tagReference* biped = (tagReference*)bipedRef;
+    
+          
+        // test that the magic is correct
+        if (biped->tagGroupMagic != stringToMagic("bipd") || biped->tagDatum == nullDatum)
+        {
+            PLOG_ERROR << "actv has no bipd tag!";
+            return faction::Undefined; // this is actually somethign that can happen, not all actv's have a bipd ref
+        }
+    
+
+
+        // lookup the bipeds faction
+        return getBipedFaction(biped->tagDatum);
+        
+}
+
+faction MapReader::MapReaderImpl::getBipedFaction(const datum& bipedDatum)
 {
     constexpr int defaultTeamOffset = 0x180;
-    uint8_t fac = *(uint8_t*)(getTagAddress(tag->tagDatum) + defaultTeamOffset);
+    uint8_t fac = *(uint8_t*)(getTagAddress(bipedDatum) + defaultTeamOffset);
     return (faction)fac;
 
 }
 
-
-
-
-
-bipedTagReference* MapReader::MapReaderImpl::getActorsBiped(actorTagReference* tag)
-{
-    constexpr int bipedTagReferenceOffset = 0x14; 
-    uintptr_t actorTag = getTagAddress(tag->tagDatum);
-    uintptr_t bipedRef = actorTag + bipedTagReferenceOffset;
-
-    if (IsBadReadPtr((void*)bipedRef, sizeof(bipedTagReference))) throw CEERRuntimeException(std::format("getActorsBiped got bad memory, actorTag: {:#X}, bipedRef: {:#X}", actorTag, bipedRef));
-
-    bipedTagReference* biped = (bipedTagReference*)bipedRef;
-    // test that the magic is correct
-
-    PLOG_VERBOSE << "testing : stringMagic(vtca): " << std::hex << stringMagic("vtca");
-    PLOG_VERBOSE << "testing : reverseStringMagic(vtca): " << std::hex << reverseStringMagic("vtca");
-    PLOG_VERBOSE << "(should be :" << std::hex << 0x61637476 << ")";
-
-
-    if (biped->tagGroupMagic != reverseStringMagic("bipd"))
-    {
-        PLOG_ERROR << "actv has no bipd tag!";
-        return nullptr; // this is actually somethign that can happen, not all actv's have a bipd ref
-    }
-
-
-    return biped;
-}
+//
+//
+//
+//
+//datum MapReader::MapReaderImpl::getActorsBiped(const datum& actorDatum)
+//{
+//    constexpr int bipedTagReferenceOffset = 0x14; 
+//    uintptr_t actorTag = getTagAddress(actorDatum);
+//    uintptr_t bipedRef = actorTag + bipedTagReferenceOffset;
+//
+//    if (IsBadReadPtr((void*)bipedRef, sizeof(bipedTagReference))) throw CEERRuntimeException(std::format("getActorsBiped got bad memory, actorTag: {:#X}, bipedRef: {:#X}", actorTag, bipedRef));
+//
+//        tagReference* biped = (tagReference*)bipedRef;
+//
+//      
+//    // test that the magic is correct
+//
+//    if (biped->tagGroupMagic != stringToMagic("bipd"))
+//    {
+//        PLOG_ERROR << "actv has no bipd tag!";
+//        return nullDatum; // this is actually somethign that can happen, not all actv's have a bipd ref
+//    }
+//
+//
+//    return biped->tagDatum;
+//}
 
 actorPaletteWrapper MapReader::MapReaderImpl::getActorPalette()
 {
@@ -191,20 +230,19 @@ uintptr_t MapReader::MapReaderImpl::getTagAddress(uint32_t offset)
     return out;
 }
 
-uintptr_t MapReader::MapReaderImpl::getTagAddress(datum tagDatum)
+uintptr_t MapReader::MapReaderImpl::getTagAddress(const datum& tagDatum)
 {
     return getTagAddress(getTagElement(tagDatum)->offset);
 }
 
-tagElement* MapReader::MapReaderImpl::getTagElement(datum tagDatum)
+tagElement* MapReader::MapReaderImpl::getTagElement(const datum& tagDatum)
 {
     mapHeader* header = reinterpret_cast<mapHeader*>(currentCacheAddress);
     if (IsBadReadPtr(header, 16)) throw CEERRuntimeException("mapHeader bad address");
-    int tagTableOffset = header->tagTableOffset - tagDataBase;
 
-    PLOG_VERBOSE << "tagTableOffset: " << tagTableOffset;
+    PLOG_VERBOSE << "tagTableOffset: " << header->tagTableOffset();
     PLOG_VERBOSE << "tagDatum.index: " << tagDatum.index;
-    uintptr_t tagEle = currentCacheAddress + tagTableOffset + (tagDatum.index * sizeof(tagElement));
+    uintptr_t tagEle = currentCacheAddress + header->tagTableOffset() + (tagDatum.index * sizeof(tagElement));
 
     if (IsBadReadPtr((void*)tagEle, sizeof(tagElement))) throw CEERRuntimeException(std::format("bad tagElement read, invalid memory: tagDatum.index: {:#X}, address: {:#X}", tagDatum.index, (uint64_t)tagEle));
 
@@ -216,9 +254,9 @@ tagElement* MapReader::MapReaderImpl::getTagElement(datum tagDatum)
 }
 
 
-std::string MapReader::MapReaderImpl::getTagName(tagReference* tag)
+std::string MapReader::MapReaderImpl::getTagName(const datum& tagDatum)
 {
-    return std::string((char*)getTagAddress(tag->nameOffset));
+    return std::string((char*)getTagAddress(getTagElement(tagDatum)->nameOffset));
 }
 
 
@@ -267,18 +305,23 @@ void MapReader::MapReaderImpl::onLevelLoadEvent(HaloLevel newLevel)
 actorPaletteWrapper MapReader::getActorPalette() { return impl.get()->getActorPalette(); }
 bipedPaletteWrapper MapReader::getBipedPalette() { return impl.get()->getBipedPalette(); }
 
-std::string MapReader::getTagName(tagReference* tag) { return impl.get()->getTagName(tag); }
+std::string MapReader::getTagName(const datum& tagDatum) { return impl.get()->getTagName(tagDatum); }
 
-bipedTagReference* MapReader::getActorsBiped(actorTagReference* tag) { return impl.get()->getActorsBiped(tag); }
+//datum MapReader::getActorsBiped(const datum& actorDatum) { return impl.get()->getActorsBiped(actorDatum); }
 
-faction MapReader::getBipedFaction(bipedTagReference* tag) { return impl.get()->getBipedFaction(tag); }
+faction MapReader::getBipedFaction(const datum& bipedDatum) { return impl.get()->getBipedFaction(bipedDatum); }
 
 std::string MapReader::getObjectName(int nameIndex) { return impl.get()->getObjectName(nameIndex); }
 
+std::span<tagElement> MapReader::getTagTable() { return impl.get()->getTagTable(); }
 
+tagElement* MapReader::getTagElement(const datum& tagDatum) { return impl.get()->getTagElement(tagDatum); }
 
- uint32_t MapReader::stringMagic(std::string str)
+faction MapReader::getActorsFaction(const datum& actorDatum) { return impl.get()->getActorsFaction(actorDatum); }
+
+ uint32_t MapReader::stringToMagic(std::string str)
 {
+    reverse(str.begin(), str.end());
     if (str.length() != 4) throw CEERRuntimeException(std::format("stringMagic bad string length: {}", str.length()));
     uint32_t out;
     //unsigned char* p = (unsigned char*)str.c_str();
@@ -289,10 +332,31 @@ std::string MapReader::getObjectName(int nameIndex) { return impl.get()->getObje
 }
 
 
- uint32_t MapReader::reverseStringMagic(std::string str)
+ std::string MapReader::magicToString(uint32_t magic)
 {
-    reverse(str.begin(), str.end());
-    return stringMagic(str);
+     std::string str(reinterpret_cast<char*>(&magic), sizeof(uint32_t));
+     reverse(str.begin(), str.end());
+     return str;
 }
 
 
+
+
+ std::span<tagElement> MapReader::MapReaderImpl::getTagTable()
+ {
+    mapHeader* header = (mapHeader*)currentCacheAddress;
+
+    uintptr_t pTagTable = currentCacheAddress + header->tagTableOffset();
+    if (IsBadReadPtr((void*)pTagTable, sizeof(tagElement))) throw CEERRuntimeException(std::format("Could not resolve tagTable address, cacheAddress: {:X}, tagTableOffset: {:X}, tagTable: {:X}", currentCacheAddress, header->tagTableOffset(), (currentCacheAddress + header->tagTableOffset())));
+
+    tagElement* startTagTable = (tagElement*)pTagTable;
+    tagElement* endTagTable = startTagTable + header->numberOfTags;
+
+    PLOG_DEBUG << "tag table start: " << std::hex << (void*)startTagTable;
+    if (IsBadReadPtr((void*)endTagTable, sizeof(tagElement))) throw CEERRuntimeException("Could not resolve end of tagTable address");
+    
+    std::span<tagElement> out{ startTagTable, header->numberOfTags };
+    return out;
+    
+ 
+ }

@@ -71,64 +71,45 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 
 constexpr std::array badUnitNames = { "flame", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector" };
 
-UnitInfo EnemyRandomiser::readActorInfo(actorTagReference* actor)
+UnitInfo EnemyRandomiser::readActorInfo(const tagElement& actor)
 {
-	constexpr std::array badActorsToRandomize = badUnitNames;
-	constexpr std::array badActorsToRoll = badUnitNames;
-
-	if (actor->tagGroupMagic != MapReader::reverseStringMagic("actv")) throw CEERRuntimeException("actv invalid magic!");
-
-	UnitInfo thisActorInfo(instance->mapReader->getTagName(actor));
-
-
-	bipedTagReference* bipdRef = instance->mapReader->getActorsBiped(actor);
-	if (bipdRef)
-	{
-		thisActorInfo.defaultTeam = readBipedInfo(bipdRef).defaultTeam;
-	}
-	else
-	{
-		thisActorInfo.defaultTeam = faction::Undefined;
-	}
-
+	UnitInfo thisActorInfo(instance->mapReader->getTagName(actor.tagDatum));
+	thisActorInfo.defaultTeam = instance->mapReader->getActorsFaction(actor.tagDatum);
 	PLOG_DEBUG << thisActorInfo.getShortName();
-
 	thisActorInfo.isValidUnit = isValidUnit(thisActorInfo, badUnitNames);
 
 	return thisActorInfo;
 }
 
-UnitInfo EnemyRandomiser::readBipedInfo(bipedTagReference* biped)
+UnitInfo EnemyRandomiser::readBipedInfo(const tagElement& biped)
 {
-
-
-	if (biped->tagGroupMagic != MapReader::reverseStringMagic("bipd")) throw CEERRuntimeException("bipd invalid magic!");
-
-	UnitInfo thisBipedInfo(instance->mapReader->getTagName(biped));
-	thisBipedInfo.defaultTeam = instance->mapReader->getBipedFaction(biped);
-
+	UnitInfo thisBipedInfo(instance->mapReader->getTagName(biped.tagDatum));
+	thisBipedInfo.defaultTeam = instance->mapReader->getBipedFaction(biped.tagDatum);
 	PLOG_DEBUG << thisBipedInfo.getShortName();
-
 	thisBipedInfo.isValidUnit = isValidUnit(thisBipedInfo, badUnitNames);
 
 	return thisBipedInfo;
 }
 
 
-void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
+void EnemyRandomiser::evaluateActors()
 {
-	actorMap.clear();
-	PLOG_DEBUG << "evaluating actors, count: " << actorPalette.tagCount;
-	actorTagReference* currentActor = actorPalette.firstTag;
-	for (int i = 0; i < actorPalette.tagCount; i++)
+	PLOG_DEBUG << "Evaluating actors.";
+	datumToActorMap.clear();
+
+	auto tagTable = instance->mapReader->getTagTable();		PLOG_DEBUG << "TagTable count: " << tagTable.size();
+	auto actvMagic = MapReader::stringToMagic("actv");
+
+	for (const auto& tag : tagTable)
 	{
-		PLOG_DEBUG << i;
-		actorMap.try_emplace(i, readActorInfo(currentActor));
-		currentActor++;
+		//PLOG_VERBOSE << "index" << tag.tagDatum.index;
+		if (tag.tagGroupMagic != actvMagic || tag.tagDatum == nullDatum) continue;
+		datumToActorMap.try_emplace(tag.tagDatum, readActorInfo(tag));
+
 	}
 
 	// Iterate over all actors, and for each one construct their rollDistribution
-	for (auto& [index, actor] : actorMap)
+	for (auto& [datum, actor] : datumToActorMap)
 	{
 		if (!actor.isValidUnit) continue;
 
@@ -142,7 +123,7 @@ void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 				RandomiseXintoY* thisRule = dynamic_cast<RandomiseXintoY*>(rule.get());
 				if (thisRule == nullptr) throw CEERRuntimeException("failed to cast rule!");
 
-				if (thisRule->randomiseGroupSelection.isMatch(actor) )
+				if (thisRule->randomiseGroupSelection.isMatch(actor))
 				{
 					PLOG_DEBUG << "Actor found a matching rule: " << actor.getShortName();
 					actor.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.f;
@@ -154,7 +135,7 @@ void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 		PLOG_DEBUG << "Constructing rollDistribution for " << actor.getShortName();
 		std::vector<double> indexWeights;
 		double cumulativeWeight = 0.0;
-		for (auto& [index, otherActor] : actorMap) // Iterate over all actors again, checking if they're within the rollGroup
+		for (auto& [datum, otherActor] : datumToActorMap) // Iterate over all actors again, checking if they're within the rollGroup
 		{
 
 			if (rollGroup != nullptr && rollGroup->isMatch(otherActor) && otherActor.isValidUnit)
@@ -186,7 +167,7 @@ void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 
 				}
 
-				
+
 				indexWeights.push_back(0.0);
 				cumulativeWeight += 0.0;
 			}
@@ -204,24 +185,28 @@ void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 
 	}
 
-	
 }
 
-void EnemyRandomiser::evaluateBipeds(bipedPaletteWrapper bipedPalette)
+
+void EnemyRandomiser::evaluateBipeds()
 {
 
-	bipedMap.clear();
-	PLOG_DEBUG << "evaluating bipeds, count: " << bipedPalette.tagCount;
-	bipedTagReference* currentBiped = bipedPalette.firstTag;
-	for (int i = 0; i < bipedPalette.tagCount; i++)
+
+	PLOG_DEBUG << "Evaluating bipeds.";
+	datumToBipedMap.clear();
+
+	auto tagTable = instance->mapReader->getTagTable();
+	auto bipdMagic = MapReader::stringToMagic("bipd");
+
+	for (const auto& tag : tagTable)
 	{
-		PLOG_DEBUG << i;
-		bipedMap.try_emplace(i, readBipedInfo(currentBiped));
-		currentBiped++;
+		if (tag.tagGroupMagic != bipdMagic || tag.tagDatum == nullDatum) continue;
+		datumToBipedMap.try_emplace(tag.tagDatum, readBipedInfo(tag));
+
 	}
 	
 	// Iterate over all bipeds, and for each one construct their rollDistribution
-	for (auto& [index, biped] : bipedMap)
+	for (auto& [datum, biped] : datumToBipedMap)
 	{
 		if (!biped.isValidUnit) continue;
 
@@ -245,7 +230,7 @@ void EnemyRandomiser::evaluateBipeds(bipedPaletteWrapper bipedPalette)
 
 		std::vector<double> indexWeights;
 		double cumulativeWeight = 0.0;
-		for (auto& [index, otherBiped] : bipedMap) // Iterate over all bipeds again, checking if they're within the rollGroup
+		for (auto& [datum, otherBiped] : datumToBipedMap) // Iterate over all bipeds again, checking if they're within the rollGroup
 		{
 			if (rollGroup && rollGroup->isMatch(otherBiped) && otherBiped.isValidUnit)
 			{
@@ -288,15 +273,10 @@ void EnemyRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 		if (!instance->spawnPositionRNG.get()->resolve(&spawnposrng)) throw CEERRuntimeException("Could not resolve spawnPositionRNG");
 		instance->spawnPositionRNGResolved = (uint32_t*)spawnposrng;
 
-		actorPaletteWrapper actorPalette = instance->mapReader->getActorPalette();
-		PLOG_VERBOSE << "Actor palette tagCount: " << actorPalette.tagCount;
 
-		instance->evaluateActors(actorPalette);
+		instance->evaluateActors();
 
-		bipedPaletteWrapper bipedPalette = instance->mapReader->getBipedPalette();
-		PLOG_VERBOSE << "Biped palette tagCount: " << bipedPalette.tagCount;
-
-		instance->evaluateBipeds(bipedPalette);
+		instance->evaluateBipeds();
 
 
 
@@ -320,6 +300,7 @@ void EnemyRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 
 void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 {
+	return;
 	PLOG_VERBOSE << "actvSpawnHookFunction";
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
@@ -369,6 +350,7 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 
 void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 {
+	return;
 	PLOG_VERBOSE << "placeObjectHookFunction";
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
@@ -406,7 +388,7 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	// TODO: change the whole thing to use the paletteTable magic lookup. The "objectType" param is not at all consistent 
 	if (!IsBadReadPtr((void*)ctx.rdx, 4))
 	{
-		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::reverseStringMagic("bipd"))
+		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::stringToMagic("bipd"))
 		{
 			PLOG_DEBUG << "bipd happening";
 		}
@@ -581,7 +563,7 @@ void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 
 bool EnemyRandomiser::newProcessEncounterUnit(unsigned int encounterIndex, __int16 squadIndex, __int16 unknown)
 {
-	PLOG_DEBUG << "test: " << encounterIndex;
+	//PLOG_DEBUG << "test: " << encounterIndex;
 	// call it twice as a test
 	int extraSpawns = 1;
 	for (int i = 0; i < extraSpawns; i++)
