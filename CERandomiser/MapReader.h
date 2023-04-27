@@ -1,6 +1,6 @@
 #pragma once
 #include "HaloEnums.h"
-
+#include "UnitInfo.h"
 struct MCCString {
 	union
 	{
@@ -63,20 +63,6 @@ struct bipedPaletteWrapper
 	bipedTagReference* firstTag;
 };
 
-
-enum class faction {
-	Undefined = -1,
-	None = 0,
-	Player = 1,
-	Human = 2,
-	Covenant = 3,
-	Flood = 4,
-	Sentinel = 5,
-	Unused6 = 6,
-	Unused7 = 7,
-	Unused8 = 8,
-	Unused9 = 9
-};
 
 
 

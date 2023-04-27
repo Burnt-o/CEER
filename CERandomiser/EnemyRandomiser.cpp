@@ -2,14 +2,14 @@
 #include "EnemyRandomiser.h"
 #include "OptionsState.h"
 #include "LevelLoadHook.h"
-
+#include "EnemyRandomiserRule.h"
 
 EnemyRandomiser* EnemyRandomiser::instance = nullptr;
 
 void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
 {
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-
+	instance->ProcessEncounterUnitHook.get()->setWantsToBeAttached(true);
 	if (newValue == false) // Master toggle was disabled
 	{
 		// turn hooks off
@@ -53,40 +53,23 @@ void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
 	}
 }
 
-template<size_t n>
-void RemoveBadRoll(UnitInfo& info, const std::array<const char*, n> badNames) {
-	for (auto badName : badNames)
-	{
-		if (info.fullName.contains(badName))
-		{
-			info.probabilityOfRoll = 0.0;
-			return;
-		}
-	}
-}
+
 
 template<size_t n>
-void RemoveBadRandomize(UnitInfo& info, const std::array<const char*, n> badNames) {
-	for (auto badName : badNames)
-	{
-		if (info.fullName.contains(badName))
-		{
-			info.probabilityOfRandomize = 0.0;
-			return;
-		}
-	}
-}
-
-// Turns "characters\hunter\hunter" into "hunter"
-std::string getShortNameFromFull(std::string fullName)
+bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 {
-	auto pos = fullName.find_last_of("\\");
-	if (pos == std::string::npos) return fullName;
-	std::string out = fullName.substr(pos + 1);
-	return out;
+	for (auto badName : badNames)
+	{
+		if (info.getFullName().contains(badName))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
-constexpr std::array badUnitNames = { "flame thrower", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector" };
+
+constexpr std::array badUnitNames = { "flame", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector" };
 
 UnitInfo EnemyRandomiser::readActorInfo(actorTagReference* actor)
 {
@@ -95,9 +78,8 @@ UnitInfo EnemyRandomiser::readActorInfo(actorTagReference* actor)
 
 	if (actor->tagGroupMagic != MapReader::reverseStringMagic("actv")) throw CEERRuntimeException("actv invalid magic!");
 
-	UnitInfo thisActorInfo;
-	thisActorInfo.fullName = instance->mapReader->getTagName(actor);
-	thisActorInfo.shortName = getShortNameFromFull(thisActorInfo.fullName);
+	UnitInfo thisActorInfo(instance->mapReader->getTagName(actor));
+
 
 	bipedTagReference* bipdRef = instance->mapReader->getActorsBiped(actor);
 	if (bipdRef)
@@ -109,35 +91,29 @@ UnitInfo EnemyRandomiser::readActorInfo(actorTagReference* actor)
 		thisActorInfo.defaultTeam = faction::Undefined;
 	}
 
+	PLOG_DEBUG << thisActorInfo.getShortName();
 
-
-	RemoveBadRandomize(thisActorInfo, badActorsToRandomize);
-	RemoveBadRoll(thisActorInfo, badActorsToRoll);
-
-	PLOG_DEBUG << thisActorInfo.shortName;
+	thisActorInfo.isValidUnit = isValidUnit(thisActorInfo, badUnitNames);
 
 	return thisActorInfo;
 }
 
 UnitInfo EnemyRandomiser::readBipedInfo(bipedTagReference* biped)
 {
-	constexpr std::array badBipedsToRandomize = badUnitNames;
-	constexpr std::array badBipedsToRoll = badUnitNames;
+
 
 	if (biped->tagGroupMagic != MapReader::reverseStringMagic("bipd")) throw CEERRuntimeException("bipd invalid magic!");
 
-	UnitInfo thisBipedInfo;
-	thisBipedInfo.fullName = instance->mapReader->getTagName(biped);
-	thisBipedInfo.shortName = getShortNameFromFull(thisBipedInfo.fullName);
+	UnitInfo thisBipedInfo(instance->mapReader->getTagName(biped));
 	thisBipedInfo.defaultTeam = instance->mapReader->getBipedFaction(biped);
 
-	RemoveBadRandomize(thisBipedInfo, badBipedsToRandomize);
-	RemoveBadRoll(thisBipedInfo, badBipedsToRoll);
+	PLOG_DEBUG << thisBipedInfo.getShortName();
 
-	PLOG_DEBUG << thisBipedInfo.shortName;
+	thisBipedInfo.isValidUnit = isValidUnit(thisBipedInfo, badUnitNames);
 
 	return thisBipedInfo;
 }
+
 
 void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 {
@@ -151,19 +127,84 @@ void EnemyRandomiser::evaluateActors(actorPaletteWrapper actorPalette)
 		currentActor++;
 	}
 
-	// Setup the probability distribution that the randomizer will sample from
-	std::vector<double> indexWeights;
-	double cumulativeWeight = 0.0;
-	for (auto& [index, randoInfo] : actorMap)
+	// Iterate over all actors, and for each one construct their rollDistribution
+	for (auto& [index, actor] : actorMap)
 	{
-		indexWeights.push_back(randoInfo.probabilityOfRoll);
-		cumulativeWeight += randoInfo.probabilityOfRoll;
+		if (!actor.isValidUnit) continue;
+
+		EnemyRandomiserGroup* rollGroup = nullptr;
+		// Evaluate rules (in reverse, so rules at top of GUI overwrite ones at bottom)
+		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRules))
+		{
+			PLOG_DEBUG << "Actor checking if a rule applies to it: " << actor.getShortName();
+			if (rule.get()->getType() == RuleType::RandomiseXintoY)
+			{
+				RandomiseXintoY* thisRule = dynamic_cast<RandomiseXintoY*>(rule.get());
+				if (thisRule == nullptr) throw CEERRuntimeException("failed to cast rule!");
+
+				if (thisRule->randomiseGroupSelection.isMatch(actor) )
+				{
+					PLOG_DEBUG << "Actor found a matching rule: " << actor.getShortName();
+					actor.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.f;
+					rollGroup = &thisRule->rollGroupSelection;
+				}
+			}
+		}
+
+		PLOG_DEBUG << "Constructing rollDistribution for " << actor.getShortName();
+		std::vector<double> indexWeights;
+		double cumulativeWeight = 0.0;
+		for (auto& [index, otherActor] : actorMap) // Iterate over all actors again, checking if they're within the rollGroup
+		{
+
+			if (rollGroup != nullptr && rollGroup->isMatch(otherActor) && otherActor.isValidUnit)
+			{
+				indexWeights.push_back(1.0);
+				cumulativeWeight += 1.0;
+			}
+			else
+			{
+				if (otherActor.getShortName().contains("marine") && otherActor.getShortName().contains("sniper") && otherActor.getShortName().contains("major"))
+				{
+					PLOG_ERROR << "what the fuck";
+					PLOG_VERBOSE << "otherActor bad" << std::endl
+						<< "rollGroup != nullptr: " << (rollGroup != nullptr) << std::endl
+						<< "rollGroup->isMatch(otherActor): " << (rollGroup->isMatch(otherActor)) << std::endl
+						<< "otherActor.isValidUnit: " << (otherActor.isValidUnit) << std::endl;
+					std::string compString = "marine_armored sniper rifle major";
+					PLOG_ERROR << "otherActor.getShortName().length: " << otherActor.getShortName().length();
+					PLOG_ERROR << "compString.length: " << compString.length();
+					PLOG_ERROR << "actual comparison: " << (otherActor.getShortName() == "marine_armored sniper rifle major");
+					PLOG_ERROR << "data comparison: " << (otherActor.getShortName().data() == "marine_armored sniper rifle major");
+					PLOG_ERROR << "contains comparison: " << (otherActor.getShortName().contains("marine_armored sniper rifle major"));
+
+					//throw (
+					//	
+					//	"Ah.. I see the issue. The recompiled map has all the actors, but they're not all in the actor palette. We're only iterating the actor palette. Huh.
+					//	"We should go back to throwing on having no valid rolls btw, I think"
+					//	")
+
+				}
+
+				
+				indexWeights.push_back(0.0);
+				cumulativeWeight += 0.0;
+			}
+		}
+		if (cumulativeWeight <= 0.0)
+		{
+			PLOG_ERROR << std::format("actor {} had no valid rolls to roll, strange", actor.getShortName());
+			actor.probabilityOfRandomize = 0.0;
+		}
+		else
+		{
+			actor.rollDistribution.param(std::discrete_distribution<int>::param_type(indexWeights.begin(), indexWeights.end()));
+		}
+
+
 	}
-	if (cumulativeWeight <= 0.0) throw CEERRuntimeException("no valid actors to roll!");
 
-	PLOG_INFO << "Total actor weight: " << cumulativeWeight;
-
-	actorIndexDistribution.param(std::discrete_distribution<int>::param_type(indexWeights.begin(), indexWeights.end()));
+	
 }
 
 void EnemyRandomiser::evaluateBipeds(bipedPaletteWrapper bipedPalette)
@@ -178,21 +219,57 @@ void EnemyRandomiser::evaluateBipeds(bipedPaletteWrapper bipedPalette)
 		bipedMap.try_emplace(i, readBipedInfo(currentBiped));
 		currentBiped++;
 	}
-
 	
-	// Setup the probability distribution that the randomizer will sample from
-	std::vector<double> indexWeights;
-	double cumulativeWeight = 0.0;
-	for (auto& [index, randoInfo] : bipedMap)
+	// Iterate over all bipeds, and for each one construct their rollDistribution
+	for (auto& [index, biped] : bipedMap)
 	{
-		indexWeights.push_back(randoInfo.probabilityOfRoll);
-		cumulativeWeight += randoInfo.probabilityOfRoll;
+		if (!biped.isValidUnit) continue;
+
+		EnemyRandomiserGroup* rollGroup = nullptr;
+		// Evaluate rules (in reverse, so rules at top of GUI overwrite ones at bottom)
+		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRules))
+		{
+			if (rule.get()->getType() == RuleType::RandomiseXintoY)
+			{
+				RandomiseXintoY* thisRule = dynamic_cast<RandomiseXintoY*>(rule.get());
+				if (thisRule == nullptr) throw CEERRuntimeException("failed to cast rule!");
+
+				if (thisRule->randomiseGroupSelection.isMatch(biped))
+				{
+					biped.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.f;
+					rollGroup = &thisRule->rollGroupSelection;
+				}
+
+			}
+		}
+
+		std::vector<double> indexWeights;
+		double cumulativeWeight = 0.0;
+		for (auto& [index, otherBiped] : bipedMap) // Iterate over all bipeds again, checking if they're within the rollGroup
+		{
+			if (rollGroup && rollGroup->isMatch(otherBiped) && otherBiped.isValidUnit)
+			{
+				indexWeights.push_back(1.0);
+				cumulativeWeight += 1.0;
+			}
+			else
+			{
+				indexWeights.push_back(0.0);
+				cumulativeWeight += 0.0;
+			}
+		}
+		if (cumulativeWeight <= 0.0)
+		{
+			PLOG_ERROR << std::format("biped {} had no valid rolls to roll, strange", biped.getShortName());
+			biped.probabilityOfRandomize = 0.0;
+		}
+		else
+		{
+			biped.rollDistribution.param(std::discrete_distribution<int>::param_type(indexWeights.begin(), indexWeights.end()));
+		}
+
+
 	}
-	if (cumulativeWeight <= 0.0) throw CEERRuntimeException("no valid bipeds to roll!");
-
-	PLOG_INFO << "Total biped weight: " << cumulativeWeight;
-
-	bipedIndexDistribution.param(std::discrete_distribution<int>::param_type(indexWeights.begin(), indexWeights.end()));
 
 }
 
@@ -265,10 +342,16 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 		throw_from_hook("actorMap did not contain currently spawning actor!", &OptionsState::MasterToggle)
 	}
 
-	instance->lastSpawnedUnitsFaction = instance->actorMap[originalActvPaletteIndex].defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
+	auto originalActor = instance->actorMap.find(originalActvPaletteIndex)->second;
 
-	float randomizeProbability = instance->actorMap[originalActvPaletteIndex].probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
-	if (randomizeProbability == 0.f) return; // If the probability is zero then we won't randomize the enemy
+	instance->lastSpawnedUnitsFaction = originalActor.defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
+
+
+	// Don't reroll invalid units
+	if (!originalActor.isValidUnit) return;
+
+	double randomizeProbability = originalActor.probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
+	if (randomizeProbability == 0.0) return; // If the probability is zero then we won't randomize the enemy
 
 
 	uint64_t seed = instance->ourSeed ^ ((encounterIndex << 32) + (squadIndex << 16) + unitSquadIndex); // Create a seed from the specific enemy data & XOR with the user-input seed
@@ -277,8 +360,7 @@ void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
 	PLOG_VERBOSE << "gen:  " << std::hex << generator();
 	if (instance->zeroToOne(generator) > randomizeProbability) return; // Roll against the units randomize probability, if fail then we won't randomize the enemy
 
-
-	auto unitRoll = instance->actorIndexDistribution(generator); // Re-use the seed to see what new enemy we should roll into
+	auto unitRoll = originalActor.rollDistribution(generator);// Re-use the seed to see what new enemy we should roll into
 	PLOG_VERBOSE << "rolled actv index: " << unitRoll;
 	*ctxInterpreter->getParameterRef(ctx, (int)param::actvPaletteIndex) = unitRoll; 	// Change the register containing the actvIndex to be the new unit
 
@@ -352,8 +434,13 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	{
 		throw_from_hook("bipedMap did not contain currently spawning biped!", &OptionsState::MasterToggle)
 	}
+	auto originalBiped = instance->bipedMap.find(bipdPaletteIndex)->second;
 
-	instance->lastSpawnedUnitsFaction = instance->bipedMap[bipdPaletteIndex].defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
+	instance->lastSpawnedUnitsFaction = originalBiped.defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
+
+	// Don't reroll invalid units
+	if (!originalBiped.isValidUnit) return;
+
 
 	// Safety check for the nipple-grunt at the end of the Maw.
 	// He cannot be randomised or the game will crash.
@@ -361,8 +448,8 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	PLOG_VERBOSE << "name of currently spawning biped: " << instance->mapReader->getObjectName(bipdNameIndex);
 	if (instance->mapReader->getObjectName(bipdNameIndex) == "nipple_grunt") return;
 
-	float randomizeProbability = instance->bipedMap[bipdPaletteIndex].probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
-	if (randomizeProbability == 0.f) return; // If the probability is zero then we won't randomize the enemy
+	double randomizeProbability = originalBiped.probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
+	if (randomizeProbability == 0.0) return; // If the probability is zero then we won't randomize the enemy
 
 	uint64_t seed = instance->ourSeed + bipdScenIndex; // Create a seed from the specific biped spawning
 	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
@@ -370,8 +457,7 @@ void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
 	PLOG_VERBOSE << "gen:  " << std::hex << generator();
 	if (instance->zeroToOne(generator) > randomizeProbability) return; // Roll against the units randomize probability, if fail then we won't randomize the enemy
 
-
-	auto unitRoll = instance->bipedIndexDistribution(generator); // Re-use the seed to see what new enemy we should roll into
+	auto unitRoll = originalBiped.rollDistribution(generator); // Re-use the seed to see what new enemy we should roll into
 	PLOG_VERBOSE << "rolled biped index: " << unitRoll;
 	*ctxInterpreter->getParameterRef(ctx, (int)param::paletteIndex) = unitRoll; 	// Change the register containing the actvIndex to be the new unit
 
@@ -487,4 +573,22 @@ void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 	// (it'll be 1 if the ai trying to load into the vehicle isn't supposed to be in the vehicle)
 
 	ctx.rflags = ctx.rflags & ~(1UL << 6) & ~(1UL << 2);
+}
+
+
+
+
+
+bool EnemyRandomiser::newProcessEncounterUnit(unsigned int encounterIndex, __int16 squadIndex, __int16 unknown)
+{
+	PLOG_DEBUG << "test: " << encounterIndex;
+	// call it twice as a test
+	int extraSpawns = 1;
+	for (int i = 0; i < extraSpawns; i++)
+	{
+		instance->ProcessEncounterUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+	}
+
+	// and do the original spawn
+	return instance->ProcessEncounterUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);;
 }

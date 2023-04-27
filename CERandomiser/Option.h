@@ -27,8 +27,7 @@ public:
 		}
 		else
 		{
-			PLOG_VERBOSE << "Resetting input due to failed validation.";
-			valueDisplay = defaultValue; // reset valueDisplay back to stored value
+			valueDisplay = value; // reset valueDisplay back to stored value
 		}
 	}
 

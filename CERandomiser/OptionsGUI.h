@@ -28,8 +28,10 @@ private:
 	std::vector<CEERRuntimeException> errorsToDisplay;
 	void renderErrorDialog();
 
-	void renderAddRuleDialog();
+
+	void renderAddRulePopup();
 	void renderManageCustomGroupsDialog();
+	void renderEnemyRandomiserRules();
 	
 
 	// GUI data

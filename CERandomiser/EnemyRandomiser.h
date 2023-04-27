@@ -4,22 +4,13 @@
 #include "PointerManager.h"
 #include "MapReader.h"
 #include "SetSeed.h"
+#include "UnitInfo.h"
 
 
 
 
-struct UnitInfo {
-	std::string fullName;
-	std::string shortName;
 
-	double probabilityOfRandomize = 1.0;
-	double probabilityOfRoll = 1.0;
-	int thingIndex;
-	faction defaultTeam;
-};
-
-
-
+extern "C" typedef bool __stdcall processEncounterUnit(unsigned int encounterIndex, __int16 squadIndex, __int16 unknown);
 
 class EnemyRandomiser
 {
@@ -93,14 +84,16 @@ private:
 	void evaluateBipeds(bipedPaletteWrapper bipedPalette); 
 	
 
-	std::discrete_distribution<int> actorIndexDistribution;
-	std::discrete_distribution<int> bipedIndexDistribution;
-	std::uniform_real_distribution<float> zeroToOne{ 0.f, 1.f };
+	std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
 
 	std::map<int, UnitInfo> actorMap;
 	std::map<int, UnitInfo> bipedMap;
 
 	faction lastSpawnedUnitsFaction = faction::Undefined;
+
+
+	static processEncounterUnit newProcessEncounterUnit;
+	std::shared_ptr<ModuleInlineHook> ProcessEncounterUnitHook;
 
 
 
@@ -150,6 +143,11 @@ public:
 			vehicleExitHook = ModuleMidHook::make(L"halo1.dll", vehicleExitFunction, vehicleExitHookFunction, false);
 			aiGoToVehicleHook = ModuleMidHook::make(L"halo1.dll", aiGoToVehicleFunction, aiGoToVehicleHookFunction, false);
 			aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
+
+			auto processEncounterUnitFunction = MultilevelPointer::make(L"halo1.dll", { 0xC53FB0 });
+			ProcessEncounterUnitHook = ModuleInlineHook::make(L"halo1.dll", processEncounterUnitFunction, newProcessEncounterUnit, false);
+
+
 		}
 		catch (InitException& ex)
 		{

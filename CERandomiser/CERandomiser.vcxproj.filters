@@ -153,6 +153,9 @@
     <ClInclude Include="EnemyRandomiserGroup.h">
       <Filter>Classes</Filter>
     </ClInclude>
+    <ClInclude Include="UnitInfo.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -255,6 +258,9 @@
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="EnemyRandomiserGroup.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitInfo.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>

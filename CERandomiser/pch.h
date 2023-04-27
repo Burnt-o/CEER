@@ -45,6 +45,7 @@
 #include <array>
 #include <tuple>
 #include <inttypes.h>
+#include <ranges>
 
 // External Libraries
 // hooking

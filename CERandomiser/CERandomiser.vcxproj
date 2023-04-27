@@ -215,6 +215,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="RuntimeExceptionHandler.h" />
     <ClInclude Include="SetSeed.h" />
+    <ClInclude Include="UnitInfo.h" />
     <ClInclude Include="WindowsUtilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +283,7 @@
     <ClCompile Include="PointerManager.cpp" />
     <ClCompile Include="RuntimeExceptionHandler.cpp" />
     <ClCompile Include="SetSeed.cpp" />
+    <ClCompile Include="UnitInfo.cpp" />
     <ClCompile Include="WindowsUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>

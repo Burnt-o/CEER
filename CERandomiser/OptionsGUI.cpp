@@ -7,6 +7,16 @@
 OptionsGUI* OptionsGUI::instance = nullptr;
 
 
+std::map<RuleType, float> ruleTypeToPixelHeight
+{
+	{RuleType::RandomiseXintoY, 125.f}
+};
+
+std::map<RuleType, std::string> ruleTypeToRuleTypeName
+{
+	{RuleType::RandomiseXintoY, "RandomiseXintoY"}
+};
+
 OptionsGUI::~OptionsGUI()
 {
 	std::scoped_lock<std::mutex> lock(mDestructionGuard); // onPresentHookCallback also locks this
@@ -114,18 +124,15 @@ void OptionsGUI::renderErrorDialog()
 
 }
 
-void OptionsGUI::renderAddRuleDialog()
+
+void OptionsGUI::renderAddRulePopup()
 {
-	if (ImGui::BeginPopupModal("AddRuleDialog", NULL, ImGuiWindowFlags_NoResize))
+	if (ImGui::BeginPopup("AddRulePopup"))
 	{
-		if (ImGui::Button("Add default test rule"))
+		if (ImGui::Selectable("Randomise X into Y"))
 		{
 			OptionsState::currentRules.emplace_back(new RandomiseXintoY());
-			PLOG_DEBUG << "added default test rule, currentRuleList size: " << OptionsState::currentRules.size();
-			ImGui::CloseCurrentPopup();
 		}
-
-
 		ImGui::EndPopup();
 	}
 }
@@ -136,6 +143,129 @@ void OptionsGUI::renderManageCustomGroupsDialog()
 	{
 		ImGui::EndPopup();
 	}
+}
+
+
+void OptionsGUI::renderEnemyRandomiserRules()
+{
+
+	ImGui::SetNextWindowBgAlpha(0.1f);
+
+	float rulesWindowHeight = 12.f;
+	for (auto& rule : OptionsState::currentRules)
+	{
+		rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+	}
+
+	ImGui::BeginChild("rules", ImVec2(0, rulesWindowHeight), true, NULL);
+	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
+	for (auto it = OptionsState::currentRules.begin(); auto & rule: OptionsState::currentRules) // render rules
+	{
+
+		ImGui::BeginChild(ImGui::GetID(rule.get()), ImVec2(0.f, ruleTypeToPixelHeight[rule.get()->getType()]), true, NULL);
+
+		if (ImGui::Button("Delete"))
+		{
+			OptionsState::currentRules.erase(it);
+			ImGui::EndChild();
+			break;
+		}	ImGui::SameLine();
+
+		if (it == OptionsState::currentRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
+
+		if (ImGui::Button("Move Up"))
+		{
+			std::swap(*it, *(it - 1));
+			ImGui::EndChild();
+			break;
+		}	ImGui::SameLine();
+		if (it == OptionsState::currentRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
+
+
+		if (it == OptionsState::currentRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
+		if (ImGui::Button("Move Down"))
+		{
+			std::swap(*it, *(it + 1));
+			ImGui::EndChild();
+			break;
+		} ImGui::SameLine();
+		if (it == OptionsState::currentRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
+		ImGui::Text("       Rule type:"); ImGui::SameLine();
+		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
+
+
+
+		switch (rule->getType())
+		{
+		case RuleType::RandomiseXintoY:
+		{
+			RandomiseXintoY* thisRule = dynamic_cast<RandomiseXintoY*>(rule.get());
+			assert(thisRule != nullptr);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Randomise"); ImGui::SameLine();
+			ImGui::SetNextItemWidth(60.f);
+			if (ImGui::InputDouble("##randomisePercent", &thisRule->randomisePercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			{
+				thisRule->randomisePercent.UpdateValueWithInput();
+			} ImGui::SameLine();
+			ImGui::Text("percent of:");
+
+			//ImGui::SetNextItemWidth(150);
+			if (ImGui::BeginCombo("##randomiseGroup", thisRule->randomiseGroupSelection.getName().data()))
+			{
+				// If we split this into the different kind of vectors we can easily use seperators, I think
+				// plus Custom groups of course
+
+				ImGui::SeparatorText("General: ");
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					if (n == 3) ImGui::SeparatorText("Faction: ");
+					const bool is_selected = &thisRule->randomiseGroupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->randomiseGroupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::Text("Into:");
+
+			//ImGui::SetNextItemWidth(150);
+			if (ImGui::BeginCombo("##rollGroup", thisRule->rollGroupSelection.getName().data()))
+			{
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					const bool is_selected = &thisRule->rollGroupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->rollGroupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+		}
+		default:
+			break;
+		}
+
+		ImGui::EndChild();
+		it++;
+	}
+	ImGui::EndChild();
 }
 
 
@@ -191,9 +321,11 @@ void OptionsGUI::renderOptionsGUI()
 		{
 			if (ImGui::Button("Add Rule"))
 			{
-				ImGui::OpenPopup("AddRuleDialog");
+				
+				ImGui::OpenPopup("AddRulePopup");
 			}
-			renderAddRuleDialog();
+			//renderAddRuleDialog();
+			renderAddRulePopup();
 			ImGui::SameLine();
 			if (ImGui::Button("Manage Custom Groups"))
 			{
@@ -201,104 +333,8 @@ void OptionsGUI::renderOptionsGUI()
 			}
 			renderManageCustomGroupsDialog();
 
-			//ImVec4 mask{0.1f,0.1f,0.1f,0.0f};
-			//ImVec4 newCol = ImGui::GetStyle().Colors[ImGuiCol_WindowBg] + mask;
-			//ImGui::PushStyleColor(ImGuiCol_WindowBg, newCol);
-			ImGui::SetNextWindowBgAlpha(-0.2f);
-			ImGui::BeginChild("rules", ImVec2(0, 0), true, NULL);
-			//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
-			for (auto it = OptionsState::currentRules.begin(); auto& rule: OptionsState::currentRules) // render rules
-			{
-				
-				ImGui::BeginChild(ImGui::GetID(rule.get()), ImVec2(0, 60), true, NULL);
-				
 
-				// TODO: implement delete/moveup/movedown buttons
-				if (ImGui::Button("Delete"))
-				{
-					OptionsState::currentRules.erase(it);
-					ImGui::EndChild();
-						break;
-				}	ImGui::SameLine();
-
-				if (it == OptionsState::currentRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
-
-				if (ImGui::Button("Move Up"))
-				{
-					std::swap(*it, *(it - 1));
-					ImGui::EndChild();
-					break;
-				}	ImGui::SameLine();
-				if (it == OptionsState::currentRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
-
-
-				if (it == OptionsState::currentRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
-				if (ImGui::Button("Move Down"))
-				{
-					std::swap(*it, *(it + 1));
-					ImGui::EndChild();
-					break;
-				}
-				if (it == OptionsState::currentRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
-
-				switch (rule->getType())
-				{
-				case RuleType::RandomiseXintoY:
-				{
-					RandomiseXintoY* thisRule = dynamic_cast<RandomiseXintoY*>(rule.get());
-					assert(thisRule != nullptr);
-					ImGui::Text("Turn "); ImGui::SameLine();
-
-					ImGui::SetNextItemWidth(150);
-					if (ImGui::BeginCombo("##randomiseGroup", builtInGroups::builtInGroups.at(thisRule->randomiseGroupSelection).getName().data()))
-					{
-						for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
-						{
-							const bool is_selected = thisRule->randomiseGroupSelection == n;
-							if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
-							{
-								thisRule->randomiseGroupSelection = n;
-							}
-
-							if (is_selected)
-							{
-								ImGui::SetItemDefaultFocus();
-							}
-
-						}
-						ImGui::EndCombo();
-					} ImGui::SameLine();
-
-					ImGui::Text(" into "); ImGui::SameLine();
-
-					ImGui::SetNextItemWidth(150);
-					if (ImGui::BeginCombo("##rollGroup", builtInGroups::builtInGroups.at(thisRule->rollGroupSelection).getName().data()))
-					{
-						for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
-						{
-							const bool is_selected = thisRule->rollGroupSelection == n;
-							if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
-							{
-								thisRule->rollGroupSelection = n;
-							}
-
-							if (is_selected)
-							{
-								ImGui::SetItemDefaultFocus();
-							}
-
-						}
-						ImGui::EndCombo();
-					} 
-				}
-				default:
-					break;
-				}
-
-				ImGui::EndChild();
-				it++;
-			}
-			ImGui::EndChild();
+			renderEnemyRandomiserRules();
 
 			static bool blah = false;
 			ImGui::Checkbox("blah", &blah);
