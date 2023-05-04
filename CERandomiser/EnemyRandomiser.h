@@ -7,10 +7,38 @@
 #include "UnitInfo.h"
 
 
+	struct spawnInfo {
+	datum mDatum;
+	faction mFaction;
+	SetSeed64 mSeed;
+	spawnInfo(datum d, faction f, SetSeed64 s) : mDatum(d), mFaction(f), mSeed(s) {}
+};
+
+struct objectData { // for bipds, vehis, scenery etc
+	uint16_t paletteIndex;
+	uint16_t nameIndex;
+	uint16_t placementFlags;
+	uint16_t desiredPermutation;
+	float posX;
+	float posY;
+	float pozZ;
+	float rotX;
+	float rotY;
+	float rotZ;
+	// then a bunch of stuff I don't care about (depends on the object type, bipd vs vehi vs scen etc)
+	// length of the struct varies by object type
+};
 
 
 
-extern "C" typedef bool __stdcall processEncounterUnit(unsigned int encounterIndex, __int16 squadIndex, __int16 unknown);
+extern "C" typedef __int64 __stdcall placeObjectFunction(tagBlock* paletteTable, objectData* spawningObject);
+
+
+extern "C" typedef bool __stdcall ProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex, __int16 unknown);
+
+// The definitions for this class are divided into 
+	// EnemyRandomiserLevelLoad.cpp
+	// EnemyRandomiserHooks.cpp
 
 class EnemyRandomiser
 {
@@ -41,21 +69,13 @@ private:
 	std::shared_ptr<MultilevelPointer> spawnPositionRNG;
 
 	// Hooks
-	std::shared_ptr<ModuleMidHook> actvSpawnHook;
-	static void actvSpawnHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> actvSpawnFunctionContext;
 
-	std::shared_ptr<ModuleMidHook> placeObjectHook;
-	static void placeObjectHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> placeObjectFunctionContext;
 
-	std::shared_ptr<ModuleMidHook> encounterSpawnHook;
-	static void encounterSpawnHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> encounterSpawnFunctionContext;
 
-	std::shared_ptr<ModuleMidHook> fixUnitFactionHook;
-	static void fixUnitFactionHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> fixUnitFactionFunctionContext;
+
+	std::shared_ptr<ModuleMidHook> fixMajorUpgradeHook;
+	static void fixMajorUpgradeHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> fixMajorUpgradeFunctionContext;
 
 	std::shared_ptr<ModuleMidHook> vehicleExitHook;
 	static void vehicleExitHookFunction(SafetyHookContext& ctx);
@@ -67,9 +87,43 @@ private:
 
 	std::shared_ptr<ModuleMidHook> aiLoadInVehicleHook;
 	static void aiLoadInVehicleHookFunction(SafetyHookContext& ctx);
+	// doesn't have interpreter, just modifies r flags
+
+
+	std::shared_ptr<ModuleMidHook> fixUnitFactionHook;
+	static void fixUnitFactionHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> fixUnitFactionFunctionContext;
+
+
+	std::shared_ptr<ModuleMidHook> setActorDatumHook;
+	static void setActorDatumHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> setActorDatumFunctionContext;
+
+	static placeObjectFunction newPlaceObjectFunction;
+	std::shared_ptr<ModuleInlineHook> placeObjectHook;
+
+	static ProcessSquadUnitFunction newProcessSquadUnitFunction;
+	std::shared_ptr<ModuleInlineHook> processSquadUnitHook;
+
+	std::shared_ptr<ModuleMidHook> getSquadUnitIndexHook;
+	static void getSquadUnitIndexHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> getSquadUnitIndexFunctionContext;
+	
+
+	// data passed between hooks
+	static faction hookData_currentUnitsFaction;
+	static datum hookData_currentUnitDatum;
+	static int hookData_currentSquadUnitIndex;
 
 
 
+
+	//static std::vector<spawnInfo> hookData_squadUnits;
+
+
+
+
+#pragma region OnLevelLoadData
 
 	// Game Data
 	uint64_t ourSeed = 0x12355678;
@@ -77,27 +131,25 @@ private:
 	//TODO
 
 
-	UnitInfo readActorInfo(const tagElement& actor);
-	UnitInfo readBipedInfo(const tagElement& biped);
+	UnitInfo readActorInfo(const datum actorDatum);
+	UnitInfo readBipedInfo(const datum bipedDatum);
 
 	void evaluateActors(); 
 	void evaluateBipeds(); 
 	
-	void evaluateActorsNew();
-
-	std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
-
-	std::unordered_map<int, UnitInfo> actorMap;
-	std::unordered_map<int, UnitInfo> bipedMap;
-
-	std::map<datum, UnitInfo> datumToActorMap;
-	std::map<datum, UnitInfo> datumToBipedMap;
-
-	faction lastSpawnedUnitsFaction = faction::Undefined;
 
 
-	static processEncounterUnit newProcessEncounterUnit;
-	std::shared_ptr<ModuleInlineHook> ProcessEncounterUnitHook;
+	std::vector<datum> actorDatumVector; // needed for sampling UnitInfos discrete_distribution
+	std::map<datum, UnitInfo> actorMap;
+
+	std::vector<datum> bipedDatumVector; // needed for sampling UnitInfos discrete_distribution
+	std::map<datum, UnitInfo> bipedMap;
+
+
+#pragma endregion OnLevelLoadData
+
+
+
 
 
 
@@ -120,36 +172,59 @@ public:
 		{
 			spawnPositionRNG = PointerManager::getMultilevelPointer("spawnPositionRNG");
 
-			auto actvSpawnFunction = PointerManager::getMultilevelPointer("actvSpawnFunction");
-			actvSpawnFunctionContext = PointerManager::getMidhookContextInterpreter("actvSpawnFunctionContext");
 
-			auto placeObjectFunction = PointerManager::getMultilevelPointer("placeObjectFunction");
-			placeObjectFunctionContext = PointerManager::getMidhookContextInterpreter("placeObjectFunctionContext");
 
-			auto encounterSpawnFunction = PointerManager::getMultilevelPointer("encounterSpawnFunction");
-			encounterSpawnFunctionContext = PointerManager::getMidhookContextInterpreter("encounterSpawnFunctionContext");
 
-			auto fixUnitFactionFunction = PointerManager::getMultilevelPointer("fixUnitFactionFunction");
-			fixUnitFactionFunctionContext = PointerManager::getMidhookContextInterpreter("fixUnitFactionFunctionContext");
 
+
+
+
+
+
+
+
+
+
+
+
+			
+			//fixes
 			auto vehicleExitFunction = PointerManager::getMultilevelPointer("vehicleExitFunction");
 			vehicleExitFunctionContext = PointerManager::getMidhookContextInterpreter("vehicleExitFunctionContext");
+			vehicleExitHook = ModuleMidHook::make(L"halo1.dll", vehicleExitFunction, vehicleExitHookFunction, false);
 
 			auto aiGoToVehicleFunction = PointerManager::getMultilevelPointer("aiGoToVehicleFunction");
 			aiGoToVehicleFunctionContext = PointerManager::getMidhookContextInterpreter("aiGoToVehicleFunctionContext");
+			aiGoToVehicleHook = ModuleMidHook::make(L"halo1.dll", aiGoToVehicleFunction, aiGoToVehicleHookFunction, false);
 
 			auto aiLoadInVehicleFunction = PointerManager::getMultilevelPointer("aiLoadInVehicleFunction");
-
-			actvSpawnHook = ModuleMidHook::make(L"halo1.dll", actvSpawnFunction, actvSpawnHookFunction, false);
-			placeObjectHook = ModuleMidHook::make(L"halo1.dll", placeObjectFunction, placeObjectHookFunction, false);
-			encounterSpawnHook = ModuleMidHook::make(L"halo1.dll", encounterSpawnFunction, encounterSpawnHookFunction, false);
-			fixUnitFactionHook = ModuleMidHook::make(L"halo1.dll", fixUnitFactionFunction, fixUnitFactionHookFunction, false);
-			vehicleExitHook = ModuleMidHook::make(L"halo1.dll", vehicleExitFunction, vehicleExitHookFunction, false);
-			aiGoToVehicleHook = ModuleMidHook::make(L"halo1.dll", aiGoToVehicleFunction, aiGoToVehicleHookFunction, false);
 			aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
+			
+			// bipeds
+			auto placeObjectFunction = PointerManager::getMultilevelPointer("placeObjectFunction");
+			placeObjectHook = ModuleInlineHook::make(L"halo1.dll", placeObjectFunction, newPlaceObjectFunction, false);
 
-			auto processEncounterUnitFunction = MultilevelPointer::make(L"halo1.dll", { 0xC53FB0 });
-			ProcessEncounterUnitHook = ModuleInlineHook::make(L"halo1.dll", processEncounterUnitFunction, newProcessEncounterUnit, false);
+			// actors
+			auto getSquadUnitIndexFunction = PointerManager::getMultilevelPointer("getSquadUnitIndexFunction");
+			getSquadUnitIndexFunctionContext = PointerManager::getMidhookContextInterpreter("getSquadUnitIndexFunctionContext");
+			getSquadUnitIndexHook = ModuleMidHook::make(L"halo1.dll", getSquadUnitIndexFunction, getSquadUnitIndexHookFunction, false);
+
+			auto processSquadUnitFunction = PointerManager::getMultilevelPointer("processSquadUnitFunction");
+			processSquadUnitHook = ModuleInlineHook::make(L"halo1.dll", processSquadUnitFunction, newProcessSquadUnitFunction, false);
+
+			auto setActorDatumFunction = PointerManager::getMultilevelPointer("setActorDatumFunction");
+			setActorDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setActorDatumFunctionContext");
+			setActorDatumHook = ModuleMidHook::make(L"halo1.dll", setActorDatumFunction, setActorDatumHookFunction, false);
+
+			auto fixUnitFactionFunction = PointerManager::getMultilevelPointer("fixUnitFactionFunction");
+			fixUnitFactionFunctionContext = PointerManager::getMidhookContextInterpreter("fixUnitFactionFunctionContext");
+			fixUnitFactionHook = ModuleMidHook::make(L"halo1.dll", fixUnitFactionFunction, fixUnitFactionHookFunction, false);
+
+			auto fixMajorUpgradeFunction = PointerManager::getMultilevelPointer("fixMajorUpgradeFunction");
+			fixMajorUpgradeFunctionContext = PointerManager::getMidhookContextInterpreter("fixMajorUpgradeFunctionContext");
+			fixMajorUpgradeHook = ModuleMidHook::make(L"halo1.dll", fixMajorUpgradeFunction, fixMajorUpgradeHookFunction, false);
+
+
 
 
 		}

@@ -35,18 +35,16 @@ public:
 };
 
 
-
-
-
-
-
-
-struct tagBlock {
-    uint32_t entryCount;
-       uint32_t pointer;
-       uint32_t blockDefinition;
+struct rangef {
+    float min;
+    float max;
 };
-static_assert(sizeof(tagBlock) == 0xC);
+static_assert(sizeof(rangef) == 0x8);
+
+
+
+
+
 
 constexpr int tagSize = 0x10;
 
@@ -66,7 +64,7 @@ private:
     uintptr_t scenarioAddress;
 
     MCCString* objectNameTable;
-
+    tagBlock* actorPalette;
 
 
 
@@ -75,8 +73,7 @@ private:
     eventpp::CallbackList<void(HaloLevel)>& mLevelLoadEvent;
 
     
-    uintptr_t getTagAddress(const datum& tagDatum);
-    uintptr_t getTagAddress(uint32_t tagOffset);
+
 
 
 
@@ -88,15 +85,18 @@ public:
     ~MapReaderImpl();
 
     tagElement* getTagElement(const datum& tagDatum);
+    uintptr_t getTagAddress(const datum& tagDatum);
+    uintptr_t getTagAddress(uint32_t tagOffset);
 
-    actorPaletteWrapper getActorPalette();
-    bipedPaletteWrapper getBipedPalette();
+    tagBlock* getActorPalette() { return actorPalette; }
+    //tagBlock* getBipedPalette();
     std::string getTagName(const datum& tagDatum);
 
     //datum getActorsBiped(const datum& actorDatum);
     faction getBipedFaction(const datum& bipedDatum);
     faction getActorsFaction(const datum& actorDatum);
     std::string getObjectName(int nameIndex);
+    datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
 
     std::span<tagElement> getTagTable();
 
@@ -111,7 +111,7 @@ MapReader::~MapReader() = default; // https://www.fluentcpp.com/2017/09/22/make-
 MapReader::MapReaderImpl::MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent) : mLevelLoadEvent(levelLoadEvent)
 {
     mLevelLoadCallbackHandle = levelLoadEvent.append([this](HaloLevel a) { this->onLevelLoadEvent(a); });
-    assert(stringToMagic("actv") == 0x61637476);
+    static_assert(stringToMagic("actv") == 0x61637476);
 }
 
 
@@ -143,7 +143,7 @@ faction MapReader::MapReaderImpl::getActorsFaction(const datum& actorDatum)
         uintptr_t actorTag = getTagAddress(actorDatum);
         uintptr_t bipedRef = actorTag + bipedTagReferenceOffset;
     
-        if (IsBadReadPtr((void*)bipedRef, sizeof(bipedTagReference))) throw CEERRuntimeException(std::format("getActorsBiped got bad memory, actorTag: {:#X}, bipedRef: {:#X}", actorTag, bipedRef));
+        if (IsBadReadPtr((void*)bipedRef, 0x30)) throw CEERRuntimeException(std::format("getActorsBiped got bad memory, actorTag: {:#X}, bipedRef: {:#X}", actorTag, bipedRef));
     
             tagReference* biped = (tagReference*)bipedRef;
     
@@ -197,25 +197,17 @@ faction MapReader::MapReaderImpl::getBipedFaction(const datum& bipedDatum)
 //    return biped->tagDatum;
 //}
 
-actorPaletteWrapper MapReader::MapReaderImpl::getActorPalette()
-{
-    constexpr int actorPaletteReferenceOffset = 0x420; // relative to scenario tag
-    tagBlock* actorPalleteRef = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
-    actorPaletteWrapper out;
-    out.tagCount = actorPalleteRef->entryCount;
-    out.firstTag = (actorTagReference*)getTagAddress(actorPalleteRef->pointer);
-    return out;
-}
 
-bipedPaletteWrapper MapReader::MapReaderImpl::getBipedPalette()
-{
-    constexpr int bipedPaletteReferenceOffset = 0x234; // relative to scenario tag
-    tagBlock* bipedPalleteRef = (tagBlock*)(scenarioAddress + bipedPaletteReferenceOffset);
-    bipedPaletteWrapper out;
-    out.tagCount = bipedPalleteRef->entryCount;
-    out.firstTag = (bipedTagReference*)getTagAddress(bipedPalleteRef->pointer);
-    return out;
-}
+
+//tagBlock* MapReader::MapReaderImpl::getBipedPalette()
+//{
+//    constexpr int bipedPaletteReferenceOffset = 0x234; // relative to scenario tag
+//    tagBlock* bipedPalleteRef = (tagBlock*)(scenarioAddress + bipedPaletteReferenceOffset);
+//    bipedPaletteWrapper out;
+//    out.tagCount = bipedPalleteRef->entryCount;
+//    out.firstTag = (bipedTagReference*)getTagAddress(bipedPalleteRef->pointer);
+//    return out;
+//}
 
 
 
@@ -290,6 +282,74 @@ void MapReader::MapReaderImpl::onLevelLoadEvent(HaloLevel newLevel)
     auto objectNameTableTagBlock = (tagBlock*)(scenarioAddress + 0x204);
     objectNameTable = (MCCString*)getTagAddress(objectNameTableTagBlock->pointer);
 
+    constexpr int actorPaletteReferenceOffset = 0x420; // relative to scenario tag
+    this->actorPalette = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
+    PLOG_DEBUG << "actorPalette ptr" << std::hex << (uintptr_t)this->actorPalette;
+
+}
+
+
+struct squadData
+{
+    MCCString squadName;
+    uint16_t actorTypeIndex; // what we care about
+    uint16_t platoonIndex;
+    uint16_t initialState;
+    uint16_t returnState;
+    uint32_t flags;
+    uint16_t uniqueLeaderType;
+    char unknown[0xB4];
+};
+static_assert(sizeof(squadData) == 0xE8);
+
+struct encounterData
+{
+    MCCString encounterName;
+    uint32_t flags;
+private:
+    uint16_t mTeamIndex;
+public:
+    uint8_t unknown1;
+    uint8_t unknown2;
+    uint16_t searchBehaviour;
+    uint16_t manualBSPIndex;
+    rangef respawnDelay;
+    char unknown3[0x48];
+    uint16_t unknown4;
+    uint16_t unknown5;
+    tagBlock squads; // what we care about
+    tagBlock platoons;
+    tagBlock firingPositions;
+    tagBlock playerStartingLocations;
+
+    faction teamIndex() { return static_cast<faction>(mTeamIndex); }
+};
+static_assert(sizeof(encounterData) == 0xB0);
+
+datum MapReader::MapReaderImpl::getEncounterSquadDatum(int encounterIndex, int squadIndex)
+{
+    // Note; needs to throw_from_hook since running from hook. No actually should try catch in enemy randomiser
+
+    constexpr int encounterOffset = 0x42C;
+    tagBlock* encounterBlock = (tagBlock*)(scenarioAddress + encounterOffset);
+
+    if (encounterIndex > encounterBlock->entryCount) 
+        throw CEERRuntimeException(std::format("recieved bad encounterIndex! encIndex {}, entryCount {}", encounterIndex, encounterBlock->entryCount));
+
+
+    auto thisEncounter = (encounterData*)(getTagAddress(encounterBlock->pointer) + (encounterIndex * sizeof(encounterData)));
+
+    if (squadIndex > thisEncounter->squads.entryCount) throw CEERRuntimeException("recieved bad squadIndex!");
+
+    auto thisSquad = (squadData*)(getTagAddress(thisEncounter->squads.pointer) + (squadIndex * sizeof(squadData)));
+
+    auto actorRef = (tagReference*)(getTagAddress(actorPalette->pointer) + (thisSquad->actorTypeIndex * 0x10));
+
+    constexpr uint32_t actvMagic = stringToMagic("actv");
+    if (actorRef->tagGroupMagic != actvMagic) throw CEERRuntimeException("failed to evaluate actv from squad!");
+
+    return actorRef->tagDatum;
+
 }
 
 
@@ -299,11 +359,8 @@ void MapReader::MapReaderImpl::onLevelLoadEvent(HaloLevel newLevel)
 
 
 
-
-
-
-actorPaletteWrapper MapReader::getActorPalette() { return impl.get()->getActorPalette(); }
-bipedPaletteWrapper MapReader::getBipedPalette() { return impl.get()->getBipedPalette(); }
+tagBlock* MapReader::getActorPalette() { return impl.get()->getActorPalette(); }
+//bipedPaletteWrapper MapReader::getBipedPalette() { return impl.get()->getBipedPalette(); }
 
 std::string MapReader::getTagName(const datum& tagDatum) { return impl.get()->getTagName(tagDatum); }
 
@@ -318,18 +375,10 @@ std::span<tagElement> MapReader::getTagTable() { return impl.get()->getTagTable(
 tagElement* MapReader::getTagElement(const datum& tagDatum) { return impl.get()->getTagElement(tagDatum); }
 
 faction MapReader::getActorsFaction(const datum& actorDatum) { return impl.get()->getActorsFaction(actorDatum); }
-
- uint32_t MapReader::stringToMagic(std::string str)
-{
-    reverse(str.begin(), str.end());
-    if (str.length() != 4) throw CEERRuntimeException(std::format("stringMagic bad string length: {}", str.length()));
-    uint32_t out;
-    //unsigned char* p = (unsigned char*)str.c_str();
-    //out = p[0] + 256U * p[1] + 65536U * p[2] + 16777216U * p[3];
-
-    out = *(uint32_t*)str.c_str();
-
-}
+datum MapReader::getEncounterSquadDatum(int encounterIndex, int squadIndex) { return impl.get()->getEncounterSquadDatum(encounterIndex, squadIndex); }
+ 
+uintptr_t MapReader::getTagAddress(const datum& tagDatum) { return impl.get()->getTagAddress(tagDatum); }
+uintptr_t MapReader::getTagAddress(uint32_t tagOffset) { return impl.get()->getTagAddress(tagOffset); }
 
 
  std::string MapReader::magicToString(uint32_t magic)

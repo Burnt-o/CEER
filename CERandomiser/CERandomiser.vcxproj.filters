@@ -147,13 +147,16 @@
     <ClInclude Include="includes\imgui\imgui_stdlib.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyRandomiserRule.h">
+    <ClInclude Include="EnemyRule.h">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyRandomiserGroup.h">
+    <ClInclude Include="EnemyGroup.h">
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="UnitInfo.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Datum.h">
       <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -221,7 +224,7 @@
     <ClCompile Include="LevelLoadHook.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRandomiser.cpp">
+    <ClCompile Include="EnemyRandomiserLevelLoad.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="PointerManager.cpp">
@@ -254,14 +257,17 @@
     <ClCompile Include="includes\imgui\imgui_tables.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRandomiserRule.cpp">
+    <ClCompile Include="EnemyRule.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyRandomiserGroup.cpp">
+    <ClCompile Include="EnemyGroup.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="UnitInfo.cpp">
       <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyRandomiserHooks.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

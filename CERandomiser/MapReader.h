@@ -1,6 +1,8 @@
 #pragma once
 #include "HaloEnums.h"
 #include "UnitInfo.h"
+#include "Datum.h"
+
 struct MCCString {
 	union
 	{
@@ -31,16 +33,7 @@ struct MCCString {
 };
 static_assert(sizeof(MCCString) == 0x20);
 
-struct datum
-{
-	uint16_t index;
-	uint16_t salt;
-	bool operator<(const datum& rhs) const;
-	bool operator==(const datum& rhs) const;
-	constexpr datum(uint16_t i, uint16_t s) : index(i), salt(s) {}
-};
 
-constexpr datum nullDatum( 0xFFFF,0xFFFF );
 
 
 static_assert(sizeof(datum) == 0x4);
@@ -67,26 +60,12 @@ struct tagElement {
 };
 static_assert(sizeof(tagElement) == 0x20);
 
-
-struct actorTagReference : tagReference {};
-
-struct bipedTagReference : tagReference {
-	char unknown[0x20];
+struct tagBlock {
+	uint32_t entryCount;
+	uint32_t pointer;
+	uint32_t blockDefinition;
 };
-
-
-struct actorPaletteWrapper
-{
-	int tagCount;
-	actorTagReference* firstTag;
-};
-
-struct bipedPaletteWrapper
-{
-	int tagCount;
-	bipedTagReference* firstTag;
-};
-
+static_assert(sizeof(tagBlock) == 0xC);
 
 
 
@@ -100,8 +79,8 @@ public:
 	explicit MapReader(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent);
 	~MapReader();
 
-	actorPaletteWrapper getActorPalette();
-	bipedPaletteWrapper getBipedPalette();
+	tagBlock* getActorPalette();
+	//tagBlock* getBipedPalette();
 
 	std::string getTagName(const datum& tagDatum);
 
@@ -115,9 +94,21 @@ public:
 
 	std::span<tagElement> getTagTable();
 
-	static uint32_t stringToMagic (std::string str);
+	static constexpr uint32_t stringToMagic (std::string_view str)
+	{
+		if (str.length() != 4) throw CEERRuntimeException(std::format("stringMagic bad string length: {}", str.length()));
+		uint32_t out = str.at(0) << 24;
+		out += str.at(1) << 16;
+		out += str.at(2) << 8;
+		out += str.at(3) << 0;
+		return out;
+	}
 	static std::string magicToString(uint32_t magic);
 	tagElement* getTagElement(const datum& tagDatum);
+	datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
+
+	uintptr_t getTagAddress(const datum& tagDatum);
+	uintptr_t getTagAddress(uint32_t tagOffset);
 
 };
 

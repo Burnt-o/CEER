@@ -83,23 +83,7 @@
 		</Version>
 	</VersionedEntry>
 
-	<VersionedEntry Name="encounterSpawnFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.2645.0.0">
-			<Module>halo1.dll</Module>
-			<Offsets>
-				<Offset>0xC51DD7</Offset>
-			</Offsets>
-		</Version>
-	</VersionedEntry>
 
-	<VersionedEntry Name="encounterSpawnFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.2645.0.0">
-			<Parameters>
-				<encounterIndex>r12</encounterIndex>
-				<squadIndex>rsi</squadIndex>
-			</Parameters>
-		</Version>
-	</VersionedEntry>
 
 	<VersionedEntry Name="fixUnitFactionFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
@@ -154,6 +138,7 @@
 		</Version>
 	</VersionedEntry>
 
+
 	<VersionedEntry Name="aiLoadInVehicleFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
@@ -162,6 +147,121 @@
 			</Offsets>
 		</Version>
 	</VersionedEntry>
+
+
+	<VersionedEntry Name="preSquadSpawnFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<spawnCount>rbp</spawnCount>
+				<encounterIndex>r12</encounterIndex>
+				<squadIndex>rsi</squadIndex>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="preSquadSpawnFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC5200D</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="postSquadSpawnFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC5202F</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<unitIndex>rdi</unitIndex>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="setActorDatumFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC5424D</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="processSquadUnitFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC53FB0</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="getSquadUnitIndexFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<unitIndex>rbx</unitIndex>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="getSquadUnitIndexFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC52027</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="fixMajorUpgradeFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<majorDatum>r15</majorDatum>
+				<normalDatum>rdi</normalDatum>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="fixMajorUpgradeFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC73CA9</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<!--<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<unitIndex>rdi</unitIndex>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="setActorDatumFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC540C1</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>-->
+	
 
 	<VersionedEntry Name="spawnPositionRNG" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">

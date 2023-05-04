@@ -177,9 +177,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D11Hook.h" />
+    <ClInclude Include="Datum.h" />
     <ClInclude Include="EnemyRandomiser.h" />
-    <ClInclude Include="EnemyRandomiserGroup.h" />
-    <ClInclude Include="EnemyRandomiserRule.h" />
+    <ClInclude Include="EnemyGroup.h" />
+    <ClInclude Include="EnemyRule.h" />
     <ClInclude Include="ExportedFunctions.h" />
     <ClInclude Include="HaloEnums.h" />
     <ClInclude Include="ImGuiManager.h" />
@@ -221,9 +222,10 @@
   <ItemGroup>
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="EnemyRandomiser.cpp" />
-    <ClCompile Include="EnemyRandomiserGroup.cpp" />
-    <ClCompile Include="EnemyRandomiserRule.cpp" />
+    <ClCompile Include="EnemyRandomiserLevelLoad.cpp" />
+    <ClCompile Include="EnemyGroup.cpp" />
+    <ClCompile Include="EnemyRandomiserHooks.cpp" />
+    <ClCompile Include="EnemyRule.cpp" />
     <ClCompile Include="ExportedFunctions.cpp" />
     <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="includes\imgui\imgui.cpp">

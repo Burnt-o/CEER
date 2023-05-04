@@ -114,6 +114,9 @@ void RealMain(HMODULE dllHandle)
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
 
 
+        //CEERRuntimeException ex("test");
+        //RuntimeExceptionHandler::handle(ex);
+
 
         // We live in this loop 99% of the time
         while (!GlobalKill::isKillSet()) {

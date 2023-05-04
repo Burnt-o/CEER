@@ -1,7 +1,7 @@
 #pragma once
 #include "UnitInfo.h"
 
-class EnemyRandomiserGroup
+class EnemyGroup
 {
 private:
 	
@@ -12,10 +12,10 @@ public:
 
 	bool isMatch(UnitInfo& checkEnemy) { return mMatchFunction(checkEnemy); }
 
-	EnemyRandomiserGroup(std::string name, std::string tooltip, std::function<bool(UnitInfo& checkEnemy)> matchFunction)
+	EnemyGroup(std::string name, std::string tooltip, std::function<bool(UnitInfo& checkEnemy)> matchFunction)
 		: mName(name), mTooltip(tooltip), mMatchFunction(matchFunction) {}
 
-	EnemyRandomiserGroup(char* name, char* tooltip, std::function<bool(UnitInfo& checkEnemy)> matchFunction)
+	EnemyGroup(char* name, char* tooltip, std::function<bool(UnitInfo& checkEnemy)> matchFunction)
 		: mName(name), mTooltip(tooltip), mMatchFunction(matchFunction) {}
 
 	 std::string_view getName() const { return mName; }
@@ -26,11 +26,11 @@ public:
 
 namespace builtInGroups // built in group declarations - defined in cpp
 {
-	const extern std::vector<EnemyRandomiserGroup> builtInGroups; // contains all the below
+	const extern std::vector<EnemyGroup> builtInGroups; // contains all the below
 
-	const extern EnemyRandomiserGroup GeneralEverything;
+	const extern EnemyGroup GeneralEverything;
 }
 
 
 
-extern std::vector<EnemyRandomiserGroup> customGroups; // starts empty
+extern std::vector<EnemyGroup> customGroups; // starts empty

@@ -54,6 +54,6 @@ public:
 
 	~OptionsGUI(); // release resources
 
-	static void addError(CEERRuntimeException error) { instance->errorsToDisplay.push_back(error); }
+	static void addError(CEERRuntimeException error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
 };
 

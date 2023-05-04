@@ -1,10 +1,10 @@
 #pragma once
 
-
+#include "Datum.h"
 
 enum class faction {
 	Undefined = -1,
-	None = 0,
+	DefaultByUnit = 0,
 	Player = 1,
 	Human = 2,
 	Covenant = 3,
@@ -17,7 +17,6 @@ enum class faction {
 };
 
 
-
 // Turns "characters\hunter\hunter" into "hunter"
 std::string getShortNameFromFull(std::string fullName);
 
@@ -27,19 +26,23 @@ private:
 	std::string mShortName;
 public:
 	explicit UnitInfo(std::string fullName)
-		: mFullName(fullName), mShortName(getShortNameFromFull(fullName))
+		: mFullName(fullName),
+		mShortName(getShortNameFromFull(fullName))
 	{
 	}
 
+
 	double probabilityOfRandomize = 0.0;
+	double spawnMultiplierPreRando = 1.0;
+	double spawnMultiplierPostRando = 1.0;
 
 	int thingIndex = 0;
 	faction defaultTeam = faction::Undefined;
 
 	std::discrete_distribution<int> rollDistribution;
 
-	std::string_view getFullName() { return mFullName; }
-	std::string_view getShortName() { return mShortName; }
+	std::string_view getFullName() const { return mFullName; }
+	std::string_view getShortName() const { return mShortName; }
 
 	bool isValidUnit = true;
 };

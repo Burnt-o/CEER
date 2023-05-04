@@ -19,6 +19,8 @@ private:
 public:
 	explicit SetSeed64(uint64_t input) : mSeed(twist64(input)) {} // twist the input int to unlinearize it
 
+	void operator()(uint64_t newInput) { mSeed = twist64(newInput); }
+
 	uint64_t operator()() {
 		return mSeed;
 	}

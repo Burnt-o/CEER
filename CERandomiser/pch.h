@@ -46,6 +46,7 @@
 #include <tuple>
 #include <inttypes.h>
 #include <ranges>
+#include <math.h>
 
 // External Libraries
 // hooking
@@ -69,6 +70,7 @@
 
 // boost
 #include "boost\stacktrace.hpp"
+
 
 // Custom utilities
 #include "CustomExceptions.h"

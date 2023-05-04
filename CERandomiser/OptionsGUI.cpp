@@ -3,21 +3,25 @@
 #include "GlobalKill.h"
 #include "OptionsState.h"
 
-#include "EnemyRandomiserRule.h"
+#include "EnemyRule.h"
 
 
-#include "EnemyRandomiser.h"
+
 OptionsGUI* OptionsGUI::instance = nullptr;
 
 
 std::map<RuleType, float> ruleTypeToPixelHeight
 {
-	{RuleType::RandomiseXintoY, 125.f}
+	{RuleType::RandomiseXintoY, 125.f},
+	{RuleType::SpawnMultiplierPreRando, 115.f},
+		{RuleType::SpawnMultiplierPostRando, 115.f}
 };
 
 std::map<RuleType, std::string> ruleTypeToRuleTypeName
 {
-	{RuleType::RandomiseXintoY, "RandomiseXintoY"}
+	{RuleType::RandomiseXintoY, "RandomiseXintoY"},
+	{RuleType::SpawnMultiplierPreRando, "Spawn Rate (pre-rando)"},
+		{RuleType::SpawnMultiplierPostRando, "Spawn Rate (post-rando)"}
 };
 
 OptionsGUI::~OptionsGUI()
@@ -136,6 +140,10 @@ void OptionsGUI::renderAddRulePopup()
 		{
 			OptionsState::currentRules.emplace_back(new RandomiseXintoY());
 		}
+		if (ImGui::Selectable("Spawn Multiplier Pre-Randomisation"))
+		{
+			OptionsState::currentRules.emplace_back(new SpawnMultiplierPreRando());
+		}
 		ImGui::EndPopup();
 	}
 }
@@ -193,7 +201,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			break;
 		} ImGui::SameLine();
 		if (it == OptionsState::currentRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
-		ImGui::Text("       Rule type:"); ImGui::SameLine();
+		ImGui::Text(" Rule type:"); ImGui::SameLine();
 		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
 
 
@@ -207,7 +215,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("Randomise"); ImGui::SameLine();
-			ImGui::SetNextItemWidth(60.f);
+			ImGui::SetNextItemWidth(110.f);
 			if (ImGui::InputDouble("##randomisePercent", &thisRule->randomisePercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
 			{
 				thisRule->randomisePercent.UpdateValueWithInput();
@@ -241,7 +249,6 @@ void OptionsGUI::renderEnemyRandomiserRules()
 
 			ImGui::Text("Into:");
 
-			//ImGui::SetNextItemWidth(150);
 			if (ImGui::BeginCombo("##rollGroup", thisRule->rollGroupSelection.getName().data()))
 			{
 				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
@@ -261,6 +268,88 @@ void OptionsGUI::renderEnemyRandomiserRules()
 				ImGui::EndCombo();
 			}
 		}
+		break;
+		case RuleType::SpawnMultiplierPreRando:
+		{
+			SpawnMultiplierPreRando* thisRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+			assert(thisRule != nullptr);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Multiply pre-randomisation spawn rate of"); 
+
+			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
+			{
+
+				ImGui::SeparatorText("General: ");
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					if (n == 3) ImGui::SeparatorText("Faction: ");
+					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("by:"); ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(110.f);
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplyPercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			{
+				thisRule->multiplyPercent.UpdateValueWithInput();
+			}
+
+		}
+		break;
+
+		case RuleType::SpawnMultiplierPostRando:
+		{
+			SpawnMultiplierPostRando* thisRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+			assert(thisRule != nullptr);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Multiply post-randomisation spawn rate of");
+
+			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
+			{
+
+				ImGui::SeparatorText("General: ");
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					if (n == 3) ImGui::SeparatorText("Faction: ");
+					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("by:"); ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(110.f);
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplyPercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			{
+				thisRule->multiplyPercent.UpdateValueWithInput();
+			}
+
+		}
+		break;
 		default:
 			break;
 		}
@@ -342,7 +431,7 @@ void OptionsGUI::renderOptionsGUI()
 
 			if (ImGui::Button("blah"))
 			{
-				EnemyRandomiser::debug();
+				PLOG_INFO << "blah";
 			}
 
 		} // End enemy randomiser settings

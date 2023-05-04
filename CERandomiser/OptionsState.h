@@ -1,6 +1,6 @@
 #pragma once
 #include "Option.h"
-#include "EnemyRandomiserRule.h"
+#include "EnemyRule.h"
 
 
 
@@ -13,7 +13,7 @@ namespace OptionsState
 	extern Option<bool> MasterToggle;
 	extern Option<bool> EnemyRandomiser;
 
-	extern std::vector<std::unique_ptr<EnemyRandomiserRule>> currentRules;
+	extern std::vector<std::unique_ptr<EnemyRule>> currentRules;
 
 };
 
