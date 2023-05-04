@@ -165,3 +165,31 @@ void ImGuiManager::onPresentHookEvent(ID3D11Device* pDevice, ID3D11DeviceContext
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
+
+
+void ImGuiManager::debugInput()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	PLOG_VERBOSE << "             ";
+	PLOG_VERBOSE << "             ";
+	PLOG_VERBOSE << "             ";
+	PLOG_VERBOSE << "io.DisplaySize.x " << io.DisplaySize.x;
+	PLOG_VERBOSE << "io.DisplaySize.y " << io.DisplaySize.y;
+	PLOG_VERBOSE << "io.AppAcceptingEvents " << io.AppAcceptingEvents;
+	PLOG_VERBOSE << "io.AppFocusLost " << io.AppFocusLost;
+	PLOG_VERBOSE << "io.MetricsActiveWindows " << io.MetricsActiveWindows;
+	PLOG_VERBOSE << "io.MetricsRenderWindows " << io.MetricsRenderWindows;
+	PLOG_VERBOSE << "io.MouseDownOwned " << io.MouseDownOwned;
+	PLOG_VERBOSE << "io.MouseDownOwnedUnlessPopupClose " << io.MouseDownOwnedUnlessPopupClose;
+	PLOG_VERBOSE << "io.MouseDown " << io.MouseDown[0];
+	PLOG_VERBOSE << "io.MousePos.x " << io.MousePos.x;
+	PLOG_VERBOSE << "io.MousePos.y " << io.MousePos.y;
+	PLOG_VERBOSE << "io.NavActive " << io.NavActive;
+	PLOG_VERBOSE << "io.NavVisible " << io.NavVisible;
+	PLOG_VERBOSE << "io.WantCaptureKeyboard " << io.WantCaptureKeyboard;
+	PLOG_VERBOSE << "io.WantCaptureMouse " << io.WantCaptureMouse;
+	PLOG_VERBOSE << "io.WantCaptureMouseUnlessPopupClose " << io.WantCaptureMouseUnlessPopupClose;
+	PLOG_VERBOSE << "io.WantTextInput " << io.WantTextInput;
+
+
+}

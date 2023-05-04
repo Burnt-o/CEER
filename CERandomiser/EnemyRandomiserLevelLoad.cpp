@@ -26,6 +26,7 @@ void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
 		instance->processSquadUnitHook.get()->setWantsToBeAttached(newValue);
 		instance->getSquadUnitIndexHook.get()->setWantsToBeAttached(newValue);
 		instance->fixMajorUpgradeHook.get()->setWantsToBeAttached(newValue);
+		instance->spawnPositionFuzzHook.get()->setWantsToBeAttached(newValue);
 		return;
 	}
 	else // Master toggle was enabled
@@ -50,6 +51,7 @@ void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
 			instance->processSquadUnitHook.get()->setWantsToBeAttached(newValue);
 			instance->getSquadUnitIndexHook.get()->setWantsToBeAttached(newValue);
 			instance->fixMajorUpgradeHook.get()->setWantsToBeAttached(newValue);
+			instance->spawnPositionFuzzHook.get()->setWantsToBeAttached(newValue);
 
 			// Check if already loaded into a level - if so call onLevelLoad
 			HaloLevel outCurrentLevel;
@@ -191,6 +193,7 @@ void EnemyRandomiser::evaluateActors()
 		}
 		else
 		{
+			PLOG_DEBUG << "rollDistribution cumulativeWeight: " << cumulativeWeight;
 			actor.rollDistribution.param(std::discrete_distribution<int>::param_type(indexWeights.begin(), indexWeights.end()));
 		}
 

@@ -128,6 +128,11 @@ void RealMain(HMODULE dllHandle)
                 GlobalKill::killMe();
             }
 
+            if (GetKeyState(0x21) & 0x8000) // 'Page Up' key
+            {
+                ImGuiManager::debugInput();
+            }
+
 
         }
 

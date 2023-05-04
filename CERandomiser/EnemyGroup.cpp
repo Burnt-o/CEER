@@ -28,13 +28,13 @@ namespace builtInGroups
 		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Human; });
 
 	const EnemyGroup FactionCovenant("Faction: Covenant", "All NPC's on the Covenant team",
-		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Human; });
+		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Covenant; });
 
 	const EnemyGroup FactionFlood("Faction: Flood", "All NPC's on the Flood team",
-		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Human; });
+		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Flood; });
 
 	const EnemyGroup FactionSentinel("Faction: Sentinel", "All NPC's on the Sentinel team (does not include the Monitor)",
-		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Human; });
+		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Sentinel; });
 
 	const EnemyGroup FactionAllButHuman("Faction: All except Human", "All NPC's except those on the Human team",
 		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam != faction::Human; });

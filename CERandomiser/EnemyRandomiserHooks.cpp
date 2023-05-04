@@ -10,6 +10,8 @@ std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
 faction EnemyRandomiser::hookData_currentUnitsFaction = faction::Undefined;
 datum EnemyRandomiser::hookData_currentUnitDatum = nullDatum;
 int EnemyRandomiser::hookData_currentSquadUnitIndex = 0;
+bool EnemyRandomiser::hookData_fixSentinelPosition = false;
+uint64_t EnemyRandomiser::hookData_currentUnitSeed = 0;
 
 
 // statics
@@ -344,10 +346,12 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		double zeroToOneRollPostRando = zeroToOne(generator);
 		for (double e = 0; e + zeroToOneRoll < newUnit.spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
+			hookData_currentUnitSeed = (seed + (uint64_t)e);
 			PLOG_DEBUG << "inner loop " << e;
 			// store needed data for other hooks
 			hookData_currentUnitsFaction = originalActorInfo.defaultTeam; // needed for fixUnitFaction. Must be team of ORIGINAL unit to not fuck up encounter design
 			hookData_currentUnitDatum = newUnitDatum; // store the data that the setActorDatum hook will need
+			if (newUnit.getShortName().contains("sentinel")) hookData_fixSentinelPosition = true;
 			// Spawn it! Call the original function. This will cause our fixUnitFaction and setActorDatum hooks to be hit, once per call.
 					// They will ensure this by setting hookData_currentUnitsFaction & hookData_currentUnitDatum to null values after they're done.
 			instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
@@ -416,6 +420,7 @@ void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 	if (hookData_currentUnitsFaction != faction::Undefined)
 	{
 		*ctxInterpreter->getParameterRef(ctx, (int)param::currentlySpawningUnitsFaction) = (UINT)hookData_currentUnitsFaction;
+		hookData_currentUnitsFaction = faction::Undefined;
 	}
 	else
 	{
@@ -442,5 +447,37 @@ void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 		PLOG_DEBUG << "applying major upgrade fix: " << std::hex << normDat;
 		*ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum) = normDat;
 	}
+
+}
+
+
+void EnemyRandomiser::spawnPositionFuzzHookFunction(SafetyHookContext& ctx)
+{
+	PLOG_VERBOSE << "spawnPositionFuzzHookFunction";
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	SetSeed64 genx(hookData_currentUnitSeed);
+	SetSeed64 geny(hookData_currentUnitSeed + 0xFF);
+	float adjustx = (zeroToOne(genx) - 0.5f) / 10.f;
+	float adjusty = (zeroToOne(geny) - 0.5f) / 10.f;
+
+	float currentx = *(float*)(ctx.rsp + 0x88);
+	float currenty = *(float*)(ctx.rsp + 0x8C);
+	float currentz = *(float*)(ctx.rsp + 0x90);
+
+
+	if (hookData_fixSentinelPosition)
+	{
+		PLOG_VERBOSE << "applying sentinel position fix";
+		currentz += 1.f;
+		hookData_fixSentinelPosition = false;
+	}
+
+	currentx += adjustx;
+	currenty += adjusty;
+
+	// write it back
+	*(float*)(ctx.rsp + 0x88) = currentx;
+	*(float*)(ctx.rsp + 0x8C) = currenty;
+	*(float*)(ctx.rsp + 0x90) = currentz;
 
 }

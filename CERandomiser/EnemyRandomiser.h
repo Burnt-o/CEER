@@ -109,11 +109,18 @@ private:
 	static void getSquadUnitIndexHookFunction(SafetyHookContext& ctx);
 	std::shared_ptr<MidhookContextInterpreter> getSquadUnitIndexFunctionContext;
 	
+	std::shared_ptr<ModuleMidHook> spawnPositionFuzzHook;
+	static void spawnPositionFuzzHookFunction(SafetyHookContext& ctx);
+	//std::shared_ptr<MidhookContextInterpreter> spawnPositionFuzzFunctionContext;
+
 
 	// data passed between hooks
 	static faction hookData_currentUnitsFaction;
 	static datum hookData_currentUnitDatum;
 	static int hookData_currentSquadUnitIndex;
+	static bool hookData_fixSentinelPosition;
+	static uint64_t hookData_currentUnitSeed;
+
 
 
 
@@ -224,6 +231,9 @@ public:
 			fixMajorUpgradeFunctionContext = PointerManager::getMidhookContextInterpreter("fixMajorUpgradeFunctionContext");
 			fixMajorUpgradeHook = ModuleMidHook::make(L"halo1.dll", fixMajorUpgradeFunction, fixMajorUpgradeHookFunction, false);
 
+			auto spawnPositionFuzzFunction = PointerManager::getMultilevelPointer("spawnPositionFuzzFunction");
+			//spawnPositionFuzzFunctionContext = PointerManager::getMidhookContextInterpreter("spawnPositionFuzzFunctionContext");
+			spawnPositionFuzzHook = ModuleMidHook::make(L"halo1.dll", spawnPositionFuzzFunction, spawnPositionFuzzHookFunction, false);
 
 
 
