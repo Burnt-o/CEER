@@ -46,8 +46,8 @@ class SpawnMultiplierPreRando : public EnemyRule
 public:
 	EnemyGroup groupSelection = builtInGroups::GeneralEverything;
 
-	Option<double> multiplyPercent{
-		100.0,
+	Option<double> multiplier{
+		1.0,
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive
@@ -65,8 +65,8 @@ class SpawnMultiplierPostRando : public EnemyRule
 public:
 	EnemyGroup groupSelection = builtInGroups::GeneralEverything;
 
-	Option<double> multiplyPercent{
-		100.0,
+	Option<double> multiplier{
+		1.0,
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive

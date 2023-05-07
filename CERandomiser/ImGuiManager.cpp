@@ -11,10 +11,23 @@ LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 	//https://www.unknowncheats.me/forum/2488829-post5.html
 	ImGuiIO& io = ImGui::GetIO();
 	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+
+
+
 	if (io.WantCaptureMouse)
 	{
-		return TRUE;
+		if (GetKeyState(0x20) & 0x8000) // 'Page Down' key
+		{
+			return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
+		}
+		else
+		{
+			return TRUE;
+		}
+
+
 	}
+
 		// ImGui didn't handle the click so let MCC do it
 		return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
 
@@ -22,7 +35,7 @@ LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 
 void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, IDXGISwapChain* pSwapChain, ID3D11RenderTargetView* pMainRenderTargetView)
 {
-
+	PLOG_VERBOSE << "initializeImGuiResources";
 	// Use swap chain description to get MCC window handle
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	pSwapChain->GetDesc(&swapChainDesc);

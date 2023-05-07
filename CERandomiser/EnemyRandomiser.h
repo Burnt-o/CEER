@@ -66,7 +66,8 @@ private:
 
 
 	// Pointers
-	std::shared_ptr<MultilevelPointer> spawnPositionRNG;
+	std::shared_ptr<MultilevelPointer> gameSpawnRNG;
+	std::shared_ptr<MultilevelPointer> gameRNG;
 
 	// Hooks
 
@@ -177,8 +178,8 @@ public:
 		// Set up our hooks and get our pointers
 		try
 		{
-			spawnPositionRNG = PointerManager::getMultilevelPointer("spawnPositionRNG");
-
+			gameSpawnRNG = PointerManager::getMultilevelPointer("gameSpawnRNG");
+			gameRNG = PointerManager::getMultilevelPointer("gameRNG");
 
 
 

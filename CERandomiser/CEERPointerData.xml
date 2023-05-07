@@ -282,12 +282,21 @@
 	</VersionedEntry>-->
 	
 
-	<VersionedEntry Name="spawnPositionRNG" Type="MultilevelPointer::ModuleOffset">
+	<VersionedEntry Name="gameSpawnRNG" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x02879388</Offset>
 				<Offset>0x764</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="gameRNG" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2AF8A50</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>

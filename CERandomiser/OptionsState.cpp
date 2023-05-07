@@ -33,7 +33,13 @@ namespace OptionsState
 		[](bool newValue) { return true; }
 	);
 
+	Option<bool> EnemySpawnMultiplier(
+		false,
+		[](bool newValue) { return true; }
+	);
 
-	std::vector<std::unique_ptr<EnemyRule>> currentRules; // starts empty
+
+	std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules; // starts empty
+	std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules; // starts empty
 }
 

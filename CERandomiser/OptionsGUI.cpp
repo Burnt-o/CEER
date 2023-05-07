@@ -132,17 +132,19 @@ void OptionsGUI::renderErrorDialog()
 }
 
 
-void OptionsGUI::renderAddRulePopup()
+
+
+void OptionsGUI::renderAddSpawnMultiplierRulePopup()
 {
-	if (ImGui::BeginPopup("AddRulePopup"))
+	if (ImGui::BeginPopup("AddSpawnMultiplierRulePopup"))
 	{
-		if (ImGui::Selectable("Randomise X into Y"))
-		{
-			OptionsState::currentRules.emplace_back(new RandomiseXintoY());
-		}
 		if (ImGui::Selectable("Spawn Multiplier Pre-Randomisation"))
 		{
-			OptionsState::currentRules.emplace_back(new SpawnMultiplierPreRando());
+			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
+		}
+		if (ImGui::Selectable("Spawn Multiplier Post-Randomisation"))
+		{
+			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPostRando());
 		}
 		ImGui::EndPopup();
 	}
@@ -156,33 +158,31 @@ void OptionsGUI::renderManageCustomGroupsDialog()
 	}
 }
 
-
-void OptionsGUI::renderEnemyRandomiserRules()
+void OptionsGUI::renderEnemySpawnMultiplierRules()
 {
-
 	ImGui::SetNextWindowBgAlpha(0.1f);
 
 	float rulesWindowHeight = 12.f;
-	for (auto& rule : OptionsState::currentRules)
+	for (auto& rule : OptionsState::currentMultiplierRules)
 	{
 		rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
 	}
 
-	ImGui::BeginChild("rules", ImVec2(0, rulesWindowHeight), true, NULL);
+	ImGui::BeginChild("MultiplierRules", ImVec2(0, rulesWindowHeight), true, NULL);
 	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
-	for (auto it = OptionsState::currentRules.begin(); auto & rule: OptionsState::currentRules) // render rules
+	for (auto it = OptionsState::currentMultiplierRules.begin(); auto & rule: OptionsState::currentMultiplierRules) // render rules
 	{
 
 		ImGui::BeginChild(ImGui::GetID(rule.get()), ImVec2(0.f, ruleTypeToPixelHeight[rule.get()->getType()]), true, NULL);
 
 		if (ImGui::Button("Delete"))
 		{
-			OptionsState::currentRules.erase(it);
+			OptionsState::currentMultiplierRules.erase(it);
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
 
-		if (it == OptionsState::currentRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
+		if (it == OptionsState::currentMultiplierRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
 
 		if (ImGui::Button("Move Up"))
 		{
@@ -190,17 +190,161 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
-		if (it == OptionsState::currentRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
+		if (it == OptionsState::currentMultiplierRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
 
 
-		if (it == OptionsState::currentRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
+		if (it == OptionsState::currentMultiplierRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
 		if (ImGui::Button("Move Down"))
 		{
 			std::swap(*it, *(it + 1));
 			ImGui::EndChild();
 			break;
 		} ImGui::SameLine();
-		if (it == OptionsState::currentRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
+		if (it == OptionsState::currentMultiplierRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
+		ImGui::Text(" Rule type:"); ImGui::SameLine();
+		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
+
+
+
+		switch (rule->getType())
+		{
+		case RuleType::SpawnMultiplierPreRando:
+		{
+			SpawnMultiplierPreRando* thisRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+			assert(thisRule != nullptr);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Multiply pre-randomisation spawn rate of");
+
+			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
+			{
+
+				ImGui::SeparatorText("General: ");
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					if (n == 3) ImGui::SeparatorText("Faction: ");
+					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("by:"); ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(110.f);
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			{
+				thisRule->multiplier.UpdateValueWithInput();
+			}
+			ImGui::SameLine(); ImGui::Text("x");
+
+		}
+		break;
+
+		case RuleType::SpawnMultiplierPostRando:
+		{
+			SpawnMultiplierPostRando* thisRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+			assert(thisRule != nullptr);
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Multiply post-randomisation spawn rate of");
+
+			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
+			{
+
+				ImGui::SeparatorText("General: ");
+				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
+				{
+					if (n == 3) ImGui::SeparatorText("Faction: ");
+					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
+					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
+					{
+						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("by:"); ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(110.f);
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			{
+				thisRule->multiplier.UpdateValueWithInput();
+			}
+			ImGui::SameLine(); ImGui::Text("x");
+
+		}
+		break;
+		default:
+			break;
+		}
+
+		ImGui::EndChild();
+		it++;
+	}
+	ImGui::EndChild();
+}
+
+void OptionsGUI::renderEnemyRandomiserRules()
+{
+
+	ImGui::SetNextWindowBgAlpha(0.1f);
+
+	float rulesWindowHeight = 12.f;
+	for (auto& rule : OptionsState::currentRandomiserRules)
+	{
+		rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+	}
+
+	ImGui::BeginChild("RandomisationRules", ImVec2(0, rulesWindowHeight), true, NULL);
+	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
+	for (auto it = OptionsState::currentRandomiserRules.begin(); auto & rule: OptionsState::currentRandomiserRules) // render rules
+	{
+
+		ImGui::BeginChild(ImGui::GetID(rule.get()), ImVec2(0.f, ruleTypeToPixelHeight[rule.get()->getType()]), true, NULL);
+
+		if (ImGui::Button("Delete"))
+		{
+			OptionsState::currentRandomiserRules.erase(it);
+			ImGui::EndChild();
+			break;
+		}	ImGui::SameLine();
+
+		if (it == OptionsState::currentRandomiserRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
+
+		if (ImGui::Button("Move Up"))
+		{
+			std::swap(*it, *(it - 1));
+			ImGui::EndChild();
+			break;
+		}	ImGui::SameLine();
+		if (it == OptionsState::currentRandomiserRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
+
+
+		if (it == OptionsState::currentRandomiserRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
+		if (ImGui::Button("Move Down"))
+		{
+			std::swap(*it, *(it + 1));
+			ImGui::EndChild();
+			break;
+		} ImGui::SameLine();
+		if (it == OptionsState::currentRandomiserRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
 		ImGui::Text(" Rule type:"); ImGui::SameLine();
 		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
 
@@ -269,87 +413,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			}
 		}
 		break;
-		case RuleType::SpawnMultiplierPreRando:
-		{
-			SpawnMultiplierPreRando* thisRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
-			assert(thisRule != nullptr);
-
-			ImGui::AlignTextToFramePadding();
-			ImGui::Text("Multiply pre-randomisation spawn rate of"); 
-
-			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
-			{
-
-				ImGui::SeparatorText("General: ");
-				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
-				{
-					if (n == 3) ImGui::SeparatorText("Faction: ");
-					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
-					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
-					{
-						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
-					}
-
-					if (is_selected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
-
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::AlignTextToFramePadding();
-			ImGui::Text("by:"); ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(110.f);
-			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplyPercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
-			{
-				thisRule->multiplyPercent.UpdateValueWithInput();
-			}
-
-		}
-		break;
-
-		case RuleType::SpawnMultiplierPostRando:
-		{
-			SpawnMultiplierPostRando* thisRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
-			assert(thisRule != nullptr);
-
-			ImGui::AlignTextToFramePadding();
-			ImGui::Text("Multiply post-randomisation spawn rate of");
-
-			if (ImGui::BeginCombo("##groupSelection", thisRule->groupSelection.getName().data()))
-			{
-
-				ImGui::SeparatorText("General: ");
-				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
-				{
-					if (n == 3) ImGui::SeparatorText("Faction: ");
-					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
-					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
-					{
-						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
-					}
-
-					if (is_selected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
-
-				}
-				ImGui::EndCombo();
-			}
-			ImGui::AlignTextToFramePadding();
-			ImGui::Text("by:"); ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(110.f);
-			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplyPercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
-			{
-				thisRule->multiplyPercent.UpdateValueWithInput();
-			}
-
-		}
-		break;
+		
 		default:
 			break;
 		}
@@ -378,23 +442,14 @@ void OptionsGUI::renderOptionsGUI()
 	{
 #pragma region Seed
 
-		if (OptionsState::AutoGenerateSeed.GetValue())
-			ImGui::BeginDisabled();
-
 		if (ImGui::InputText("Seed", &OptionsState::SeedString.GetValueDisplay()))
 		{
 			OptionsState::SeedString.UpdateValueWithInput();
 		}
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
 
-		if (OptionsState::AutoGenerateSeed.GetValue())
-			ImGui::EndDisabled();
 
-		ImGui::SameLine();
-
-		if (ImGui::Checkbox("Set Seed", &OptionsState::AutoGenerateSeed.GetValueDisplay()))
-		{
-			OptionsState::AutoGenerateSeed.UpdateValueWithInput();
-		}
 #pragma endregion Seed
 
 
@@ -402,6 +457,8 @@ void OptionsGUI::renderOptionsGUI()
 		{
 			OptionsState::MasterToggle.UpdateValueWithInput();
 		}
+
+		renderManageCustomGroupsDialog();
 
 #pragma region EnemyRandomiser
 		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiser.GetValueDisplay()))
@@ -411,34 +468,49 @@ void OptionsGUI::renderOptionsGUI()
 
 		if (ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered()))
 		{
-			if (ImGui::Button("Add Rule"))
+			if (ImGui::Button("Add Randomisation Rule"))
 			{
-				
-				ImGui::OpenPopup("AddRulePopup");
+				OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
 			}
-			//renderAddRuleDialog();
-			renderAddRulePopup();
 			ImGui::SameLine();
 			if (ImGui::Button("Manage Custom Groups"))
 			{
 				ImGui::OpenPopup("ManageCustomGroupsDialog");
 			}
-			renderManageCustomGroupsDialog();
-
 
 			renderEnemyRandomiserRules();
+		} 
+#pragma endregion EnemyRandomiser
+#pragma region EnemySpawnMultiplier
+		if (ImGui::Checkbox("Enable Enemy Spawn Multiplier", &OptionsState::EnemySpawnMultiplier.GetValueDisplay()))
+		{
+			OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+		}
 
-
-			if (ImGui::Button("blah"))
+		if (ImGui::CollapsingHeader("Enemy Spawn Multiplier Settings", ImGui::IsItemHovered()))
+		{
+			if (ImGui::Button("Add Multiplier Rule"))
 			{
-				PLOG_INFO << "blah";
+				ImGui::OpenPopup("AddSpawnMultiplierRulePopup");
+			}
+			renderAddSpawnMultiplierRulePopup();
+			ImGui::SameLine();
+			if (ImGui::Button("Manage Custom Groups"))
+			{
+				ImGui::OpenPopup("ManageCustomGroupsDialog");
 			}
 
-		} // End enemy randomiser settings
 
+
+			renderEnemySpawnMultiplierRules();
+
+
+
+		} 
+#pragma endregion EnemySpawnMultiplier
 		ImGui::Text("Texture rando todo");
 
-#pragma endregion EnemyRandomiser
+
 	}
 	ImGui::End(); // end main window
 

@@ -145,7 +145,6 @@ namespace builtInGroups
 	const EnemyGroup UnitFloodcombat_HumanRocketLauncher("Unit: Floodcombat_Human Rocket Launcher", "Floodcombat_Human Rocket Launcher", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human rocket launcher";   });
 	const EnemyGroup UnitFloodcombat_HumanShotgun("Unit: Floodcombat_Human Shotgun", "Floodcombat_Human Shotgun", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human shotgun";   });
 	const EnemyGroup UnitFloodcombat_HumanUnarmed("Unit: Floodcombat_Human Unarmed", "Floodcombat_Human Unarmed", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human unarmed";   });
-	const EnemyGroup UnitFlood_InfectionNopop("Unit: Flood_Infection Nopop", "Flood_Infection Nopop", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "flood_infection nopop";   });
 	const EnemyGroup UnitFlood_Infection("Unit: Flood_Infection", "Flood_Infection", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "flood_infection";   });
 	const EnemyGroup UnitGruntMajorNeedler("Unit: Grunt Major Needler", "Grunt Major Needler", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt major needler";   });
 	const EnemyGroup UnitGruntMajorPlasmaPistol("Unit: Grunt Major Plasma Pistol", "Grunt Major Plasma Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt major plasma pistol";   });
@@ -245,7 +244,6 @@ namespace builtInGroups
 		UnitFloodcombat_HumanRocketLauncher,
 		UnitFloodcombat_HumanShotgun,
 		UnitFloodcombat_HumanUnarmed,
-		UnitFlood_InfectionNopop,
 		UnitFlood_Infection,
 		UnitGruntMajorNeedler,
 		UnitGruntMajorPlasmaPistol,

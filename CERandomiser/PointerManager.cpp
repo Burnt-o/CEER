@@ -3,15 +3,17 @@
 #include "curl/curl.h" // to get PointerData.xml from github
 #include <winver.h> // to get version string of MCC
 #include <pugixml.hpp>
-
+#include "InitParameter.h"
 #define useDevPointerData 1
+#define debugPointerManager 0
 
-
+PointerManager* PointerManager::instance = nullptr;
 
 class PointerManager::PointerManagerImpl {
 
 
     private:
+        std::string pointerDataLocation;
 
         // Functions run by constructor, in order of execution
         void downloadXML(std::string url);
@@ -35,11 +37,28 @@ class PointerManager::PointerManagerImpl {
         static std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> mMidhookContextInterpreterData;
 };
 
-PointerManager::PointerManager() : impl(new PointerManagerImpl) {}
+PointerManager::PointerManager() : impl(new PointerManagerImpl) 
+{
+    if (instance != nullptr)
+    {
+        throw InitException("Cannot have more than one PointerManager");
+    }
+    instance = this;
+}
 PointerManager::~PointerManager() = default; // https://www.fluentcpp.com/2017/09/22/make-pimpl-using-unique_ptr/
 
 PointerManager::PointerManagerImpl::PointerManagerImpl()
 {
+
+#if debugPointerManager == 0
+    // set plog severity to ERROR temporarily
+    auto oldSeverity = plog::get()->getMaxSeverity();
+    plog::get()->setMaxSeverity(plog::error);
+#endif
+
+    // Set pointerDataLocation 
+    pointerDataLocation = g_ourInitParameters->injectorPath;
+    pointerDataLocation += +"\\CEERPointerData.xml";
 
     try
     {
@@ -63,31 +82,37 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
         PLOG_DEBUG << std::format("stored key: {}", key);
     }
 
+
+#if debugPointerManager == 0
+    // set severity back to normal
+    plog::get()->setMaxSeverity(oldSeverity);
+#endif
+
 }
 
 
 
 std::shared_ptr<MultilevelPointer> PointerManager::getMultilevelPointer(std::string dataName)
 {
-    if (!get().impl.get()->mMultilevelPointerData.contains(dataName))
+    if (!instance->impl.get()->mMultilevelPointerData.contains(dataName))
     {
         PLOG_ERROR << "no valid pointer data for " << dataName;
         throw InitException(std::format("pointerData was null for {}", dataName));
     }
 
-    return get().impl.get()->mMultilevelPointerData.at(dataName);
+    return instance->impl.get()->mMultilevelPointerData.at(dataName);
 
 }
 
 std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInterpreter(std::string dataName)
 {
-    if (!get().impl.get()->mMidhookContextInterpreterData.contains(dataName))
+    if (!instance->impl.get()->mMidhookContextInterpreterData.contains(dataName))
     {
         PLOG_ERROR << "no valid pointer data for " << dataName;
         throw InitException(std::format("pointerData was null for {0}", dataName));
     }
 
-    return get().impl.get()->mMidhookContextInterpreterData.at(dataName);
+    return instance->impl.get()->mMidhookContextInterpreterData.at(dataName);
 }
 
 
@@ -98,13 +123,13 @@ std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager
 
 
 
-
-std::string ExePath() {
-    char buffer[MAX_PATH] = { 0 };
-    GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-    return std::string(buffer).substr(0, pos);
-}
+//
+//std::string ExePath() {
+//    char buffer[MAX_PATH] = { 0 };
+//    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+//    std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+//    return std::string(buffer).substr(0, pos);
+//}
 
 
 std::string PointerManager::PointerManagerImpl::readLocalXML()
@@ -113,7 +138,7 @@ std::string PointerManager::PointerManagerImpl::readLocalXML()
 #if useDevPointerData == 1
     pathToFile = "C:\\Users\\mauri\\source\\repos\\CERandomiser\\CERandomiser\\CEERPointerData.xml";
 #else
-    pathToFile = ExePath() + "CEERPointerData.xml";
+    pathToFile = pointerDataLocation;
 #endif
 
     std::ifstream inFile(pathToFile.c_str());
@@ -179,7 +204,7 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
     }
 
     // Write to local file
-    std::string pathToFile = ExePath() + "CEERPointerData.xml";
+    std::string pathToFile = pointerDataLocation;
     std::ofstream outFile(pathToFile.c_str());
     if (outFile.is_open())
     {

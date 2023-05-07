@@ -3,7 +3,7 @@
 #include "OptionsState.h"
 #include "LevelLoadHook.h"
 #include "EnemyRule.h"
-
+#include "UserSeed.h"
 EnemyRandomiser* EnemyRandomiser::instance = nullptr;
 
 void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
@@ -33,6 +33,9 @@ void EnemyRandomiser::onMasterToggleChanged(bool& newValue)
 	{
 		if (OptionsState::EnemyRandomiser.GetValue())
 		{
+			// Get rng seed
+			instance->ourSeed = UserSeed::GetCurrentSeed();
+			PLOG_DEBUG << "Current seed: " << std::hex << instance->ourSeed;
 			// turn hooks on
 			PLOG_INFO << "Enemy Randomiser enabling hooks";
 
@@ -82,7 +85,7 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 }
 
 
-constexpr std::array badUnitNames = { "flame", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector" };
+constexpr std::array badUnitNames = { "flame", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {
@@ -90,7 +93,7 @@ UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 	thisActorInfo.defaultTeam = instance->mapReader->getActorsFaction(actorDatum);
 	PLOG_DEBUG << thisActorInfo.getShortName();
 	thisActorInfo.isValidUnit = isValidUnit(thisActorInfo, badUnitNames);
-
+	thisActorInfo.isSentinel = thisActorInfo.getShortName().contains("sentinel");
 	return thisActorInfo;
 }
 
@@ -100,7 +103,7 @@ UnitInfo EnemyRandomiser::readBipedInfo(const datum bipedDatum)
 	thisBipedInfo.defaultTeam = instance->mapReader->getBipedFaction(bipedDatum);
 	PLOG_DEBUG << thisBipedInfo.getShortName();
 	thisBipedInfo.isValidUnit = isValidUnit(thisBipedInfo, badUnitNames);
-
+	thisBipedInfo.isSentinel = thisBipedInfo.getShortName().contains("sentinel");
 	return thisBipedInfo;
 }
 
@@ -129,7 +132,7 @@ void EnemyRandomiser::evaluateActors()
 
 		EnemyGroup* rollGroup = nullptr;
 		// Evaluate rules (in reverse, so rules at top of GUI overwrite ones at bottom)
-		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRules))
+		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRandomiserRules))
 		{
 			PLOG_DEBUG << "Actor checking if a rule applies to it: " << actor.getShortName();
 			if (rule.get()->getType() == RuleType::RandomiseXintoY)
@@ -205,7 +208,7 @@ void EnemyRandomiser::evaluateActors()
 		if (!actor.isValidUnit) continue;
 
 		// Evaluate rules (in reverse, so rules at top of GUI overwrite ones at bottom)
-		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRules))
+		for (auto& rule : std::ranges::views::reverse(OptionsState::currentMultiplierRules))
 		{
 			PLOG_DEBUG << "Actor checking if a rule applies to it: " << actor.getShortName();
 			switch (rule.get()->getType())
@@ -218,7 +221,7 @@ void EnemyRandomiser::evaluateActors()
 				if (thisRule->groupSelection.isMatch(actor))
 				{
 					// multiply instead of set, so multiple rules applying to the same group have a multiplicative effect
-					actor.spawnMultiplierPreRando *= thisRule->multiplyPercent.GetValue() / 100.f;
+					actor.spawnMultiplierPreRando *= thisRule->multiplier.GetValue();
 				}
 			}
 			break;
@@ -231,7 +234,7 @@ void EnemyRandomiser::evaluateActors()
 				if (thisRule->groupSelection.isMatch(actor))
 				{
 					// multiply instead of set, so multiple rules applying to the same group have a multiplicative effect
-					actor.spawnMultiplierPostRando *= thisRule->multiplyPercent.GetValue() / 100.f;
+					actor.spawnMultiplierPostRando *= thisRule->multiplier.GetValue();
 				}
 			}
 			break;
@@ -274,7 +277,7 @@ void EnemyRandomiser::evaluateBipeds()
 
 		EnemyGroup* rollGroup = nullptr;
 		// Evaluate rules (in reverse, so rules at top of GUI overwrite ones at bottom)
-		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRules))
+		for (auto& rule : std::ranges::views::reverse(OptionsState::currentRandomiserRules))
 		{
 			if (rule.get()->getType() == RuleType::RandomiseXintoY)
 			{
@@ -332,7 +335,7 @@ void EnemyRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 		std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 		PLOG_DEBUG << "loading game data";
 		uintptr_t spawnposrng;
-		if (!instance->spawnPositionRNG.get()->resolve(&spawnposrng)) throw CEERRuntimeException("Could not resolve spawnPositionRNG");
+		if (!instance->gameSpawnRNG.get()->resolve(&spawnposrng)) throw CEERRuntimeException("Could not resolve spawnPositionRNG");
 		instance->spawnPositionRNGResolved = (uint32_t*)spawnposrng;
 
 

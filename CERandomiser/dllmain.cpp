@@ -17,49 +17,37 @@
 
 #include "curl\curl.h"
 #include "InitParameter.h"
-
-
-
-void init_logging()
-{
-    static plog::RollingFileAppender<plog::TxtFormatter> fileAppender("log.txt", 10000000, 3);
-    plog::init<1>(plog::info, &fileAppender);
-
-
-    DWORD attachError = 0;
-    if (AttachConsole(GetCurrentProcessId()) == 0)
-    {
-        attachError = GetLastError();
-        AllocConsole();
-    }
-
-    FILE* fDummy;
-    freopen_s(&fDummy, "CONIN$", "r", stdin);
-    freopen_s(&fDummy, "CONOUT$", "w", stderr);
-    freopen_s(&fDummy, "CONOUT$", "w", stdout);
-
-
-    static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
-    plog::init<2>(plog::verbose, &consoleAppender);
-
-    plog::init(plog::verbose).addAppender(plog::get<1>()).addAppender(plog::get<2>());
-
-    if (attachError != 0) PLOG_INFO << "Creating new console: " << attachError;
-
-}
-
-void stop_logging()
-{
-    fclose(stdout);
-    fclose(stdin);
-    fclose(stderr);
-    FreeConsole();
-}
+#include "Logging.h"
 
 
 
 /* GENERAL TODO:: 
+* Before beta release 
+*
+Delay DLL injection until MCC initialized
+Get rid of MasterToggle
+PointerData for latest version
+Fix up logging -- DONE
 
+* Before main release
+*
+post rando gui
+ enemy spawns not deterministic
+ serialisation/deserialization
+    copy-paste whole settings
+
+rng-fixing only when enemy randomiser enabled
+Figure out how to deal with major upgrades - only allow when not randomised?
+
+Fix input dropping issue (er, figure out why it's happening first)
+    -- keyboard works fine
+    -- SOME mouseclicks still work, others don't. weird.
+    -- clicking on the level options stuff still works
+    -- why does alt tabbing fix it
+
+Look into frg and flamethrower
+Texture rando
+Sound rando
 */ 
 
 
@@ -72,9 +60,6 @@ void RealMain(HMODULE dllHandle)
     //acquire_global_unhandled_exception_handler();
 
 
-    init_logging();
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-    PLOG_INFO << "Randomizer initializing";
 
 
     // wait for init parameters from the injector
@@ -89,6 +74,13 @@ void RealMain(HMODULE dllHandle)
         }
         Sleep(50);
     }
+
+
+    Logging::initLogging();
+    Logging::SetConsoleLoggingLevel(plog::verbose);
+    Logging::SetFileLoggingLevel(plog::verbose);
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    PLOG_INFO << "Randomizer initializing";
 
     PLOG_DEBUG << "initParameter.injectorPath: " << g_ourInitParameters->injectorPath;
 
@@ -113,9 +105,15 @@ void RealMain(HMODULE dllHandle)
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
 
+        PLOG_INFO << "All services succesfully initialized! Entering main loop";
 
-        //CEERRuntimeException ex("test");
-        //RuntimeExceptionHandler::handle(ex);
+        // Shutdown the console on successful init, at least in release mode.
+        // If an initialization error occurs before this point, console will be left up so user can look at it.
+
+#ifndef CEER_DEBUG
+        Logging::closeConsole();
+#endif // !CEER_DEBUG
+
 
 
         // We live in this loop 99% of the time
@@ -141,6 +139,7 @@ void RealMain(HMODULE dllHandle)
     catch (InitException& ex)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
+        PLOG_FATAL << "Please send Burnt the log file located at: " << std::endl << Logging::GetLogFileDestination();
         std::cout << "Enter any command to shutdown CEER";
         GlobalKill::killMe();
         std::string dontcare;
@@ -148,15 +147,12 @@ void RealMain(HMODULE dllHandle)
     }
 
     // Auto managed resources have fallen out of scope
-    std::cout << "Shutting down";
-
-
-
+    std::cout << "CEER singletons succesfully shut down";
 
     curl_global_cleanup();
     //release_global_unhandled_exception_handler();
-    PLOG_DEBUG << "Shutting down logging";
-    stop_logging();
+    PLOG_DEBUG << "Closing console";
+    Logging::closeConsole();
 }
 
 

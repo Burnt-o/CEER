@@ -12,8 +12,10 @@ namespace OptionsState
 
 	extern Option<bool> MasterToggle;
 	extern Option<bool> EnemyRandomiser;
+	extern Option<bool> EnemySpawnMultiplier;
 
-	extern std::vector<std::unique_ptr<EnemyRule>> currentRules;
+	extern std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;
+	extern std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules;
 
 };
 

@@ -299,7 +299,18 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 
 	// Construct a seed
-	uint64_t seed = instance->ourSeed ^ (((uint64_t)encounterIndex << 32) + ((uint64_t)squadIndex << 16) + hookData_currentSquadUnitIndex); // Create a seed from the specific enemy data & XOR with the user-input seed
+	uint64_t seed = instance->ourSeed ^ (((uint64_t)encounterIndex << 32) + ((uint64_t)squadIndex << 24) + ((uint64_t)hookData_currentSquadUnitIndex << 16)); // Create a seed from the specific enemy data & XOR with the user-input seed
+	PLOG_DEBUG << "construction seed from" << std::hex << std::endl
+		<< "instance->ourSeed " << instance->ourSeed << std::endl
+		<< "encounterIndex " << encounterIndex << std::endl
+		<< "((uint64_t)encounterIndex << 32) " << ((uint64_t)encounterIndex << 24) << std::endl
+		<< "squadIndex " << squadIndex << std::endl
+		<< "((uint64_t)squadIndex << 16) " << ((uint64_t)squadIndex << 16) << std::endl
+		<< "hookData_currentSquadUnitIndex" << hookData_currentSquadUnitIndex << std::endl
+	<< "(hookData_currentSquadUnitIndex << 8)" << (hookData_currentSquadUnitIndex << 8);
+	
+	
+	
 	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
 	PLOG_DEBUG << "seed set: " << std::hex << seed;
 	
@@ -311,7 +322,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	{
 		PLOG_DEBUG << "outer loop " << d;
 		// Construct a new seed for each of these multiplied units
-		seed += ((uint64_t)d) << 8;
+		seed += ((uint64_t)d << 8);
 		generator = SetSeed64(seed);
 
 		// Roll randomization for each of these units
@@ -346,12 +357,32 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		double zeroToOneRollPostRando = zeroToOne(generator);
 		for (double e = 0; e + zeroToOneRoll < newUnit.spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
-			hookData_currentUnitSeed = (seed + (uint64_t)e);
 			PLOG_DEBUG << "inner loop " << e;
+			seed += (uint64_t)e;
+			generator = SetSeed64(seed);
 			// store needed data for other hooks
+			hookData_currentUnitSeed = generator(); 
+			if (!instance->gameRNG.get()->writeData(&hookData_currentUnitSeed))
+			{
+				CEERRuntimeException ex(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
+				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+			}
+
+
+			auto lowByte = (uint8_t)(hookData_currentUnitSeed);
+
+			if (!instance->gameSpawnRNG.get()->writeData(&lowByte))
+			{
+				CEERRuntimeException ex(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
+				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+			}
+
+			
 			hookData_currentUnitsFaction = originalActorInfo.defaultTeam; // needed for fixUnitFaction. Must be team of ORIGINAL unit to not fuck up encounter design
 			hookData_currentUnitDatum = newUnitDatum; // store the data that the setActorDatum hook will need
-			if (newUnit.getShortName().contains("sentinel")) hookData_fixSentinelPosition = true;
+			hookData_fixSentinelPosition = !originalActorInfo.isSentinel && newUnit.isSentinel; // used in position hook to move sentinels up from the ground
 			// Spawn it! Call the original function. This will cause our fixUnitFaction and setActorDatum hooks to be hit, once per call.
 					// They will ensure this by setting hookData_currentUnitsFaction & hookData_currentUnitDatum to null values after they're done.
 			instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
@@ -371,9 +402,10 @@ void EnemyRandomiser::getSquadUnitIndexHookFunction(SafetyHookContext& ctx)
 	{
 		unitIndex,
 	};
-	auto* ctxInterpreter = instance->setActorDatumFunctionContext.get();
+	auto* ctxInterpreter = instance->getSquadUnitIndexFunctionContext.get();
 
 	hookData_currentSquadUnitIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::unitIndex);
+	PLOG_VERBOSE << "setting hookData_currentSquadUnitIndex to " << hookData_currentSquadUnitIndex;
 }
 
 
@@ -439,6 +471,12 @@ void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 		normalDatum
 	};
 	auto* ctxInterpreter = instance->fixMajorUpgradeFunctionContext.get();
+
+	//// testing allowing no major rolls
+	//auto normDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::normalDatum);
+	//*ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum) = normDat;
+	//return;
+
 	auto majorDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum);
 	PLOG_DEBUG << "majorDatum: " << std::hex << majorDat;
 	if (majorDat == 0xFFFFFFFF)

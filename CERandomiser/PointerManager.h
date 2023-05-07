@@ -11,10 +11,11 @@ class PointerManager
 
 private:	
 	// singleton
-	static PointerManager& get() {
-		static PointerManager instance;
-		return instance;
-	}
+	//static PointerManager& get() {
+	//	static PointerManager instance;
+	//	return instance;
+	//}
+	static PointerManager* instance;
 
 
 	class PointerManagerImpl;

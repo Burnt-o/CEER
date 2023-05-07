@@ -29,9 +29,12 @@ private:
 	void renderErrorDialog();
 
 
-	void renderAddRulePopup();
+
+	void renderAddSpawnMultiplierRulePopup();
+
 	void renderManageCustomGroupsDialog();
 	void renderEnemyRandomiserRules();
+	void renderEnemySpawnMultiplierRules();
 	
 
 	// GUI data

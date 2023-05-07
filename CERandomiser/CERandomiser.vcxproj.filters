@@ -159,6 +159,12 @@
     <ClInclude Include="Datum.h">
       <Filter>Classes</Filter>
     </ClInclude>
+    <ClInclude Include="UserSeed.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -267,6 +273,12 @@
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="EnemyRandomiserHooks.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="UserSeed.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Logging.cpp">
       <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>

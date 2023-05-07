@@ -31,6 +31,7 @@ public:
 	{
 	}
 
+	bool isSentinel = false; // Used to know whether to apply position fix (ie move the sentinel up from the ground)
 
 	double probabilityOfRandomize = 0.0;
 	double spawnMultiplierPreRando = 1.0;

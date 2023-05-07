@@ -79,6 +79,22 @@ public:
 		return mLastError.str();
 	}
 
+	template<typename T>
+	bool writeData(T* dataIn)
+	{
+		if (typeid(T) == typeid(std::string))
+		{
+			return false;
+		}
+
+		uintptr_t address;
+		if (!this->resolve(&address)) return false;
+
+
+		*(T*)address = *dataIn;
+		return true;
+	}
+
 };
 
 
