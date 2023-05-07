@@ -24,7 +24,7 @@
 /* GENERAL TODO:: 
 * Before beta release 
 *
-Delay DLL injection until MCC initialized
+Delay DLL injection until MCC initialized DONE
 Get rid of MasterToggle
 PointerData for latest version
 Fix up logging -- DONE

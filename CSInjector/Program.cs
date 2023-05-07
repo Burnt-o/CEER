@@ -27,7 +27,7 @@ namespace CSInjector
                 if (targetProcess == null) { Console.WriteLine("Waiting for MCC to open"); }
                 while (targetProcess == null)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
                     targetProcess = FindTargetProcess(targetProcessNames);
                 }
 
@@ -36,8 +36,19 @@ namespace CSInjector
 
 
                 // Check if the dll is already loaded in the process before we inject. In which case we want to make sure it finishes execution by calling shutdown on it
-                ProcessModule? dllAlreadyInProcess = FindTargetModule(targetProcess, dllToInjectName);
+                ProcessModule? dllAlreadyInProcess = FindTargetModule(targetProcess, dllToInjectName + ".dll");
                 if (dllAlreadyInProcess != null) CallExternalShutdown(GetProcAddressEx(targetProcess, dllAlreadyInProcess, "Shutdown"), targetProcess, dllAlreadyInProcess);
+
+
+                // Check if Kernel32 Loaded in the target process (during MCC initialization it may not be yet)
+                // Kernel32 contains the loadlibrary & other functions needed for dll injection
+                int timeout = 0;
+                while(FindTargetModule(targetProcess, "KERNEL32.DLL") == null)
+                {
+                    Thread.Sleep(100);
+                    timeout++;
+                    if (timeout > 50) throw new InvalidOperationException("KERNEL32.DLL not loaded in target process. Try opening CEER *after* MCC is opened.");
+                }
 
                 // Inject!
                 dllAlreadyInProcess = InjectDLL(targetProcess, dllToInjectPath, dllToInjectName);
@@ -68,6 +79,11 @@ namespace CSInjector
 
         }
 
+        static bool Kernel32Loaded(Process targetProcess)
+        {
+            ProcessModule? kernel32 = FindTargetModule(targetProcess, "KERNEL32.DLL");
+            return kernel32 != null;
+        }
 
         static ProcessModule? InjectDLL(Process targetProcess, string dllPath, string dllName)
         {
@@ -127,7 +143,7 @@ namespace CSInjector
                     // Just need to get a handle to the loaded Library to return it
                     // While LoadLibraryA's exit code contains a handle to the loaded Library, unfortunately it only returns 32 bits. On 64 bit this means the handle is cut in half, so is pretty much useless.
                     Console.WriteLine("Successfully injected {0}.dll into {1}.exe", dllName, targetProcess.ProcessName);
-                    return FindTargetModule(targetProcess, dllName);
+                    return FindTargetModule(targetProcess, dllName + ".dll");
 
                 }
                 finally
@@ -161,7 +177,7 @@ namespace CSInjector
             foreach (ProcessModule mod in updatedProcess.Modules)
             {
                 //Console.WriteLine("target: {0}, check: {1}", targetModuleName, mod.ModuleName);
-                if (mod.ModuleName == targetModuleName + ".dll")
+                if (mod.ModuleName == targetModuleName)
                 {
                     Console.WriteLine("Found target module in {0}!", process.ProcessName);
                     return mod;
