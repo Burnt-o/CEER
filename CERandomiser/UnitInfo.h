@@ -17,6 +17,21 @@ enum class faction {
 };
 
 
+const std::map<faction, std::string> factionToString = {
+{faction::Undefined, "Undefined"},
+{faction::DefaultByUnit, "DefaultByUnit"},
+{faction::Player, "Player"},
+{faction::Human, "Human"},
+{faction::Covenant, "Covenant"},
+{faction::Flood, "Flood"},
+{faction::Sentinel, "Sentinel"},
+{faction::Unused6, "Unused6"},
+{faction::Unused7, "Unused7"},
+{faction::Unused8, "Unused8"},
+{faction::Unused9, "Unused9"},
+};
+
+
 // Turns "characters\hunter\hunter" into "hunter"
 std::string getShortNameFromFull(std::string fullName);
 

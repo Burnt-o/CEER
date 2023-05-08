@@ -7,16 +7,29 @@ enum Register {
 
 
 
+class ParameterLocation
+{
+private:
+	Register mRegIndex;
+	std::vector<int> mOffsets;
+public:
+
+	ParameterLocation(Register reg, std::vector<int> offsets = {}) : mRegIndex(reg), mOffsets(offsets) {}
+
+	Register getRegIndex() { return mRegIndex;  }
+	std::vector<int>& getOffsets() { return mOffsets; }
+};
+
 // One of these interpreter objects will be associated with each MidHook callback function
 // This allows us to figure out at runtime which registers contains the parameters that the callback wants to manipulate
 // eg depending what version of MCC we've been injected into
 class MidhookContextInterpreter
 {
 private:
-	std::vector<Register> mParameterRegisterIndices; //ie index 0 contains the RegisterIndex of the FIRST parameter that the midhook callback function cares about
+	std::vector<ParameterLocation> mParameterRegisterIndices; //ie index 0 contains the RegisterIndex of the FIRST parameter that the midhook callback function cares about
 	std::vector<safetyhook::Context64> mpri;
 public:
-	explicit MidhookContextInterpreter(std::vector<Register> parameterRegisterIndices) : mParameterRegisterIndices(parameterRegisterIndices) {}
+	explicit MidhookContextInterpreter(std::vector<ParameterLocation> parameterRegisterIndices) : mParameterRegisterIndices(parameterRegisterIndices) {}
 
 	// return ref to the ctx register we want
 	uintptr_t* getParameterRef(SafetyHookContext& ctx, int parameterIndex);

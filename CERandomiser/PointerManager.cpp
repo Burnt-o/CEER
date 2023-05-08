@@ -51,9 +51,9 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
 {
 
 #if debugPointerManager == 0
-    // set plog severity to ERROR temporarily
+    // set plog severity to info temporarily
     auto oldSeverity = plog::get()->getMaxSeverity();
-    plog::get()->setMaxSeverity(plog::error);
+    plog::get()->setMaxSeverity(plog::info);
 #endif
 
     // Set pointerDataLocation 
@@ -323,15 +323,25 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
 {
     using namespace pugi;
     std::string entryName = entry.attribute("Name").value();
+
+
     PLOG_DEBUG << "processing versionedEntry, name: " << entry.name();
     for (xml_node versionEntry = entry.first_child(); versionEntry; versionEntry = versionEntry.next_sibling())
     {
+
+
         if (strcmp(versionEntry.attribute("Version").value(), currentGameVersion.c_str())) // We only want the versionEntries of the current MCC version
         {
             PLOG_VERBOSE << "No version match";
             continue;
         }
         PLOG_DEBUG << "Matching version found";
+
+                // check for duplicates
+        if (mMultilevelPointerData.contains(entryName))
+        {
+            throw InitException(std::format("Entry already exists in pointerData, entryName {}\n", entryName));
+        }
 
         std::string entryType = entry.attribute("Type").value(); // Convert to std::string
         // Check what type it is
@@ -415,6 +425,7 @@ void PointerManager::PointerManagerImpl::instantiateMultilevelPointer(pugi::xml_
     }
 
     PLOG_DEBUG << "MultilevelPointer added to map: " << entryName;
+
     mMultilevelPointerData.try_emplace(entryName, result);
 
 }
@@ -423,20 +434,49 @@ void PointerManager::PointerManagerImpl::instantiateMultilevelPointer(pugi::xml_
 void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pugi::xml_node versionEntry, std::string entryName)
 {
     std::shared_ptr<MidhookContextInterpreter> result;
-    std::vector<Register> parameterRegisters;
+    std::vector<ParameterLocation> parameterRegisters;
 
     using namespace pugi;
 
     xml_node paramArray = versionEntry.first_child();
     for (xml_node parameter = paramArray.first_child(); parameter; parameter = parameter.next_sibling())
     {
-        std::string registerText = parameter.text().as_string();
+        std::string parameterLocationText = parameter.text().as_string();
+
+        auto mathSymbol = parameterLocationText.find_first_of('+');
+        if (mathSymbol == std::string::npos)
+        {
+            mathSymbol = parameterLocationText.find_first_of('-');
+        }
+        
+        std::string registerText = mathSymbol == std::string::npos ? parameterLocationText : parameterLocationText.substr(0, mathSymbol);
+        PLOG_VERBOSE << "registerText: " << registerText;
+
+
         if (!stringToRegister.contains(registerText))
         {
-            throw InitException(std::format("invalid parameter string when parsing MidhookContextInterpreter->{}: {}", entryName, registerText));
+            throw InitException(std::format("invalid parameter string when parsing MidhookContextInterpreter->{}: {}", entryName, parameterLocationText));
         }
 
-        parameterRegisters.push_back(stringToRegister.at(registerText));
+        if (mathSymbol != std::string::npos)
+        {
+            PLOG_VERBOSE << "parsing RSP/RBP offset";
+            // parsing the number from the string is a pain in the ass
+            std::string offsetText = parameterLocationText.substr(mathSymbol, parameterLocationText.size());
+
+            PLOG_VERBOSE << "offsetText " << offsetText;
+            int offset = offsetText.contains("0x") ? stoi(offsetText, 0, 16) : stoi(offsetText);
+            PLOG_VERBOSE << "offset " << offset;
+            std::vector<int> offsets = { offset }; // TODO: rewrite this section to be capable of handling multiple levels of offsets
+            parameterRegisters.push_back(ParameterLocation(stringToRegister.at(registerText), offsets));
+
+        }
+        else
+        {
+            parameterRegisters.push_back(ParameterLocation(stringToRegister.at(registerText)));
+        }
+
+
     }
 
     if (parameterRegisters.empty())

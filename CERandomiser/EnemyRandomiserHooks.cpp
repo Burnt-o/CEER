@@ -253,10 +253,10 @@ void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 
 
 
-bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex, __int16 unknown)
+bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex)
 {
 	PLOG_VERBOSE << "newProcessSquadFunction";
-	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 	//if (encounterIndex > 0xFFFF)
 	//{
@@ -264,25 +264,42 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	//	return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
 	//}
 
+	PLOG_DEBUG << "encounterIndex: " << encounterIndex;
+	PLOG_DEBUG << "squadIndex: " << squadIndex;
+
 
 	datum originalActor;
 	try
 	{
 		// Need to go to scenario tag and lookup the encounter & squad index ourselves, see what the original unit is
 		originalActor = instance->mapReader->getEncounterSquadDatum(encounterIndex, squadIndex);
-		PLOG_DEBUG << "original spawning actor: " << instance->mapReader->getTagName(originalActor);
+
 	}
 	catch (CEERRuntimeException& ex)
 	{
 		RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 	}
+
+	PLOG_VERBOSE << "originalActor: " << originalActor;
+	PLOG_VERBOSE << "nullDatum: " << nullDatum;
+	PLOG_VERBOSE << "equal? " << (originalActor == nullDatum);
+
+	if (originalActor == nullDatum)
+	{
+		PLOG_VERBOSE << "bailing on nullDatum";
+		hookData_currentUnitsFaction = faction::Undefined;
+		hookData_currentUnitDatum = originalActor;
+		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+	}
+
+	PLOG_DEBUG << "original spawning actor: " << instance->mapReader->getTagName(originalActor);
 
 	if (!instance->actorMap.contains(originalActor)) // safety check before we access the map
 	{
 		CEERRuntimeException ex("actor spawning wasn't in our stored map!");
 		RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 	}
 
 	// get info of originally spawning actor
@@ -294,7 +311,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		// we shan't mess with it
 		hookData_currentUnitsFaction = originalActorInfo.defaultTeam;
 		hookData_currentUnitDatum = originalActor;
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 	}
 
 
@@ -326,7 +343,8 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		generator = SetSeed64(seed);
 
 		// Roll randomization for each of these units
-		UnitInfo& newUnit = originalActorInfo; // If not randomised, newUnit will actually be the original unit
+		UnitInfo* newUnit = &originalActorInfo; // If not randomised, newUnit will actually be the original unit
+
 		datum newUnitDatum = originalActor;
 		PLOG_DEBUG << "probability of randomisze: " << originalActorInfo.probabilityOfRandomize;
 		if (zeroToOne(generator) < originalActorInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
@@ -338,7 +356,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			{
 				CEERRuntimeException ex("rolled actor index was too large!");
 				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 			}
 
 			newUnitDatum = instance->actorDatumVector.at(unitRollIndex); // Re-use the seed to see what new enemy we should roll into
@@ -346,16 +364,16 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			{
 				CEERRuntimeException ex("actor spawning wasn't in our stored map!");
 				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 			}
-			newUnit = instance->actorMap.at(newUnitDatum);
-			PLOG_DEBUG << "new unit: " << newUnit.getShortName();
+			newUnit = &instance->actorMap.at(newUnitDatum);
+			PLOG_DEBUG << "new unit: " << newUnit->getShortName();
 			
 		}
 
 		// Apply post-rando spawn multiplier
 		double zeroToOneRollPostRando = zeroToOne(generator);
-		for (double e = 0; e + zeroToOneRoll < newUnit.spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
+		for (double e = 0; e + zeroToOneRoll < newUnit->spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
 			PLOG_DEBUG << "inner loop " << e;
 			seed += (uint64_t)e;
@@ -366,7 +384,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			{
 				CEERRuntimeException ex(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
 				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 			}
 
 
@@ -376,16 +394,17 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			{
 				CEERRuntimeException ex(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
 				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 			}
 
 			
 			hookData_currentUnitsFaction = originalActorInfo.defaultTeam; // needed for fixUnitFaction. Must be team of ORIGINAL unit to not fuck up encounter design
+			PLOG_VERBOSE << "faction of original unit: " << factionToString.at(originalActorInfo.defaultTeam);
 			hookData_currentUnitDatum = newUnitDatum; // store the data that the setActorDatum hook will need
-			hookData_fixSentinelPosition = !originalActorInfo.isSentinel && newUnit.isSentinel; // used in position hook to move sentinels up from the ground
+			hookData_fixSentinelPosition = !originalActorInfo.isSentinel && newUnit->isSentinel; // used in position hook to move sentinels up from the ground
 			// Spawn it! Call the original function. This will cause our fixUnitFaction and setActorDatum hooks to be hit, once per call.
 					// They will ensure this by setting hookData_currentUnitsFaction & hookData_currentUnitDatum to null values after they're done.
-			instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
+			instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
 		}
 
 	}
@@ -436,13 +455,14 @@ void EnemyRandomiser::setActorDatumHookFunction(SafetyHookContext& ctx)
 //setSpawnPosition
 
 
+
 // TODO: rename to setUnitFaction
 // Sets the (probably) randomized enemy's faction to be the same as that of the enemy before randomization
 void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 {
-	return;
+
 	PLOG_VERBOSE << "fixUnitFactionHookFunction";
-	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
 		currentlySpawningUnitsFaction
@@ -452,6 +472,7 @@ void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 	if (hookData_currentUnitsFaction != faction::Undefined)
 	{
 		*ctxInterpreter->getParameterRef(ctx, (int)param::currentlySpawningUnitsFaction) = (UINT)hookData_currentUnitsFaction;
+		PLOG_DEBUG << "Setting unit faction to " << factionToString.at(hookData_currentUnitsFaction);
 		hookData_currentUnitsFaction = faction::Undefined;
 	}
 	else
@@ -488,34 +509,38 @@ void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 
 }
 
-
 void EnemyRandomiser::spawnPositionFuzzHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "spawnPositionFuzzHookFunction";
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+
+	enum class param
+	{
+		positionVec3
+	};
+	auto* ctxInterpreter = instance->spawnPositionFuzzFunctionContext.get();
+	
+	struct vec3 { float x, y, z; };
+
 	SetSeed64 genx(hookData_currentUnitSeed);
 	SetSeed64 geny(hookData_currentUnitSeed + 0xFF);
 	float adjustx = (zeroToOne(genx) - 0.5f) / 10.f;
 	float adjusty = (zeroToOne(geny) - 0.5f) / 10.f;
 
-	float currentx = *(float*)(ctx.rsp + 0x88);
-	float currenty = *(float*)(ctx.rsp + 0x8C);
-	float currentz = *(float*)(ctx.rsp + 0x90);
+	vec3* pCurrentPosition = (vec3*)ctxInterpreter->getParameterRef(ctx, (int)param::positionVec3);
+	PLOG_DEBUG << "pCurrentPosition: " << pCurrentPosition;
+
 
 
 	if (hookData_fixSentinelPosition)
 	{
 		PLOG_VERBOSE << "applying sentinel position fix";
-		currentz += 1.f;
+		pCurrentPosition->z += 1.f;
 		hookData_fixSentinelPosition = false;
 	}
 
-	currentx += adjustx;
-	currenty += adjusty;
+	pCurrentPosition->x += adjustx;
+	pCurrentPosition->y += adjusty;
 
-	// write it back
-	*(float*)(ctx.rsp + 0x88) = currentx;
-	*(float*)(ctx.rsp + 0x8C) = currenty;
-	*(float*)(ctx.rsp + 0x90) = currentz;
 
 }

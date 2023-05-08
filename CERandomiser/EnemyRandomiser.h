@@ -33,8 +33,7 @@ struct objectData { // for bipds, vehis, scenery etc
 
 extern "C" typedef __int64 __stdcall placeObjectFunction(tagBlock* paletteTable, objectData* spawningObject);
 
-
-extern "C" typedef bool __stdcall ProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex, __int16 unknown);
+extern "C" typedef bool __stdcall ProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex);
 
 // The definitions for this class are divided into 
 	// EnemyRandomiserLevelLoad.cpp
@@ -112,7 +111,7 @@ private:
 	
 	std::shared_ptr<ModuleMidHook> spawnPositionFuzzHook;
 	static void spawnPositionFuzzHookFunction(SafetyHookContext& ctx);
-	//std::shared_ptr<MidhookContextInterpreter> spawnPositionFuzzFunctionContext;
+     std::shared_ptr<MidhookContextInterpreter> spawnPositionFuzzFunctionContext;
 
 
 	// data passed between hooks
@@ -233,7 +232,7 @@ public:
 			fixMajorUpgradeHook = ModuleMidHook::make(L"halo1.dll", fixMajorUpgradeFunction, fixMajorUpgradeHookFunction, false);
 
 			auto spawnPositionFuzzFunction = PointerManager::getMultilevelPointer("spawnPositionFuzzFunction");
-			//spawnPositionFuzzFunctionContext = PointerManager::getMidhookContextInterpreter("spawnPositionFuzzFunctionContext");
+			spawnPositionFuzzFunctionContext = PointerManager::getMidhookContextInterpreter("spawnPositionFuzzFunctionContext");
 			spawnPositionFuzzHook = ModuleMidHook::make(L"halo1.dll", spawnPositionFuzzFunction, spawnPositionFuzzHookFunction, false);
 
 

@@ -281,6 +281,9 @@
     <ClCompile Include="Logging.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="Datum.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CERandomiser.rc">

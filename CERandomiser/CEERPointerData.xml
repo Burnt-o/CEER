@@ -22,12 +22,14 @@
 	
 	
 	
-	<!--scan nw "C6 44 24 30 01 0f b6 44 24 30", halo1.dll result-->
+	<!--scan nw "C6 44 24 30 01 0f b6 44 24 30", halo1.dll result
+	but actually put it down towards teh end of the function
+		-->
 	<VersionedEntry Name="levelLoadFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xA965ED</Offset>
+				<Offset>0xA96806</Offset>
 			</Offsets>
 		</Version>
 		<Version Version="1.2645.0.0">
@@ -40,28 +42,14 @@
 
 	
 	<!--#region EnemyRandomiser-->
-	<VersionedEntry Name="actvSpawnFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.2645.0.0">
+	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": on the lea-->
+	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xC540B5</Offset>
+				<Offset>0xB8CE5E</Offset>
 			</Offsets>
 		</Version>
-	</VersionedEntry>
-
-
-	<VersionedEntry Name="actvSpawnFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.2645.0.0">
-			<ParameterRegisters>
-				<actvPaletteIndex>rcx</actvPaletteIndex>
-				<encounterIndex>r12</encounterIndex>
-				<squadIndex>r13</squadIndex>
-				<unitIndex>rdx</unitIndex>
-			</ParameterRegisters>
-		</Version>
-	</VersionedEntry>
-
-	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -72,6 +60,11 @@
 
 
 	<VersionedEntry Name="placeObjectFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<ParameterRegisters>
+				<objectType>r15</objectType>
+			</ParameterRegisters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<ParameterRegisters>
 				<objectType>r15</objectType>
@@ -84,8 +77,14 @@
 	</VersionedEntry>
 
 
-
+	<!--scan nw "66 89 43 74 48 8b 15": on mov [rbx+74], ax-->
 	<VersionedEntry Name="fixUnitFactionFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB294F7</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -95,6 +94,11 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="fixUnitFactionFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<currentlySpawningUnitsFaction>rax</currentlySpawningUnitsFaction>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<currentlySpawningUnitsFaction>rax</currentlySpawningUnitsFaction>
@@ -102,7 +106,14 @@
 		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "0f b7 68 10 66 83 fd ff": on the cmp bp, -01-->
 	<VersionedEntry Name="vehicleExitFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB38E7E</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -112,6 +123,11 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="vehicleExitFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<vehicleExitAnimationIndex>rbp</vehicleExitAnimationIndex>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<vehicleExitAnimationIndex>rbp</vehicleExitAnimationIndex>
@@ -119,8 +135,14 @@
 		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "42 0f b7 3c 63 66 83 ff ff": on the cmp di, -01-->
 	<VersionedEntry Name="aiGoToVehicleFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xDF0659</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -130,6 +152,12 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="aiGoToVehicleFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<unknownCheckParam>rcx</unknownCheckParam>
+				<unknownFixParam>rdi</unknownFixParam>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<unknownCheckParam>rcx</unknownCheckParam>
@@ -138,8 +166,14 @@
 		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "40 84 f6 48 8b 74 24 50 44 0f b7 74 24 32": on the mov rsi, [rsp+50]-->
 	<VersionedEntry Name="aiLoadInVehicleFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB36FBD</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -149,38 +183,13 @@
 	</VersionedEntry>
 
 
-	<VersionedEntry Name="preSquadSpawnFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.2645.0.0">
-			<Parameters>
-				<spawnCount>rbp</spawnCount>
-				<encounterIndex>r12</encounterIndex>
-				<squadIndex>rsi</squadIndex>
-			</Parameters>
-		</Version>
-	</VersionedEntry>
-
-
-	<VersionedEntry Name="preSquadSpawnFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.2645.0.0">
-			<Module>halo1.dll</Module>
-			<Offsets>
-				<Offset>0xC5200D</Offset>
-			</Offsets>
-		</Version>
-	</VersionedEntry>
-
-
-	<VersionedEntry Name="postSquadSpawnFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.2645.0.0">
-			<Module>halo1.dll</Module>
-			<Offsets>
-				<Offset>0xC5202F</Offset>
-			</Offsets>
-		</Version>
-	</VersionedEntry>
-
 
 	<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<unitIndex>r11</unitIndex>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<unitIndex>rdi</unitIndex>
@@ -188,8 +197,14 @@
 		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "0f b7 84 24 80 00 00 00 41 8b d4": on the movzx eax, word ptr [rsp+80]-->
 	<VersionedEntry Name="setActorDatumFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC7CF94</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -198,7 +213,17 @@
 		</Version>
 	</VersionedEntry>
 
+	
+	<!--scan nw "48 89 5c 24 10 48 89 6c 24 20 66 44 89 44 24 18": check the signature matches w/ IDA-->
+	<!--FUCK, the signature is different. it's missing the unknown uint at the end.. do I really need to build a InlineHookInterpreter thingy?-->
+	<!--will probably have to for HCM...-->
 	<VersionedEntry Name="processSquadUnitFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC7CCF0</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -208,6 +233,11 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="getSquadUnitIndexFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<unitIndex>rbx</unitIndex>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<unitIndex>rbx</unitIndex>
@@ -215,8 +245,14 @@
 		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "41 8b cc ** ** ** ** ** 41 0f b7 fe": on mov ecx, r12d-->
 	<VersionedEntry Name="getSquadUnitIndexFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC7AD67</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -226,6 +262,12 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="fixMajorUpgradeFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<majorDatum>r15</majorDatum>
+				<normalDatum>r11</normalDatum>
+			</Parameters>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<majorDatum>r15</majorDatum>
@@ -234,8 +276,14 @@
 		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "48 8b cb 49 0f bf c7": on mov rcx, rbx-->
 	<VersionedEntry Name="fixMajorUpgradeFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCADD99</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -244,17 +292,27 @@
 		</Version>
 	</VersionedEntry>
 
-	<!--<VersionedEntry Name="spawnPositionFuzzFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.2645.0.0">
+	<VersionedEntry Name="spawnPositionFuzzFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
 			<Parameters>
-				<zPosition>rax</zPosition>
-				<xyPosition>rdi</xyPosition>
+				<positionVec3>rsp+0x8C</positionVec3>
 			</Parameters>
 		</Version>
-	</VersionedEntry>-->
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<positionVec3>rsp+0x88</positionVec3>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
 
-
+	<!--approx 0x6E bytes ahead of fixMajorUpgrade (put it on the call immediately after mov [rsp+90], eax-->
 	<VersionedEntry Name="spawnPositionFuzzFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCADE07</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -263,26 +321,20 @@
 		</Version>
 	</VersionedEntry>
 
-	<!--<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.2645.0.0">
-			<Parameters>
-				<unitIndex>rdi</unitIndex>
-			</Parameters>
-		</Version>
-	</VersionedEntry>
 
-
-	<VersionedEntry Name="setActorDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.2645.0.0">
+	
+	<!--scan writeable "48 61 6C 6F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 61 6C 6F"
+	go back 0x40 bytes. There's a pointer there, pointing to 00 00 00 00 FF FF FF FF
+	with that as the first offset, 0x764 ahead should be spawn position rng. Will be accessed on spawns.
+	-->
+	<VersionedEntry Name="gameSpawnRNG" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xC540C1</Offset>
+				<Offset>0x2B5CBF8</Offset>
+				<Offset>0x764</Offset>
 			</Offsets>
 		</Version>
-	</VersionedEntry>-->
-	
-
-	<VersionedEntry Name="gameSpawnRNG" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -292,7 +344,14 @@
 		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "69 15 ** ** ** ** 0d 66 19 00". but which one? a pair will be much more common-->
 	<VersionedEntry Name="gameRNG" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x300C454</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -303,7 +362,16 @@
 	<!--#endregion EnemyRandomiser-->
 	
 	<!--#region MapReader-->
+	<!--go to top of levelLoadHook function. Head down for where it compares to daeh & toof, inbetween it loads the address.-->
 	<VersionedEntry Name="currentCacheAddress" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2F01D98</Offset>
+				<Offset>0x0</Offset>
+
+			</Offsets>
+		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -314,14 +382,15 @@
 		</Version>
 	</VersionedEntry>
 
-	<VersionedEntry Name="tagDataBase" Type="MultilevelPointer::ModuleOffset">
+	
+	<!--<VersionedEntry Name="tagDataBase" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2B5BB80</Offset>
 			</Offsets>
 		</Version>
-	</VersionedEntry>
+	</VersionedEntry>-->
 
 	<!--#endregion MapReader-->
 </root>

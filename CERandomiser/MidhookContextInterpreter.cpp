@@ -14,7 +14,42 @@ uintptr_t* MidhookContextInterpreter::getParameterRef(SafetyHookContext& ctx, in
 		return nullptr;
 	}
 
+	ParameterLocation& thisParameter = mParameterRegisterIndices.at(parameterIndex);
 	uintptr_t* ctxArray = reinterpret_cast<uintptr_t*>(&ctx);
-	return &ctxArray[mParameterRegisterIndices.at(parameterIndex)];
 
+	if (thisParameter.getOffsets().empty())
+	{
+		return &ctxArray[thisParameter.getRegIndex()];
+	}
+	else
+	{
+		uintptr_t ptr = ctxArray[thisParameter.getRegIndex()];
+		auto &offsets = thisParameter.getOffsets();
+
+
+
+		for (int i = 0; i < offsets.size(); i++)
+		{
+			int offset = offsets[i];
+			uintptr_t follow = (uintptr_t)(ptr + offset);
+			if (IsBadReadPtr((void*)follow, 8))
+			{
+				CEERRuntimeException ex(std::format("bad read in midhookcontextinterpreter! next: {}, ptr: {}, offset: {}", follow, ptr, offset));
+				RuntimeExceptionHandler::handle(ex);
+				return nullptr;
+			}
+
+			if (i == 0)
+			{
+				ptr = follow;
+			}
+			else
+			{
+				ptr = *(uintptr_t*)follow; // dereference
+			}
+		}
+
+		return (uintptr_t*)ptr;
+	}
 }
+

@@ -7,17 +7,8 @@
 //https://github.com/XboxChaos/Assembly/blob/9c2aabd70b1d40fedc02942fca888b71f940ce10/src/Blamite/Formats/Halo1/Layouts/H1_Layouts_Core.xml
 
 
-bool datum::operator<(const datum& rhs) const
-{
-    return index < rhs.index;
-}
-
-bool datum::operator==(const datum& rhs) const
-{
-    return salt == rhs.salt;
-}
-
 constexpr uint32_t tagDataBase = 0x50000000;
+
 
 struct mapHeader {
 private:
@@ -110,6 +101,7 @@ MapReader::~MapReader() = default; // https://www.fluentcpp.com/2017/09/22/make-
 
 MapReader::MapReaderImpl::MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent) : mLevelLoadEvent(levelLoadEvent)
 {
+
     mLevelLoadCallbackHandle = levelLoadEvent.append([this](HaloLevel a) { this->onLevelLoadEvent(a); });
     static_assert(stringToMagic("actv") == 0x61637476);
 }
@@ -317,7 +309,7 @@ public:
     char unknown3[0x48];
     uint16_t unknown4;
     uint16_t unknown5;
-    tagBlock squads; // what we care about
+    tagBlock squads; // what we care about.. 0x80
     tagBlock platoons;
     tagBlock firingPositions;
     tagBlock playerStartingLocations;
@@ -330,23 +322,36 @@ datum MapReader::MapReaderImpl::getEncounterSquadDatum(int encounterIndex, int s
 {
     // Note; needs to throw_from_hook since running from hook. No actually should try catch in enemy randomiser
 
+    if (!scenarioAddress) throw CEERRuntimeException("scenarioAddress not loaded yet!");
+
     constexpr int encounterOffset = 0x42C;
     tagBlock* encounterBlock = (tagBlock*)(scenarioAddress + encounterOffset);
 
     if (encounterIndex > encounterBlock->entryCount) 
         throw CEERRuntimeException(std::format("recieved bad encounterIndex! encIndex {}, entryCount {}", encounterIndex, encounterBlock->entryCount));
 
-
+    // is the squad datum possibly null too?
     auto thisEncounter = (encounterData*)(getTagAddress(encounterBlock->pointer) + (encounterIndex * sizeof(encounterData)));
-
+    //PLOG_DEBUG << "thisEncounter: " << std::hex << thisEncounter;
     if (squadIndex > thisEncounter->squads.entryCount) throw CEERRuntimeException("recieved bad squadIndex!");
 
     auto thisSquad = (squadData*)(getTagAddress(thisEncounter->squads.pointer) + (squadIndex * sizeof(squadData)));
+    //PLOG_DEBUG << "thisSquad: " << std::hex << thisSquad;
+    //PLOG_DEBUG << "actorPalette: " << std::hex << getTagAddress(actorPalette->pointer);
+    //PLOG_DEBUG << "thisSquad->actorTypeIndex" << thisSquad->actorTypeIndex;
+
+    PLOG_DEBUG << "actorTypeIndex: " << thisSquad->actorTypeIndex;
+
+    if (thisSquad->actorTypeIndex >= actorPalette->entryCount)  // sometimes bungie set the actor type to -1 to disable a squad.. very annoying
+    {
+        PLOG_ERROR << "actorType index >= actorPalette->entryCount, returning nullDatum";
+        return nullDatum;
+    }
 
     auto actorRef = (tagReference*)(getTagAddress(actorPalette->pointer) + (thisSquad->actorTypeIndex * 0x10));
 
     constexpr uint32_t actvMagic = stringToMagic("actv");
-    if (actorRef->tagGroupMagic != actvMagic) throw CEERRuntimeException("failed to evaluate actv from squad!");
+    if (actorRef->tagGroupMagic != actvMagic) throw CEERRuntimeException(std::format("failed to evaluate actv from squad, magic mistmatch! actual magic was: {} at {}", actorRef->tagGroupMagic, (uint64_t)actorRef));
 
     return actorRef->tagDatum;
 

@@ -119,7 +119,7 @@ void RealMain(HMODULE dllHandle)
         // We live in this loop 99% of the time
         while (!GlobalKill::isKillSet()) {
 
-
+#ifdef CEER_DEBUG
             if (GetKeyState(0x23) & 0x8000) // 'End' key
             {
                 PLOG_INFO << "Killing internal dll";
@@ -130,7 +130,8 @@ void RealMain(HMODULE dllHandle)
             {
                 ImGuiManager::debugInput();
             }
-
+#endif // !CEER_DEBUG
+            Sleep(10);
 
         }
 
@@ -151,8 +152,17 @@ void RealMain(HMODULE dllHandle)
 
     curl_global_cleanup();
     //release_global_unhandled_exception_handler();
+
+#ifdef CEER_DEBUG
+    while (!GetKeyState(0x23) & 0x8000) // 'End' key
+    {
+        Sleep(100);
+    }
+#endif // !CEER_DEBUG
     PLOG_DEBUG << "Closing console";
     Logging::closeConsole();
+
+
 }
 
 
