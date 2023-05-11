@@ -39,7 +39,7 @@ private:
 
 	// GUI data
 	ImGuiWindowFlags windowFlags;
-	bool m_WindowOpen = true;
+	static bool m_WindowOpen;
 
 public:
 
@@ -58,5 +58,6 @@ public:
 	~OptionsGUI(); // release resources
 
 	static void addError(CEERRuntimeException error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
+	static bool isWindowOpen() { return m_WindowOpen; };
 };
 

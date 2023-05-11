@@ -18,6 +18,7 @@
 #include "curl\curl.h"
 #include "InitParameter.h"
 #include "Logging.h"
+#include "MessagesGUI.h"
 
 
 
@@ -94,6 +95,7 @@ void RealMain(HMODULE dllHandle)
         auto d3d = std::make_unique<D3D11Hook>();
         auto imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
         auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
+        auto mesGUI = std::make_unique<MessagesGUI>(imm.get()->ImGuiRenderCallback);
 
         auto exp = std::make_unique<RuntimeExceptionHandler>(imm.get()->ImGuiRenderCallback);
 
@@ -112,6 +114,11 @@ void RealMain(HMODULE dllHandle)
 
 #ifndef CEER_DEBUG
         Logging::closeConsole();
+#else
+        MessagesGUI::addMessage("Hello hello hello");
+        CEERRuntimeException testException("Hello, this is a test exception");
+        RuntimeExceptionHandler::handle(testException);
+        MessagesGUI::addMessage("Another message");
 #endif // !CEER_DEBUG
 
 

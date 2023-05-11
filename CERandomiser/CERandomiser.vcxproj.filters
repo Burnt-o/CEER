@@ -159,11 +159,14 @@
     <ClInclude Include="Datum.h">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="UserSeed.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Logging.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="MessagesGUI.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="UserSeed.h">
+      <Filter>Global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -275,14 +278,17 @@
     <ClCompile Include="EnemyRandomiserHooks.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="UserSeed.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Logging.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="Datum.cpp">
       <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="MessagesGUI.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="UserSeed.cpp">
+      <Filter>Global</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

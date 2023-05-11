@@ -6,7 +6,7 @@
 #include "EnemyRule.h"
 
 
-
+bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
 
 
@@ -428,7 +428,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 void OptionsGUI::renderOptionsGUI()
 {
 	// Dialogs
-	renderErrorDialog();
+	//renderErrorDialog();
 
 
 
@@ -438,7 +438,9 @@ void OptionsGUI::renderOptionsGUI()
 	ImGui::SetNextWindowSize(ImVec2(500, 500));
 	ImGui::SetNextWindowPos(ImVec2(10, 10));
 
-	if (ImGui::Begin("CE Enemy Randomiser!", NULL, windowFlags))  // Create window, only bother rendering children if it's not collapsed
+	m_WindowOpen = ImGui::Begin("CE Enemy Randomiser!", nullptr, windowFlags); // Create window
+
+	if (m_WindowOpen)  //only bother rendering children if it's not collapsed
 	{
 #pragma region Seed
 

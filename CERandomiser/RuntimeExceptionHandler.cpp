@@ -2,8 +2,8 @@
 #include "RuntimeExceptionHandler.h"
 
 #include "Option.h"
-#include "OptionsGUI.h"
-
+//#include "OptionsGUI.h"
+#include "MessagesGUI.h"
 RuntimeExceptionHandler* RuntimeExceptionHandler::instance = nullptr;
 
 void RuntimeExceptionHandler::handle(CEERRuntimeException& ex) 
@@ -28,7 +28,8 @@ void RuntimeExceptionHandler::disableOption(Option<bool>* optionToDisable)
 void RuntimeExceptionHandler::showErrorMessage(CEERRuntimeException& ex)
 {
 	PLOG_ERROR << "EXCEPTION: " << std::string(ex.what()) << std::endl << std::string(ex.source()) << std::endl << std::string(ex.trace());
-	OptionsGUI::addError(ex);
+	MessagesGUI::addError(ex);
+	//OptionsGUI::addError(ex);
 
 }
 
