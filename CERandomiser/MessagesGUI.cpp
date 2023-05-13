@@ -151,7 +151,3 @@ void MessagesGUI::addMessage(std::string message)
 
 }
 
-void MessagesGUI::addError(CEERRuntimeException& ex)
-{
-	addMessage(std::format("An error occured:\n{}\nFunctionality may be disabled to prevent a crash.\nSee CEER_logging.txt for more info, and send it to Burnt so he can fix it.", ex.what()));
-}

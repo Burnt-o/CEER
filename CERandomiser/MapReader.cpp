@@ -6,7 +6,7 @@
 // A lot of the reverse engineering here was already done by the assembly guys
 //https://github.com/XboxChaos/Assembly/blob/9c2aabd70b1d40fedc02942fca888b71f940ce10/src/Blamite/Formats/Halo1/Layouts/H1_Layouts_Core.xml
 
-
+static_assert(MapReader::stringToMagic("actv") == 0x61637476);
 constexpr uint32_t tagDataBase = 0x50000000;
 
 
@@ -59,21 +59,13 @@ private:
 
 
 
-    // handle to our callback of LevelLoadHook so we can remove it in destructor
-    eventpp::CallbackList<void(HaloLevel)>::Handle mLevelLoadCallbackHandle = {};
-    eventpp::CallbackList<void(HaloLevel)>& mLevelLoadEvent;
-
-    
-
-
-
 
     std::once_flag lazyInitOnceFlag;
     void lazyInit();
 
 public:
-    explicit MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent);
-    ~MapReaderImpl();
+    explicit MapReaderImpl() = default;
+    ~MapReaderImpl() { std::scoped_lock<std::mutex> lock(mDestructionGuard); }
 
     tagElement* getTagElement(const datum& tagDatum);
     uintptr_t getTagAddress(const datum& tagDatum);
@@ -91,20 +83,15 @@ public:
 
     std::span<tagElement> getTagTable();
 
-    void onLevelLoadEvent(HaloLevel newLevel);     // What we run when new level is loaded changes
+    void cacheTagData(HaloLevel newLevel);     // What we run when new level is loaded changes
 };
 
-MapReader::MapReader(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent) : impl(new MapReaderImpl(levelLoadEvent)) {}
+MapReader::MapReader() : impl(new MapReaderImpl()) {}
 MapReader::~MapReader() = default; // https://www.fluentcpp.com/2017/09/22/make-pimpl-using-unique_ptr/
 
 
 
-MapReader::MapReaderImpl::MapReaderImpl(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent) : mLevelLoadEvent(levelLoadEvent)
-{
 
-    mLevelLoadCallbackHandle = levelLoadEvent.append([this](HaloLevel a) { this->onLevelLoadEvent(a); });
-    static_assert(stringToMagic("actv") == 0x61637476);
-}
 
 
 void MapReader::MapReaderImpl::lazyInit()
@@ -114,19 +101,42 @@ void MapReader::MapReaderImpl::lazyInit()
         mlp_currentCache = PointerManager::getMultilevelPointer("currentCacheAddress");
         //mlp_tagDataBase = PointerManager::getMultilevelPointer("tagDataBase");
     }
-    catch (InitException& ex)
+    catch (InitException& ex) // convert initException to runtime exception since this might happen at any time
     {
         ex.prepend("MapReader setup failed: ");
         throw CEERRuntimeException(ex.what());
     }
 }
 
-MapReader::MapReaderImpl::~MapReaderImpl()
+// We want to load data relavent to the currently loaded cache file
+void MapReader::MapReaderImpl::cacheTagData(HaloLevel newLevel)
 {
     std::scoped_lock<std::mutex> lock(mDestructionGuard);
-    mLevelLoadEvent.remove(mLevelLoadCallbackHandle);
+    PLOG_VERBOSE << "MapReader::MapReaderImpl::cacheTagData";
+    std::call_once(lazyInitOnceFlag, [this]() {lazyInit(); }); // flag not flipped if exception thrown
+
+    if (!mlp_currentCache.get()->resolve(&currentCacheAddress)) throw CEERRuntimeException(std::format("Could not resolve currentCacheAddress, {}, {:#X}", MultilevelPointer::GetLastError(), (uint64_t)currentCacheAddress));
+    PLOG_VERBOSE << "currentCacheAddress: " << std::hex << currentCacheAddress;
+    mapHeader* header = (mapHeader*)currentCacheAddress;
+
+
+    tagElement* scenarioTagElement = (tagElement*)getTagElement(header->scenarioDatum);
+    PLOG_VERBOSE << "scenarioTagElement: " << std::hex << scenarioTagElement;
+
+    scenarioAddress = getTagAddress(scenarioTagElement->offset);
+    PLOG_VERBOSE << "scenarioAddress: " << std::hex << scenarioAddress;
+    if (IsBadReadPtr((void*)scenarioAddress, 16)) throw CEERRuntimeException("scenarioAddress not resolved");
+    if (*(char*)scenarioAddress != 0x70) throw CEERRuntimeException("scenarioAddress bad address");
+
+    auto objectNameTableTagBlock = (tagBlock*)(scenarioAddress + 0x204);
+    objectNameTable = (MCCString*)getTagAddress(objectNameTableTagBlock->pointer);
+
+    constexpr int actorPaletteReferenceOffset = 0x420; // relative to scenario tag
+    this->actorPalette = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
+    PLOG_DEBUG << "actorPalette ptr" << std::hex << (uintptr_t)this->actorPalette;
 
 }
+
 
 
 faction MapReader::MapReaderImpl::getActorsFaction(const datum& actorDatum)
@@ -250,35 +260,6 @@ std::string MapReader::MapReaderImpl::getObjectName(int nameIndex)
     return (objectNameTable + nameIndex)->copy();
 }
 
-// We want to load data relavent to the currently loaded cache file
-void MapReader::MapReaderImpl::onLevelLoadEvent(HaloLevel newLevel)
-{
-
-    std::scoped_lock<std::mutex> lock(mDestructionGuard);
-    PLOG_VERBOSE << "MapReader::MapReaderImpl::onLevelLoadEvent";
-    std::call_once(lazyInitOnceFlag, [this]() {lazyInit(); });
-
-    if (!mlp_currentCache.get()->resolve(&currentCacheAddress)) throw CEERRuntimeException(std::format("Could not resolve currentCacheAddress, {}, {:#X}", MultilevelPointer::GetLastError(), (uint64_t)currentCacheAddress));
-    PLOG_VERBOSE << "currentCacheAddress: " << std::hex << currentCacheAddress;
-    mapHeader* header = (mapHeader*)currentCacheAddress;
-
-
-    tagElement* scenarioTagElement = (tagElement*)getTagElement(header->scenarioDatum);
-    PLOG_VERBOSE << "scenarioTagElement: " << std::hex << scenarioTagElement;
-
-    scenarioAddress = getTagAddress(scenarioTagElement->offset);
-    PLOG_VERBOSE << "scenarioAddress: " << std::hex << scenarioAddress;
-    if (IsBadReadPtr((void*)scenarioAddress, 16)) throw CEERRuntimeException("scenarioAddress not resolved");
-    if (*(char*)scenarioAddress != 0x70) throw CEERRuntimeException("scenarioAddress bad address");
-
-    auto objectNameTableTagBlock = (tagBlock*)(scenarioAddress + 0x204);
-    objectNameTable = (MCCString*)getTagAddress(objectNameTableTagBlock->pointer);
-
-    constexpr int actorPaletteReferenceOffset = 0x420; // relative to scenario tag
-    this->actorPalette = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
-    PLOG_DEBUG << "actorPalette ptr" << std::hex << (uintptr_t)this->actorPalette;
-
-}
 
 
 struct squadData
@@ -384,6 +365,7 @@ datum MapReader::getEncounterSquadDatum(int encounterIndex, int squadIndex) { re
  
 uintptr_t MapReader::getTagAddress(const datum& tagDatum) { return impl.get()->getTagAddress(tagDatum); }
 uintptr_t MapReader::getTagAddress(uint32_t tagOffset) { return impl.get()->getTagAddress(tagOffset); }
+void MapReader::cacheTagData(HaloLevel newLevel) { return impl.get()->cacheTagData(newLevel); }
 
 
  std::string MapReader::magicToString(uint32_t magic)

@@ -455,10 +455,6 @@ void OptionsGUI::renderOptionsGUI()
 #pragma endregion Seed
 
 
-		if (ImGui::Checkbox("Master Toggle", &OptionsState::MasterToggle.GetValueDisplay()))
-		{
-			OptionsState::MasterToggle.UpdateValueWithInput();
-		}
 
 		renderManageCustomGroupsDialog();
 

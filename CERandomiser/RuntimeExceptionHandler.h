@@ -2,10 +2,6 @@
 
 #include "Option.h"
 
-#define throw_from_hook(x, y)		CEERRuntimeException exception(x);\
-									RuntimeExceptionHandler::handle(exception, y);\
-									return;\
-
 
 class RuntimeExceptionHandler
 {
@@ -15,13 +11,11 @@ private:
 
 	eventpp::CallbackList<void()>& renderEventRef;
 
-	static void disableOption(Option<bool>* optionToDisable);
-	static void showErrorMessage(CEERRuntimeException& ex);
 
 public:
-	static void handle(CEERRuntimeException& ex);
 
-	static void handle(CEERRuntimeException& ex, Option<bool>* optionToDisable);
+	// Shows error message to user, and disables related toggle options if any were passed to it (optional)
+	static void handle(CEERRuntimeException& ex, std::vector<Option<bool>*> optionsToDisable = {});
 
 	explicit RuntimeExceptionHandler(eventpp::CallbackList<void()>& renderEvent) : renderEventRef(renderEvent) 
 	{

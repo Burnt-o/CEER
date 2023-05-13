@@ -76,7 +76,7 @@ class MapReader
 	std::unique_ptr<MapReaderImpl> impl;
 
 public:
-	explicit MapReader(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent);
+	explicit MapReader();
 	~MapReader();
 
 	tagBlock* getActorPalette();
@@ -89,6 +89,7 @@ public:
 	faction getBipedFaction(const datum& bipedDatum);
 
 	faction getActorsFaction(const datum& actorDatum);
+	void cacheTagData(HaloLevel newLevel);
 
 	std::string getObjectName(int nameIndex);
 

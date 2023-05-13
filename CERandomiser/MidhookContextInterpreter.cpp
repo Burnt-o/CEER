@@ -10,8 +10,9 @@ uintptr_t* MidhookContextInterpreter::getParameterRef(SafetyHookContext& ctx, in
 	if (parameterIndex > mParameterRegisterIndices.size())
 	{
 		CEERRuntimeException exception(std::format("MidhookContextInterpreter had invalid access of parameter! paramArray.size(): {}, accessed parameter index: {}", mParameterRegisterIndices.size(), parameterIndex)); 
-		RuntimeExceptionHandler::handle(exception, &OptionsState::MasterToggle); 
-		return nullptr;
+		RuntimeExceptionHandler::handle(exception); 
+		return nullptr; // this will cause an imminent game crash. But at least we logged why. This error only happens when Burnt makes a typo. 
+		// (I should figure a way out to make typos not possible hm)
 	}
 
 	ParameterLocation& thisParameter = mParameterRegisterIndices.at(parameterIndex);

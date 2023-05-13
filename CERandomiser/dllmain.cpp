@@ -103,9 +103,9 @@ void RealMain(HMODULE dllHandle)
 
         auto lvl = std::make_unique<LevelLoadHook>();
 
-        auto map = std::make_unique<MapReader>(lvl->levelLoadEvent);
+        auto map = std::make_unique<MapReader>();
         // TODO: we should make the public events private and only allow public access by ref
-        auto nme = std::make_unique<EnemyRandomiser>(OptionsState::MasterToggle.valueChangedEvent, lvl->levelLoadEvent, map.get());
+        auto nme = std::make_unique<EnemyRandomiser>(lvl->levelLoadEvent, map.get());
 
         PLOG_INFO << "All services succesfully initialized! Entering main loop";
 

@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-	
-	
-	
+
+
+
+	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
+		<Version Version="1.3073.0.0">
+			<Offsets>
+				<Offset>0x3FD8E99</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Offsets>
+				<Offset>0x3b40d69</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
 	
 	
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
@@ -381,6 +393,7 @@
 			</Offsets>
 		</Version>
 	</VersionedEntry>
+
 
 	
 	<!--<VersionedEntry Name="tagDataBase" Type="MultilevelPointer::ModuleOffset">

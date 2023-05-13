@@ -12,7 +12,7 @@ class MultilevelPointer {
 private:
 
 	// Common to all multilevel_pointers
-	static inline std::stringstream mLastError{};
+	static std::stringstream mLastError;
 	bool readString(std::string& resolvedOut) const; // special case of readData that handles short-string-optimization
 
 protected:
@@ -76,7 +76,10 @@ public:
 
 	static std::string GetLastError()
 	{
-		return mLastError.str();
+		if (mLastError)
+			return mLastError.str();
+		else
+			return "error not set";
 	}
 
 	template<typename T>

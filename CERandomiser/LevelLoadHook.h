@@ -28,7 +28,7 @@ private:
 		auto itr = std::ranges::find(instance->mapNames, currentLevel);
 		if (itr == instance->mapNames.end())
 		{
-			throw CEERRuntimeException(std::format("Failed to read current level: {}", MultilevelPointer::GetLastError()));
+			throw CEERRuntimeException(std::format("Failed to read current level: {}", currentLevel));
 		}
 
 		// Get index of HaloLevel enum
@@ -51,7 +51,7 @@ private:
 		}
 		catch (CEERRuntimeException& ex)
 		{
-			RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+			RuntimeExceptionHandler::handle(ex);
 		}
 			
 
@@ -65,7 +65,8 @@ private:
 
 	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
 	std::shared_ptr<MultilevelPointer> currentLevelName;
-
+	std::shared_ptr<MultilevelPointer> currentCacheAddress;
+	std::shared_ptr<MultilevelPointer> stateIndicator;
 	
 
 	
@@ -80,7 +81,7 @@ private:
 		 { 
 			// Let runtime handler handle any exceptions thrown by listeners
 			 PLOG_ERROR << "levelLoadEvent exception caught " << ex.what();
-			 RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
+			 RuntimeExceptionHandler::handle(ex);
 		 }
 	 }
 
@@ -102,7 +103,9 @@ public:
 		// Get pointers
 		try
 		{
+			stateIndicator = PointerManager::getMultilevelPointer("stateIndicator");
 			currentLevelName = PointerManager::getMultilevelPointer("currentLevelName");
+			currentCacheAddress = PointerManager::getMultilevelPointer("currentCacheAddress");
 			auto levelLoadFunction = PointerManager::getMultilevelPointer("levelLoadFunction");
 
 			// Set up the hook 

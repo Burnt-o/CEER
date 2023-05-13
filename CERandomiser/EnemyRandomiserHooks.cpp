@@ -255,14 +255,14 @@ void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 
 bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex)
 {
+#define returnOriginal return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex)
+#define throwFromNewProcessSquadUnitFunction(message) CEERRuntimeException ex(message); \
+						RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); \
+	returnOriginal \
+
 	PLOG_VERBOSE << "newProcessSquadFunction";
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
-	//if (encounterIndex > 0xFFFF)
-	//{
-	//	PLOG_DEBUG << "encounter index was bad, returning early";
-	//	return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex, unknown);
-	//}
 
 	PLOG_DEBUG << "encounterIndex: " << encounterIndex;
 	PLOG_DEBUG << "squadIndex: " << squadIndex;
@@ -277,8 +277,8 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	}
 	catch (CEERRuntimeException& ex)
 	{
-		RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+		RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
+		returnOriginal;
 	}
 
 	PLOG_VERBOSE << "originalActor: " << originalActor;
@@ -290,16 +290,14 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		PLOG_VERBOSE << "bailing on nullDatum";
 		hookData_currentUnitsFaction = faction::Undefined;
 		hookData_currentUnitDatum = originalActor;
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+		returnOriginal;
 	}
 
 	PLOG_DEBUG << "original spawning actor: " << instance->mapReader->getTagName(originalActor);
 
 	if (!instance->actorMap.contains(originalActor)) // safety check before we access the map
 	{
-		CEERRuntimeException ex("actor spawning wasn't in our stored map!");
-		RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+		throwFromNewProcessSquadUnitFunction("actor spawning wasn't in our stored map!");
 	}
 
 	// get info of originally spawning actor
@@ -311,7 +309,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		// we shan't mess with it
 		hookData_currentUnitsFaction = originalActorInfo.defaultTeam;
 		hookData_currentUnitDatum = originalActor;
-		return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+		returnOriginal;
 	}
 
 
@@ -330,7 +328,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	
 	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
 	PLOG_DEBUG << "seed set: " << std::hex << seed;
-	
+	PLOG_DEBUG << "spawnMultiplierPreRando: " << originalActorInfo.spawnMultiplierPreRando;
 	// Apply pre-rando spawn multiplier
 	double zeroToOneRoll = zeroToOne(generator);
 	// A fun way to do a for loop. Use doubles!
@@ -354,17 +352,13 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 			if (unitRollIndex >= instance->actorDatumVector.size()) // safety check before we access the vector
 			{
-				CEERRuntimeException ex("rolled actor index was too large!");
-				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+				throwFromNewProcessSquadUnitFunction("rolled actor index was too large!");
 			}
 
 			newUnitDatum = instance->actorDatumVector.at(unitRollIndex); // Re-use the seed to see what new enemy we should roll into
 			if (!instance->actorMap.contains(newUnitDatum)) // safety check before we access the map
 			{
-				CEERRuntimeException ex("actor spawning wasn't in our stored map!");
-				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+				throwFromNewProcessSquadUnitFunction("actor spawning wasn't in our stored map!");
 			}
 			newUnit = &instance->actorMap.at(newUnitDatum);
 			PLOG_DEBUG << "new unit: " << newUnit->getShortName();
@@ -373,7 +367,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 		// Apply post-rando spawn multiplier
 		double zeroToOneRollPostRando = zeroToOne(generator);
-		for (double e = 0; e + zeroToOneRoll < newUnit->spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
+		for (double e = 0; e + zeroToOneRollPostRando < newUnit->spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
 			PLOG_DEBUG << "inner loop " << e;
 			seed += (uint64_t)e;
@@ -382,9 +376,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			hookData_currentUnitSeed = generator(); 
 			if (!instance->gameRNG.get()->writeData(&hookData_currentUnitSeed))
 			{
-				CEERRuntimeException ex(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
-				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+				throwFromNewProcessSquadUnitFunction(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
 			}
 
 
@@ -392,9 +384,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 			if (!instance->gameSpawnRNG.get()->writeData(&lowByte))
 			{
-				CEERRuntimeException ex(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
-				RuntimeExceptionHandler::handle(ex, &OptionsState::MasterToggle);
-				return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex);
+				throwFromNewProcessSquadUnitFunction(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
 			}
 
 			

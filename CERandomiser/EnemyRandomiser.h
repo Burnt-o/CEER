@@ -5,6 +5,7 @@
 #include "MapReader.h"
 #include "SetSeed.h"
 #include "UnitInfo.h"
+#include "OptionsState.h"
 
 
 	struct spawnInfo {
@@ -49,17 +50,24 @@ private:
 	// ref to MapReader for reading map stuff like actorPalettes and etc
 	MapReader* mapReader;
 
-	// handle to our callback of OptionsState::MasterToggle so we can remove it in destructor
-	eventpp::CallbackList<void(bool&)>::Handle mMasterToggleCallbackHandle = {};
-	eventpp::CallbackList<void(bool&)>& mMasterToggleEvent;
+	// handle to our callback of OptionsState::EnemyRandomiser so we can remove it in destructor
+	eventpp::CallbackList<void(bool&)>::Handle mEnemyRandomiserToggleCallbackHandle = {};
+	eventpp::CallbackList<void(bool&)>& mEnemyRandomiserToggleEvent;
+	// handle to our callback of OptionsState::EnemySpawnMultiplier so we can remove it in destructor
+	eventpp::CallbackList<void(bool&)>::Handle mEnemySpawnMultiplierToggleCallbackHandle = {};
+	eventpp::CallbackList<void(bool&)>& mEnemySpawnMultiplierToggleEvent;
 	// handle to our callback of LevelLoadHook so we can remove it in destructor
 	eventpp::CallbackList<void(HaloLevel)>::Handle mLevelLoadCallbackHandle = {};
 	eventpp::CallbackList<void(HaloLevel)>& mLevelLoadEvent;
 
 	// What we run when masterToggle changes
-	static void onMasterToggleChanged(bool& newValue);
+	static void onEnemyRandomiserToggleChange(bool& newValue);
+	static void onEnemySpawnMultiplierToggleChange(bool& newValue);
+	void onEitherOptionChange();
+
 
 	// What we run when new level is loaded changes
+	// can also be invoked by options being enabled when a level is already loaded
 	static void onLevelLoadEvent(HaloLevel newLevel);
 
 
@@ -134,7 +142,7 @@ private:
 
 	// Game Data
 	uint64_t ourSeed = 0x12355678;
-	uint32_t* spawnPositionRNGResolved = nullptr;
+
 	//TODO
 
 
@@ -155,14 +163,15 @@ private:
 
 #pragma endregion OnLevelLoadData
 
-
-
+	std::once_flag lazyInitOnceFlag;
+	void lazyInit();
 
 
 
 public:
-	explicit EnemyRandomiser(eventpp::CallbackList<void(bool&)>& enabledEvent, eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent, MapReader* mapR)
-		: mMasterToggleEvent(enabledEvent), mLevelLoadEvent(levelLoadEvent), mapReader(mapR)
+	explicit EnemyRandomiser(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent, MapReader* mapR)
+		: mLevelLoadEvent(levelLoadEvent), mapReader(mapR), mEnemyRandomiserToggleEvent(OptionsState::EnemyRandomiser.valueChangedEvent)
+		, mEnemySpawnMultiplierToggleEvent(OptionsState::EnemySpawnMultiplier.valueChangedEvent)
 	{
 		if (instance != nullptr)
 		{
@@ -171,78 +180,11 @@ public:
 		instance = this;
 
 		// Listen to the events we care about
-		mMasterToggleCallbackHandle = enabledEvent.append(&onMasterToggleChanged);
+		mEnemyRandomiserToggleCallbackHandle = mEnemyRandomiserToggleEvent.append(&onEnemyRandomiserToggleChange);
+		mEnemySpawnMultiplierToggleCallbackHandle = mEnemySpawnMultiplierToggleEvent.append(&onEnemySpawnMultiplierToggleChange);
 		mLevelLoadCallbackHandle = levelLoadEvent.append(&onLevelLoadEvent);
 
-		// Set up our hooks and get our pointers
-		try
-		{
-			gameSpawnRNG = PointerManager::getMultilevelPointer("gameSpawnRNG");
-			gameRNG = PointerManager::getMultilevelPointer("gameRNG");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			
-			//fixes
-			auto vehicleExitFunction = PointerManager::getMultilevelPointer("vehicleExitFunction");
-			vehicleExitFunctionContext = PointerManager::getMidhookContextInterpreter("vehicleExitFunctionContext");
-			vehicleExitHook = ModuleMidHook::make(L"halo1.dll", vehicleExitFunction, vehicleExitHookFunction, false);
-
-			auto aiGoToVehicleFunction = PointerManager::getMultilevelPointer("aiGoToVehicleFunction");
-			aiGoToVehicleFunctionContext = PointerManager::getMidhookContextInterpreter("aiGoToVehicleFunctionContext");
-			aiGoToVehicleHook = ModuleMidHook::make(L"halo1.dll", aiGoToVehicleFunction, aiGoToVehicleHookFunction, false);
-
-			auto aiLoadInVehicleFunction = PointerManager::getMultilevelPointer("aiLoadInVehicleFunction");
-			aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
-			
-			// bipeds
-			auto placeObjectFunction = PointerManager::getMultilevelPointer("placeObjectFunction");
-			placeObjectHook = ModuleInlineHook::make(L"halo1.dll", placeObjectFunction, newPlaceObjectFunction, false);
-
-			// actors
-			auto getSquadUnitIndexFunction = PointerManager::getMultilevelPointer("getSquadUnitIndexFunction");
-			getSquadUnitIndexFunctionContext = PointerManager::getMidhookContextInterpreter("getSquadUnitIndexFunctionContext");
-			getSquadUnitIndexHook = ModuleMidHook::make(L"halo1.dll", getSquadUnitIndexFunction, getSquadUnitIndexHookFunction, false);
-
-			auto processSquadUnitFunction = PointerManager::getMultilevelPointer("processSquadUnitFunction");
-			processSquadUnitHook = ModuleInlineHook::make(L"halo1.dll", processSquadUnitFunction, newProcessSquadUnitFunction, false);
-
-			auto setActorDatumFunction = PointerManager::getMultilevelPointer("setActorDatumFunction");
-			setActorDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setActorDatumFunctionContext");
-			setActorDatumHook = ModuleMidHook::make(L"halo1.dll", setActorDatumFunction, setActorDatumHookFunction, false);
-
-			auto fixUnitFactionFunction = PointerManager::getMultilevelPointer("fixUnitFactionFunction");
-			fixUnitFactionFunctionContext = PointerManager::getMidhookContextInterpreter("fixUnitFactionFunctionContext");
-			fixUnitFactionHook = ModuleMidHook::make(L"halo1.dll", fixUnitFactionFunction, fixUnitFactionHookFunction, false);
-
-			auto fixMajorUpgradeFunction = PointerManager::getMultilevelPointer("fixMajorUpgradeFunction");
-			fixMajorUpgradeFunctionContext = PointerManager::getMidhookContextInterpreter("fixMajorUpgradeFunctionContext");
-			fixMajorUpgradeHook = ModuleMidHook::make(L"halo1.dll", fixMajorUpgradeFunction, fixMajorUpgradeHookFunction, false);
-
-			auto spawnPositionFuzzFunction = PointerManager::getMultilevelPointer("spawnPositionFuzzFunction");
-			spawnPositionFuzzFunctionContext = PointerManager::getMidhookContextInterpreter("spawnPositionFuzzFunctionContext");
-			spawnPositionFuzzHook = ModuleMidHook::make(L"halo1.dll", spawnPositionFuzzFunction, spawnPositionFuzzHookFunction, false);
-
-
-
-		}
-		catch (InitException& ex)
-		{
-			ex.prepend("EnemyRandomisercould not resolve hooks: ");
-			throw ex;
-		}
+		
 
 
 	}
@@ -251,17 +193,13 @@ public:
 	{
 		std::scoped_lock<std::mutex> lock(mDestructionGuard);
 		// Unsubscribe events
-		mMasterToggleEvent.remove(mMasterToggleCallbackHandle);
+		mEnemyRandomiserToggleEvent.remove(mEnemyRandomiserToggleCallbackHandle);
+		mEnemySpawnMultiplierToggleEvent.remove(mEnemySpawnMultiplierToggleCallbackHandle);
 		mLevelLoadEvent.remove(mLevelLoadCallbackHandle);
 
 		//TODO: destroy hooks
 
 		instance = nullptr;
-	}
-
-	static void debug()
-	{
-		instance->evaluateActors();
 	}
 
 };
