@@ -12,24 +12,29 @@ LRESULT __stdcall ImGuiManager::mNewWndProc(const HWND hWnd, UINT uMsg, WPARAM w
 	ImGuiIO& io = ImGui::GetIO();
 	LRESULT res = ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 
-
-
-	if (io.WantCaptureMouse)
+	if (io.WantCaptureMouse == false)
 	{
-		if (GetKeyState(0x20) & 0x8000) // 'Page Down' key
-		{
-			return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
-		}
-		else
-		{
-			return TRUE;
-		}
-
-
-	}
-
 		// ImGui didn't handle the click so let MCC do it
 		return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
+	}
+	else
+	{
+		switch (uMsg)
+		{
+			// Certain messages we want to let MCC know about too
+		case WM_ACTIVATE:
+		case WM_ACTIVATEAPP:
+		case WM_NCACTIVATE:
+			return CallWindowProc(ImGuiManager::mOldWndProc, hWnd, uMsg, wParam, lParam);
+			break;
+		default:
+			return true; // otherwise we just tell MCC to not worry about it
+		}
+	}
+
+
+
+
 
 }
 
