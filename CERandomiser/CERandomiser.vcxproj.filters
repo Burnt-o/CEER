@@ -168,6 +168,9 @@
     <ClInclude Include="UserSeed.h">
       <Filter>Global</Filter>
     </ClInclude>
+    <ClInclude Include="OptionSerialisation.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -289,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="UserSeed.cpp">
       <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionSerialisation.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

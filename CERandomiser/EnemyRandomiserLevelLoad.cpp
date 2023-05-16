@@ -83,11 +83,11 @@ void EnemyRandomiser::onEitherOptionChange()
 		{
 			if (shouldEnable) // check helps prevent an infinite loop, since an option getting disabled will callback to this same very function
 			{
-				RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
+				RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
 			}
 			else
 			{
-				RuntimeExceptionHandler::handle(ex);
+				RuntimeExceptionHandler::handleMessage(ex);
 			}
 			return;
 		}
@@ -441,13 +441,13 @@ void EnemyRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 		catch (CEERRuntimeException& ex)
 		{
 			PLOG_ERROR << "exception in EnemyRandomiser onLevelLoadEvent: " << ex.what();
-			RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); // tell user, disable options
+			RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); // tell user, disable options
 		}
 		catch (...) // MCC is probably about to imminently crash, let's see if we can find out what went wrong tho
 		{
 			CEERRuntimeException ex(ResurrectException());
 			PLOG_FATAL << "unhandled exception in enemyRandomiser onLevelLoadEvent: " << ex.what();
-			RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); // tell user, disable options
+			RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); // tell user, disable options
 		}
 	}
 }

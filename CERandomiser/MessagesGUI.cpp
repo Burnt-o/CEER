@@ -143,10 +143,8 @@ std::string insertNewLines(const std::string& in, const size_t every_n, int& out
 void MessagesGUI::addMessage(std::string message)
 {
 	// split message to multiple lines if necessary
-	PLOG_VERBOSE << "inserting lines";
 	int lineCount;
 	message = insertNewLines(message, 150, lineCount);
-	PLOG_VERBOSE << "adding to message queue";
 	instance->messages.emplace_back(temporaryMessage{message, std::chrono::high_resolution_clock::now(), lineCount});
 
 }

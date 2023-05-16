@@ -51,7 +51,7 @@ private:
 		}
 		catch (CEERRuntimeException& ex)
 		{
-			RuntimeExceptionHandler::handle(ex);
+			RuntimeExceptionHandler::handleMessage(ex);
 		}
 			
 
@@ -81,7 +81,7 @@ private:
 		 { 
 			// Let runtime handler handle any exceptions thrown by listeners
 			 PLOG_ERROR << "levelLoadEvent exception caught " << ex.what();
-			 RuntimeExceptionHandler::handle(ex);
+			 RuntimeExceptionHandler::handleMessage(ex);
 		 }
 	 }
 

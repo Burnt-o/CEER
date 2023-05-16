@@ -8,7 +8,6 @@
 namespace OptionsState
 {
 	extern Option<std::string> SeedString;
-	extern Option<bool> AutoGenerateSeed;
 
 
 	extern Option<bool> EnemyRandomiser;
@@ -17,5 +16,6 @@ namespace OptionsState
 	extern std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;
 	extern std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules;
 
+	extern std::vector<SerialisableOption*> allSerialisableOptions;
 };
 

@@ -19,32 +19,21 @@
 #include "InitParameter.h"
 #include "Logging.h"
 #include "MessagesGUI.h"
+#include "OptionSerialisation.h"
 
 
 
 /* GENERAL TODO:: 
 * Before beta release 
 *
-Delay DLL injection until MCC initialized DONE
-Get rid of MasterToggle
-PointerData for latest version
-Fix up logging -- DONE
+
 
 * Before main release
 *
-post rando gui
- enemy spawns not deterministic
+
  serialisation/deserialization
-    copy-paste whole settings
+ copy-paste whole settings
 
-rng-fixing only when enemy randomiser enabled
-Figure out how to deal with major upgrades - only allow when not randomised?
-
-Fix input dropping issue (er, figure out why it's happening first)
-    -- keyboard works fine
-    -- SOME mouseclicks still work, others don't. weird.
-    -- clicking on the level options stuff still works
-    -- why does alt tabbing fix it
 
 Look into frg and flamethrower
 Texture rando
@@ -87,7 +76,6 @@ void RealMain(HMODULE dllHandle)
 
 
 
-
     try
     {
         ModuleCache::initialize();
@@ -107,6 +95,8 @@ void RealMain(HMODULE dllHandle)
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(lvl->levelLoadEvent, map.get());
 
+        OptionSerialisation::deserialiseFromFile();
+
         PLOG_INFO << "All services succesfully initialized! Entering main loop";
 
         // Shutdown the console on successful init, at least in release mode.
@@ -117,10 +107,11 @@ void RealMain(HMODULE dllHandle)
 #else
         MessagesGUI::addMessage("Hello hello hello");
         CEERRuntimeException testException("Hello, this is a test exception");
-        RuntimeExceptionHandler::handle(testException);
+        RuntimeExceptionHandler::handleMessage(testException);
         MessagesGUI::addMessage("Another message");
 #endif // !CEER_DEBUG
 
+        PLOG_DEBUG << OptionsState::EnemyRandomiser.getOptionName();
 
 
         // We live in this loop 99% of the time
@@ -142,6 +133,8 @@ void RealMain(HMODULE dllHandle)
 
         }
 
+        // Closing down, save options to config file
+        OptionSerialisation::serialiseToFile();
 
     }
     catch (InitException& ex)

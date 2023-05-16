@@ -12,161 +12,9 @@ datum EnemyRandomiser::hookData_currentUnitDatum = nullDatum;
 int EnemyRandomiser::hookData_currentSquadUnitIndex = 0;
 bool EnemyRandomiser::hookData_fixSentinelPosition = false;
 uint64_t EnemyRandomiser::hookData_currentUnitSeed = 0;
+bool EnemyRandomiser::hookData_unitRandomised = false;
 
 
-// statics
-//faction EnemyRandomiser::hookData_currentUnitsFaction = faction::Undefined;
-//datum EnemyRandomiser::hookData_currentUnitDatum = nullDatum;
-//int EnemyRandomiser::hookData_currentSquadUnitIndex = 0;
-
-//void EnemyRandomiser::actvSpawnHookFunction(SafetyHookContext& ctx)
-//{
-//	return;
-//	PLOG_VERBOSE << "actvSpawnHookFunction";
-//	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-//	enum class param
-//	{
-//		actvPaletteIndex,
-//		encounterIndex,
-//		squadIndex,
-//		unitIndex
-//	};
-//
-//	auto* ctxInterpreter = instance->actvSpawnFunctionContext.get();
-//
-//	auto originalActvPaletteIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::actvPaletteIndex); // The actorPalette index of the type of unit trying to spawn
-//	auto encounterIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::encounterIndex); // the index of its encounter 
-//	auto squadIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::squadIndex); // the index of its squad
-//	auto unitSquadIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::unitIndex); // this is the nth unit of that squad
-//
-//	if (!instance->actorMap.contains(originalActvPaletteIndex)) // safety check before we access the actorMap
-//	{
-//		throw_from_hook("actorMap did not contain currently spawning actor!", &OptionsState::MasterToggle)
-//	}
-//
-//	auto originalActor = instance->actorMap.find(originalActvPaletteIndex)->second;
-//
-//	hookData_currentUnitsFaction = originalActor.defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
-//
-//
-//	// Don't reroll invalid units
-//	if (!originalActor.isValidUnit) return;
-//
-//	double randomizeProbability = originalActor.probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
-//	if (randomizeProbability == 0.0) return; // If the probability is zero then we won't randomize the enemy
-//
-//
-//	uint64_t seed = instance->ourSeed ^ ((encounterIndex << 32) + (squadIndex << 16) + unitSquadIndex); // Create a seed from the specific enemy data & XOR with the user-input seed
-//	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
-//	PLOG_VERBOSE << "Seed: " << std::hex << seed;
-//	PLOG_VERBOSE << "gen:  " << std::hex << generator();
-//	if (zeroToOne(generator) > randomizeProbability) return; // Roll against the units randomize probability, if fail then we won't randomize the enemy
-//
-//	auto unitRoll = originalActor.rollDistribution(generator);// Re-use the seed to see what new enemy we should roll into
-//	PLOG_VERBOSE << "rolled actv index: " << unitRoll;
-//	*ctxInterpreter->getParameterRef(ctx, (int)param::actvPaletteIndex) = unitRoll; 	// Change the register containing the actvIndex to be the new unit
-//
-//
-//}
-//
-//void EnemyRandomiser::placeObjectHookFunction(SafetyHookContext& ctx)
-//{
-//	return;
-//	PLOG_VERBOSE << "placeObjectHookFunction";
-//	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-//	enum class param
-//	{
-//		objectType,
-//		paletteIndex,
-//		objectIndex,
-//		nameIndex,
-//		paletteTable,
-//	};
-//
-//	enum class objectType
-//	{
-//		Biped, // This is what we care about
-//		Vehicle,
-//		Weapon,
-//		Equipment,
-//		Garbage,
-//		Projectile,
-//		Scenery,
-//		Machine,
-//		Control,
-//		LightFixture,
-//		Placeholder,
-//		SoundScenery,
-//	};
-//
-//
-//
-//
-//	auto* ctxInterpreter = instance->placeObjectFunctionContext.get();
-//
-//	auto objType = (objectType)*ctxInterpreter->getParameterRef(ctx, (int)param::objectType);
-//
-//	// TODO: change the whole thing to use the paletteTable magic lookup. The "objectType" param is not at all consistent 
-//	if (!IsBadReadPtr((void*)ctx.rdx, 4))
-//	{
-//		if (((tagReference*)ctx.rdx)->tagGroupMagic == MapReader::stringToMagic("bipd"))
-//		{
-//			PLOG_DEBUG << "bipd happening";
-//		}
-//		else
-//		{
-//			PLOG_DEBUG << "non bipd tag palette: " << std::hex << ((tagReference*)ctx.rdx)->tagGroupMagic;
-//		}
-//	}
-//	else
-//	{
-//		PLOG_VERBOSE << "could not read rdx";
-//	}
-//
-//
-//
-//
-//
-//	if (objType != objectType::Biped) return; // We only care about biped spawns
-//
-//	auto bipdPaletteIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::paletteIndex); // The biped Palette index of the type of unit trying to spawn
-//	auto bipdScenIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::objectIndex); // the index of the list of bipeds to spawn in the scenario tag
-//	auto bipdNameIndex = (int)*ctxInterpreter->getParameterRef(ctx, (int)param::nameIndex); // the index of the name of this specific biped (not all bipeds have names)
-//
-//	if (!instance->bipedMap.contains(bipdPaletteIndex)) // safety check before we access the biepdMap
-//	{
-//		throw_from_hook("bipedMap did not contain currently spawning biped!", &OptionsState::MasterToggle)
-//	}
-//	auto originalBiped = instance->bipedMap.find(bipdPaletteIndex)->second;
-//
-//	hookData_currentUnitsFaction = originalBiped.defaultTeam; 	// Store the faction of the originally spawning unit - this data is used in fixUnitFactionHookFunction to unfuck allegiances
-//
-//	// Don't reroll invalid units
-//	if (!originalBiped.isValidUnit) return;
-//
-//
-//	// Safety check for the nipple-grunt at the end of the Maw.
-//	// He cannot be randomised or the game will crash.
-//	// We can use the nameIndex to look up the name of the currently spawning biped
-//	PLOG_VERBOSE << "name of currently spawning biped: " << instance->mapReader->getObjectName(bipdNameIndex);
-//	if (instance->mapReader->getObjectName(bipdNameIndex) == "nipple_grunt") return;
-//
-//	double randomizeProbability = originalBiped.probabilityOfRandomize; // Lookup the probability that the originally spawning unit should be randomized
-//	if (randomizeProbability == 0.0) return; // If the probability is zero then we won't randomize the enemy
-//
-//	uint64_t seed = instance->ourSeed + bipdScenIndex; // Create a seed from the specific biped spawning
-//	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
-//	PLOG_VERBOSE << "Seed: " << std::hex << seed;
-//	PLOG_VERBOSE << "gen:  " << std::hex << generator();
-//	if (zeroToOne(generator) > randomizeProbability) return; // Roll against the units randomize probability, if fail then we won't randomize the enemy
-//
-//	auto unitRoll = originalBiped.rollDistribution(generator); // Re-use the seed to see what new enemy we should roll into
-//	PLOG_VERBOSE << "rolled biped index: " << unitRoll;
-//	*ctxInterpreter->getParameterRef(ctx, (int)param::paletteIndex) = unitRoll; 	// Change the register containing the actvIndex to be the new unit
-//
-//
-//
-//}
 
 
 
@@ -257,7 +105,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 {
 #define returnOriginal return instance->processSquadUnitHook.get()->getInlineHook().fastcall<bool>(encounterIndex, squadIndex)
 #define throwFromNewProcessSquadUnitFunction(message) CEERRuntimeException ex(message); \
-						RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); \
+						RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); \
 	returnOriginal \
 
 	PLOG_VERBOSE << "newProcessSquadFunction";
@@ -277,7 +125,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	}
 	catch (CEERRuntimeException& ex)
 	{
-		RuntimeExceptionHandler::handle(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
+		RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
 		returnOriginal;
 	}
 
@@ -347,6 +195,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		PLOG_DEBUG << "probability of randomisze: " << originalActorInfo.probabilityOfRandomize;
 		if (zeroToOne(generator) < originalActorInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
 		{
+			hookData_unitRandomised = true;
 			PLOG_DEBUG << "randomizing";
 			auto unitRollIndex = originalActorInfo.rollDistribution(generator);
 
@@ -364,6 +213,10 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			PLOG_DEBUG << "new unit: " << newUnit->getShortName();
 			
 		}
+		else
+		{
+			hookData_unitRandomised = false;
+		}
 
 		// Apply post-rando spawn multiplier
 		double zeroToOneRollPostRando = zeroToOne(generator);
@@ -374,18 +227,24 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 			generator = SetSeed64(seed);
 			// store needed data for other hooks
 			hookData_currentUnitSeed = generator(); 
-			if (!instance->gameRNG.get()->writeData(&hookData_currentUnitSeed))
+
+			if (hookData_unitRandomised)
 			{
-				throwFromNewProcessSquadUnitFunction(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
+				// unrandomise spawn position / enemy randomness (nade count etc)
+				if (!instance->gameRNG.get()->writeData(&hookData_currentUnitSeed))
+				{
+					throwFromNewProcessSquadUnitFunction(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));
+				}
+
+
+				auto lowByte = (uint8_t)(hookData_currentUnitSeed);
+
+				if (!instance->gameSpawnRNG.get()->writeData(&lowByte))
+				{
+					throwFromNewProcessSquadUnitFunction(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
+				}
 			}
 
-
-			auto lowByte = (uint8_t)(hookData_currentUnitSeed);
-
-			if (!instance->gameSpawnRNG.get()->writeData(&lowByte))
-			{
-				throwFromNewProcessSquadUnitFunction(std::format("failed to write gameSpawnRNG with {}, error {}", lowByte, MultilevelPointer::GetLastError()));
-			}
 
 			
 			hookData_currentUnitsFaction = originalActorInfo.defaultTeam; // needed for fixUnitFaction. Must be team of ORIGINAL unit to not fuck up encounter design
@@ -483,19 +342,19 @@ void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 	};
 	auto* ctxInterpreter = instance->fixMajorUpgradeFunctionContext.get();
 
-	//// testing allowing no major rolls
-	//auto normDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::normalDatum);
-	//*ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum) = normDat;
-	//return;
 
-	auto majorDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum);
-	PLOG_DEBUG << "majorDatum: " << std::hex << majorDat;
-	if (majorDat == 0xFFFFFFFF)
+	if (hookData_unitRandomised)
 	{
+		// Disallow major upgrades
 		auto normDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::normalDatum);
-		PLOG_DEBUG << "applying major upgrade fix: " << std::hex << normDat;
 		*ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum) = normDat;
+		return;
 	}
+	else
+	{
+		return;
+	}
+
 
 }
 

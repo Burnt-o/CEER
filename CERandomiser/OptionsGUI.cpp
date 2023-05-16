@@ -4,7 +4,7 @@
 #include "OptionsState.h"
 
 #include "EnemyRule.h"
-
+#include "OptionSerialisation.h"
 
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
@@ -129,6 +129,30 @@ void OptionsGUI::renderErrorDialog()
 		ImGui::EndPopup();
 	}
 
+}
+
+
+void OptionsGUI::renderAboutWindow()
+{
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("AboutWindow", NULL, ImGuiWindowFlags_NoResize))
+	{
+		if (ImGui::Button("Close"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::TextWrapped("I'll put some text here later");
+
+
+
+
+		ImGui::EndPopup();
+	}
 }
 
 
@@ -428,7 +452,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 void OptionsGUI::renderOptionsGUI()
 {
 	// Dialogs
-	//renderErrorDialog();
+	renderErrorDialog();
 
 
 
@@ -442,6 +466,52 @@ void OptionsGUI::renderOptionsGUI()
 
 	if (m_WindowOpen)  //only bother rendering children if it's not collapsed
 	{
+
+#pragma region Settings/About
+
+
+		if (ImGui::Button("Copy Settings"))
+		{
+			try
+			{
+				auto doc = OptionSerialisation::serialiseAll();
+				std::ostringstream oss;
+				doc.print(oss);
+				std::string str = oss.str();
+				ImGui::SetClipboardText(str.c_str());
+			}
+			catch (SerialisationException& ex)
+			{
+				RuntimeExceptionHandler::handlePopup(ex);
+			}
+
+		} ImGui::SameLine();
+
+		if (ImGui::Button("Paste Settings"))
+		{
+			try
+			{
+				auto clipboard = ImGui::GetClipboardText();
+				OptionSerialisation::deserialiseAll(clipboard);
+			}
+			catch (SerialisationException& ex)
+			{
+				RuntimeExceptionHandler::handlePopup(ex);
+			}
+
+		} ImGui::SameLine();
+
+		if (ImGui::Button("About"))
+		{
+			// modal popup
+			ImGui::OpenPopup("AboutWindow");
+		}
+		renderAboutWindow();
+
+#pragma endregion
+
+
+
 #pragma region Seed
 
 		if (ImGui::InputText("Seed", &OptionsState::SeedString.GetValueDisplay()))

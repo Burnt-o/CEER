@@ -3,6 +3,28 @@
 
 
 
+
+void EnemyGroup::serialise(pugi::xml_node parent, std::string name)
+{
+	auto node = parent.append_child(name.c_str()).text().set(mName.c_str());
+}
+
+void EnemyGroup::deserialise(pugi::xml_node in)
+{
+	std::string name = in.text().as_string();
+	for (auto& group : builtInGroups::builtInGroups)
+	{
+		if (group.getName() == name)
+		{
+			PLOG_DEBUG << "match found!";
+			*this = group;
+			return;
+		}
+	}
+	throw SerialisationException(std::format("Could not find built-in-group of name: {}", name));
+}
+
+
 namespace builtInGroups
 {
 	// Faction

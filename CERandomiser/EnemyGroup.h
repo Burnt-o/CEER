@@ -1,6 +1,6 @@
 #pragma once
 #include "UnitInfo.h"
-
+#include <pugixml.hpp>
 class EnemyGroup
 {
 private:
@@ -20,6 +20,9 @@ public:
 
 	 std::string_view getName() const { return mName; }
 	 std::string_view getTooltip() const { return mTooltip; }
+
+	 void serialise(pugi::xml_node parent, std::string name);
+	 void deserialise(pugi::xml_node in);
 };
 
 

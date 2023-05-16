@@ -2,6 +2,7 @@
 
 #include "EnemyGroup.h"
 #include "Option.h"
+#include <pugixml.hpp>
 enum class RuleType 
 {
 	RandomiseXintoY,
@@ -16,6 +17,8 @@ protected:
 public:
 	RuleType getType() { return thisType; }
 	virtual ~EnemyRule() {}
+	virtual void serialise(pugi::xml_node parent) = 0;
+	virtual void deserialise(pugi::xml_node in) = 0;
 };
 
 
@@ -32,13 +35,18 @@ public:
 		[](double newValue)
 		{
 			return newValue >= 0.0 && newValue <= 100.0; // must be positive
-		}
+		},
+		nameof(randomisePercent)
 	};
 
 	RandomiseXintoY()
 	{
 		thisType = RuleType::RandomiseXintoY;
 	}
+
+	void serialise(pugi::xml_node parent) override;
+	void deserialise(pugi::xml_node in) override;
+
 };
 
 class SpawnMultiplierPreRando : public EnemyRule
@@ -51,13 +59,17 @@ public:
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive
-		}
+		},
+		nameof(multiplier)
 	};
 
 	SpawnMultiplierPreRando()
 	{
 		thisType = RuleType::SpawnMultiplierPreRando;
 	}
+
+	void serialise(pugi::xml_node parent) override;
+	void deserialise(pugi::xml_node in) override;
 };
 
 class SpawnMultiplierPostRando : public EnemyRule
@@ -70,11 +82,15 @@ public:
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive
-		}
+		},
+		nameof(multiplier)
 	};
 
 	SpawnMultiplierPostRando()
 	{
 		thisType = RuleType::SpawnMultiplierPostRando;
 	}
+
+	void serialise(pugi::xml_node parent) override;
+	void deserialise(pugi::xml_node in) override;
 };

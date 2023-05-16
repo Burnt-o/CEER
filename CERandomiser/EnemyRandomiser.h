@@ -128,7 +128,7 @@ private:
 	static int hookData_currentSquadUnitIndex;
 	static bool hookData_fixSentinelPosition;
 	static uint64_t hookData_currentUnitSeed;
-
+	static bool hookData_unitRandomised;
 
 
 

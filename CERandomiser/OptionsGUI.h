@@ -25,9 +25,9 @@ private:
 	void renderOptionsGUI(); // Primary render function
 
 	// sub-render functions to help my sanity
-	std::vector<CEERRuntimeException> errorsToDisplay;
+	std::vector<CEERExceptionBase> errorsToDisplay;
 	void renderErrorDialog();
-
+	void renderAboutWindow();
 
 
 	void renderAddSpawnMultiplierRulePopup();
@@ -57,7 +57,7 @@ public:
 
 	~OptionsGUI(); // release resources
 
-	static void addError(CEERRuntimeException error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
+	static void addError(CEERExceptionBase error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
 	static bool isWindowOpen() { return m_WindowOpen; };
 };
 

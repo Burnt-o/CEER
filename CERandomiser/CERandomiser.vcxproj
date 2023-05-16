@@ -211,6 +211,7 @@
     <ClInclude Include="MidhookContextInterpreter.h" />
     <ClInclude Include="MultilevelPointer.h" />
     <ClInclude Include="Option.h" />
+    <ClInclude Include="OptionSerialisation.h" />
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
     <ClInclude Include="pch.h" />
@@ -286,6 +287,7 @@
     <ClCompile Include="ModuleHookManager.cpp" />
     <ClCompile Include="MultilevelPointer.cpp" />
     <ClCompile Include="Option.cpp" />
+    <ClCompile Include="OptionSerialisation.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
     <ClCompile Include="PointerManager.cpp" />
