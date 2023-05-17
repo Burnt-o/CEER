@@ -24,15 +24,10 @@
 
 
 /* GENERAL TODO:: 
-* Before beta release 
-*
+fix messageGUI height bug
+add shutdown button to gui
+test on someone elses comp
 
-
-* Before main release
-*
-
- serialisation/deserialization
- copy-paste whole settings
 
 
 Look into frg and flamethrower

@@ -6,6 +6,7 @@
 #include "EnemyRule.h"
 #include "OptionSerialisation.h"
 
+
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
 
@@ -36,7 +37,8 @@ OptionsGUI::~OptionsGUI()
 	instance = nullptr;
 }
 
-
+static ImGuiStyle* mainStyle = nullptr;
+static ImGuiStyle* highlightStyle = nullptr;
 
 
 void OptionsGUI::initializeCEERGUI()
@@ -182,15 +184,12 @@ void OptionsGUI::renderManageCustomGroupsDialog()
 	}
 }
 
-void OptionsGUI::renderEnemySpawnMultiplierRules()
+void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 {
-	ImGui::SetNextWindowBgAlpha(0.1f);
 
-	float rulesWindowHeight = 12.f;
-	for (auto& rule : OptionsState::currentMultiplierRules)
-	{
-		rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
-	}
+
+
+
 
 	ImGui::BeginChild("MultiplierRules", ImVec2(0, rulesWindowHeight), true, NULL);
 	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
@@ -323,18 +322,12 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 		it++;
 	}
 	ImGui::EndChild();
+
 }
 
-void OptionsGUI::renderEnemyRandomiserRules()
+void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 {
 
-	ImGui::SetNextWindowBgAlpha(0.1f);
-
-	float rulesWindowHeight = 12.f;
-	for (auto& rule : OptionsState::currentRandomiserRules)
-	{
-		rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
-	}
 
 	ImGui::BeginChild("RandomisationRules", ImVec2(0, rulesWindowHeight), true, NULL);
 	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
@@ -469,7 +462,7 @@ void OptionsGUI::renderOptionsGUI()
 
 #pragma region Settings/About
 
-
+		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::Button("Copy Settings"))
 		{
 			try
@@ -508,10 +501,17 @@ void OptionsGUI::renderOptionsGUI()
 		}
 		renderAboutWindow();
 
+
+		ImGui::SameLine();
+		if (ImGui::Button("Shutdown"))
+		{
+			GlobalKill::killMe();
+		}
+
 #pragma endregion
 
 
-
+		ImGui::Dummy((ImVec2(0, 2)));
 #pragma region Seed
 
 		if (ImGui::InputText("Seed", &OptionsState::SeedString.GetValueDisplay()))
@@ -529,13 +529,27 @@ void OptionsGUI::renderOptionsGUI()
 		renderManageCustomGroupsDialog();
 
 #pragma region EnemyRandomiser
+		ImGui::SeparatorText("");
+
 		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiser.GetValueDisplay()))
 		{
 			OptionsState::EnemyRandomiser.UpdateValueWithInput();
 		}
 
+
+		//ImGui::SetNextWindowBgAlpha(0.5f);
+
+
+		ImGui::Indent();
+		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered()))
 		{
+			float rulesWindowHeight = 12.f;
+			for (auto& rule : OptionsState::currentRandomiserRules)
+			{
+				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+			}
+
 			if (ImGui::Button("Add Randomisation Rule"))
 			{
 				OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
@@ -546,17 +560,34 @@ void OptionsGUI::renderOptionsGUI()
 				ImGui::OpenPopup("ManageCustomGroupsDialog");
 			}
 
-			renderEnemyRandomiserRules();
+			renderEnemyRandomiserRules(rulesWindowHeight);
+
 		} 
+		ImGui::Unindent();
+		
 #pragma endregion EnemyRandomiser
 #pragma region EnemySpawnMultiplier
+		ImGui::SeparatorText("");
+
+	
 		if (ImGui::Checkbox("Enable Enemy Spawn Multiplier", &OptionsState::EnemySpawnMultiplier.GetValueDisplay()))
 		{
 			OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
 		}
 
+	
+
+		ImGui::Indent();
+		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Enemy Spawn Multiplier Settings", ImGui::IsItemHovered()))
 		{
+
+			float rulesWindowHeight = 12.f;
+			for (auto& rule : OptionsState::currentMultiplierRules)
+			{
+				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+			}
+
 			if (ImGui::Button("Add Multiplier Rule"))
 			{
 				ImGui::OpenPopup("AddSpawnMultiplierRulePopup");
@@ -570,16 +601,22 @@ void OptionsGUI::renderOptionsGUI()
 
 
 
-			renderEnemySpawnMultiplierRules();
+			renderEnemySpawnMultiplierRules(rulesWindowHeight);
 
 
 
 		} 
+		ImGui::Unindent();
+
 #pragma endregion EnemySpawnMultiplier
+		ImGui::SeparatorText("");
+		ImGui::Indent();
 		ImGui::Text("Texture rando todo");
+		ImGui::Unindent();
 
 
 	}
+
 	ImGui::End(); // end main window
 
 #pragma endregion MainWindow

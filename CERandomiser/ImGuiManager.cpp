@@ -76,6 +76,7 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 
 	// Colors
 	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.04f, 0.08f, 1.00f);
+	style->Colors[ImGuiCol_ChildBg] = ImVec4(0.12f, 0.06f, 0.12f, 0.50f);
 	style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.90f, 0.90f, 1.00f);
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.29f, 0.29f, 1.00f);
 
@@ -83,6 +84,7 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
 
 	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.35f, 0.09f, 0.12f, 1.00f);
+	//style->Colors[ImGuiCol_FrameBg] = ImVec4(0.95f, 0.99f, 0.12f, 1.00f);
 	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.55f, 0.23f, 0.29f, 1.00f);
 	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.81f, 0.23f, 0.29f, 1.00f);
 
@@ -98,6 +100,13 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 
 	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.f, 0.f, 0.f, 0.f);
 	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.35f, 0.09f, 0.12f, 0.7f);
+
+	style->Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.1f, 0.00f, 0.1f, 0.3f);
+
+	style->IndentSpacing = 10.f;
+
+
+
 
 }
 

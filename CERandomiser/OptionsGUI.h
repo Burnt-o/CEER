@@ -33,8 +33,8 @@ private:
 	void renderAddSpawnMultiplierRulePopup();
 
 	void renderManageCustomGroupsDialog();
-	void renderEnemyRandomiserRules();
-	void renderEnemySpawnMultiplierRules();
+	void renderEnemyRandomiserRules(float rulesWindowHeight);
+	void renderEnemySpawnMultiplierRules(float rulesWindowHeight);
 	
 
 	// GUI data
