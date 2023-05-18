@@ -145,11 +145,19 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 			return false;
 		}
 	}
+
+	if (!OptionsState::RandomiserIncludesFlameThrowers.GetValue())
+	{
+		if (info.getFullName().contains("flame"))
+		{
+			return false;
+		}
+	}
 	return true;
 }
 
 
-constexpr std::array badUnitNames = { "flame", "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop"};
+constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {

@@ -5,16 +5,13 @@
 
 namespace OptionsState
 {
+
 	Option<std::string> SeedString(
 		"gargamel",
 		[](std::string newValue)
 		{
-			if (newValue.contains('z'))
-			{
-				PLOG_DEBUG << "z detected!";
-				return false;
-			}
 			return true;
+			// TODO: should I add a check for non-alphanumeric characters? I think the xml serialisation can handle mostly any unicode char https://www.w3.org/TR/REC-xml/#charsets
 		},
 		nameof(SeedString)
 	);
@@ -27,6 +24,13 @@ namespace OptionsState
 
 	);
 
+	Option<bool> RandomiserIncludesFlameThrowers(
+		false,
+		[](bool newValue) { return true; },
+		nameof(RandomiserIncludesFlameThrowers)
+
+	);
+
 	Option<bool> EnemySpawnMultiplier(
 		false,
 		[](bool newValue) { return true; },
@@ -36,6 +40,6 @@ namespace OptionsState
 
 	std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules; // starts empty
 	std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules; // starts empty
-	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString, &EnemyRandomiser, &EnemySpawnMultiplier };
+	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString, &EnemyRandomiser, &EnemySpawnMultiplier, &RandomiserIncludesFlameThrowers };
 }
 

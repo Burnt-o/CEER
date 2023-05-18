@@ -11,6 +11,7 @@ namespace OptionsState
 
 
 	extern Option<bool> EnemyRandomiser;
+	extern Option<bool> RandomiserIncludesFlameThrowers;
 	extern Option<bool> EnemySpawnMultiplier;
 
 	extern std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;

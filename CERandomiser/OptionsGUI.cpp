@@ -548,7 +548,7 @@ void OptionsGUI::renderOptionsGUI()
 		if (changesPending_Seed && (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue()))
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("Update Pending Changes"))
+			if (ImGui::Button("Apply Pending Changes"))
 			{
 				changesPending_Seed = false;
 				// deduplicate firing the events. 
@@ -579,7 +579,7 @@ void OptionsGUI::renderOptionsGUI()
 		if (changesPending_Rand && (OptionsState::EnemyRandomiser.GetValue()))
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("Update Pending Changes"))
+			if (ImGui::Button("Apply Pending Changes"))
 			{
 				changesPending_Rand = false;
 				OptionsState::EnemyRandomiser.UpdateValueWithInput();
@@ -594,6 +594,14 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered()))
 		{
+			if (ImGui::Checkbox("Include Flamethrower Flood", &OptionsState::RandomiserIncludesFlameThrowers.GetValueDisplay()))
+			{
+				OptionsState::RandomiserIncludesFlameThrowers.UpdateValueWithInput();
+				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
+			}
+
+
+
 			float rulesWindowHeight = 12.f;
 			for (auto& rule : OptionsState::currentRandomiserRules)
 			{
@@ -630,7 +638,7 @@ void OptionsGUI::renderOptionsGUI()
 		if (changesPending_Mult && (OptionsState::EnemySpawnMultiplier.GetValue()))
 		{
 			ImGui::SameLine();
-			if (ImGui::Button("Update Pending Changes"))
+			if (ImGui::Button("Apply Pending Changes"))
 			{
 				changesPending_Mult = false;
 				OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
