@@ -24,8 +24,8 @@
 
 
 /* GENERAL TODO:: 
-fix messageGUI height bug
-add shutdown button to gui
+
+
 test on someone elses comp
 
 

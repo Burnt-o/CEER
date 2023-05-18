@@ -11,6 +11,11 @@ bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
 
 
+static bool changesPending_Seed = false;
+static bool changesPending_Rand = false;
+static bool changesPending_Mult = false;
+
+
 std::map<RuleType, float> ruleTypeToPixelHeight
 {
 	{RuleType::RandomiseXintoY, 125.f},
@@ -166,10 +171,12 @@ void OptionsGUI::renderAddSpawnMultiplierRulePopup()
 	{
 		if (ImGui::Selectable("Spawn Multiplier Pre-Randomisation"))
 		{
+			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
 		}
 		if (ImGui::Selectable("Spawn Multiplier Post-Randomisation"))
 		{
+			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPostRando());
 		}
 		ImGui::EndPopup();
@@ -200,6 +207,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 
 		if (ImGui::Button("Delete"))
 		{
+			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			OptionsState::currentMultiplierRules.erase(it);
 			ImGui::EndChild();
 			break;
@@ -209,6 +217,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 
 		if (ImGui::Button("Move Up"))
 		{
+			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			std::swap(*it, *(it - 1));
 			ImGui::EndChild();
 			break;
@@ -219,6 +228,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 		if (it == OptionsState::currentMultiplierRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
 		if (ImGui::Button("Move Down"))
 		{
+			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			std::swap(*it, *(it + 1));
 			ImGui::EndChild();
 			break;
@@ -249,6 +259,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
 					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
 					{
+						changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
 					}
 
@@ -266,6 +277,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 			ImGui::SetNextItemWidth(110.f);
 			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
 			{
+				changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 				thisRule->multiplier.UpdateValueWithInput();
 			}
 			ImGui::SameLine(); ImGui::Text("x");
@@ -291,6 +303,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 					const bool is_selected = &thisRule->groupSelection == &builtInGroups::builtInGroups.at(n);
 					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
 					{
+						changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 						thisRule->groupSelection = builtInGroups::builtInGroups.at(n);
 					}
 
@@ -308,6 +321,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 			ImGui::SetNextItemWidth(110.f);
 			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
 			{
+				changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 				thisRule->multiplier.UpdateValueWithInput();
 			}
 			ImGui::SameLine(); ImGui::Text("x");
@@ -338,6 +352,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 
 		if (ImGui::Button("Delete"))
 		{
+			changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			OptionsState::currentRandomiserRules.erase(it);
 			ImGui::EndChild();
 			break;
@@ -347,6 +362,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 
 		if (ImGui::Button("Move Up"))
 		{
+			changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			std::swap(*it, *(it - 1));
 			ImGui::EndChild();
 			break;
@@ -357,6 +373,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 		if (it == OptionsState::currentRandomiserRules.end() - 1) ImGui::BeginDisabled(); // if at end, disable move down button
 		if (ImGui::Button("Move Down"))
 		{
+			changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			std::swap(*it, *(it + 1));
 			ImGui::EndChild();
 			break;
@@ -379,6 +396,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 			ImGui::SetNextItemWidth(110.f);
 			if (ImGui::InputDouble("##randomisePercent", &thisRule->randomisePercent.GetValueDisplay(), 1.0, 10.0, "%.0f"))
 			{
+				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 				thisRule->randomisePercent.UpdateValueWithInput();
 			} ImGui::SameLine();
 			ImGui::Text("percent of:");
@@ -396,6 +414,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 					const bool is_selected = &thisRule->randomiseGroupSelection == &builtInGroups::builtInGroups.at(n);
 					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
 					{
+						changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 						thisRule->randomiseGroupSelection = builtInGroups::builtInGroups.at(n);
 					}
 
@@ -417,6 +436,7 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 					const bool is_selected = &thisRule->rollGroupSelection == &builtInGroups::builtInGroups.at(n);
 					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
 					{
+						changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 						thisRule->rollGroupSelection = builtInGroups::builtInGroups.at(n);
 					}
 
@@ -440,6 +460,8 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 	}
 	ImGui::EndChild();
 }
+
+
 
 
 void OptionsGUI::renderOptionsGUI()
@@ -513,16 +535,33 @@ void OptionsGUI::renderOptionsGUI()
 
 		ImGui::Dummy((ImVec2(0, 2)));
 #pragma region Seed
-
+		ImGui::SetNextItemWidth(200);
 		if (ImGui::InputText("Seed", &OptionsState::SeedString.GetValueDisplay()))
 		{
 			OptionsState::SeedString.UpdateValueWithInput();
+
+			changesPending_Seed = (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue());
 		}
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
 
+		if (changesPending_Seed && (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Update Pending Changes"))
+			{
+				changesPending_Seed = false;
+				// deduplicate firing the events. 
+				OptionsState::EnemyRandomiser.UpdateValueWithInput(); // Since rando and mult both proc the same stuff we only need to fire one
+
+
+			}
+		}
 
 #pragma endregion Seed
+
+
+
 
 
 
@@ -534,6 +573,17 @@ void OptionsGUI::renderOptionsGUI()
 		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiser.GetValueDisplay()))
 		{
 			OptionsState::EnemyRandomiser.UpdateValueWithInput();
+			changesPending_Rand = false;
+		}
+
+		if (changesPending_Rand && (OptionsState::EnemyRandomiser.GetValue()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Update Pending Changes"))
+			{
+				changesPending_Rand = false;
+				OptionsState::EnemyRandomiser.UpdateValueWithInput();
+			}
 		}
 
 
@@ -553,6 +603,7 @@ void OptionsGUI::renderOptionsGUI()
 			if (ImGui::Button("Add Randomisation Rule"))
 			{
 				OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
+				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Manage Custom Groups"))
@@ -573,6 +624,17 @@ void OptionsGUI::renderOptionsGUI()
 		if (ImGui::Checkbox("Enable Enemy Spawn Multiplier", &OptionsState::EnemySpawnMultiplier.GetValueDisplay()))
 		{
 			OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+			changesPending_Mult = false;
+		}
+
+		if (changesPending_Mult && (OptionsState::EnemySpawnMultiplier.GetValue()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Update Pending Changes"))
+			{
+				changesPending_Mult = false;
+				OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+			}
 		}
 
 	

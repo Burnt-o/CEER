@@ -89,15 +89,24 @@ void MessagesGUI::drawMessage(const temporaryMessage& message, const ImVec2& pos
 // Prefers inserting new lines at spaces instead of splitting words
 std::string insertNewLines(const std::string& in, const size_t every_n, int& outLineCount)
 {
-	outLineCount = 1;
-	if (in.size() < every_n) return in;
-	std::string temp;
+	PLOG_VERBOSE << "insertNewLines";
 
+	if (in.size() < every_n)
+	{
+		outLineCount = std::count(in.begin(), in.end(), '\n');
+		outLineCount++;
+		return in;
+	}
+
+	std::string temp;
+	PLOG_VERBOSE << "insertNewLines2";
 	std::vector<std::string> lines;
 	for (std::string::size_type i = 0; i < in.size(); i++)
 	{
+		PLOG_VERBOSE << (int)in[i];
 		if (in[i] == '\n')
 		{
+			PLOG_DEBUG << "Found preexisting endline";
 			lines.push_back(temp);
 			temp.clear();
 		}
@@ -145,6 +154,7 @@ void MessagesGUI::addMessage(std::string message)
 	// split message to multiple lines if necessary
 	int lineCount;
 	message = insertNewLines(message, 150, lineCount);
+	PLOG_DEBUG << "Message added with linecount: " << lineCount;
 	instance->messages.emplace_back(temporaryMessage{message, std::chrono::high_resolution_clock::now(), lineCount});
 
 }

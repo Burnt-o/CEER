@@ -31,7 +31,7 @@ private:
 public:
 
 	static void addMessage(std::string message);
-	static void addError(CEERRuntimeException& ex);
+
 	explicit MessagesGUI(eventpp::CallbackList<void()>& pEvent) : pImGuiRenderEvent(pEvent)
 	{
 		if (instance != nullptr)
