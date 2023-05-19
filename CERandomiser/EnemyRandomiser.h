@@ -198,6 +198,17 @@ public:
 		mLevelLoadEvent.remove(mLevelLoadCallbackHandle);
 
 		//TODO: destroy hooks
+#define safe_destroy_hook(x) if (x.get()) x->setWantsToBeAttached(false)
+		safe_destroy_hook(fixMajorUpgradeHook);
+		safe_destroy_hook(vehicleExitHook);
+		safe_destroy_hook(aiGoToVehicleHook);
+		safe_destroy_hook(aiLoadInVehicleHook);
+		safe_destroy_hook(fixUnitFactionHook);
+		safe_destroy_hook(setActorDatumHook);
+		safe_destroy_hook(placeObjectHook);
+		safe_destroy_hook(processSquadUnitHook);
+		safe_destroy_hook(getSquadUnitIndexHook);
+		safe_destroy_hook(spawnPositionFuzzHook);
 
 		instance = nullptr;
 	}

@@ -131,7 +131,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -147,7 +148,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;CERANDOMISER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -219,6 +220,9 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="RuntimeExceptionHandler.h" />
     <ClInclude Include="SetSeed.h" />
+    <ClInclude Include="TagInfoBase.h" />
+    <ClInclude Include="TextureInfo.h" />
+    <ClInclude Include="TextureRandomiser.h" />
     <ClInclude Include="UnitInfo.h" />
     <ClInclude Include="UserSeed.h" />
     <ClInclude Include="WindowsUtilities.h" />
@@ -255,9 +259,11 @@
     </ClCompile>
     <ClCompile Include="includes\imgui\imgui_stdlib.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="includes\imgui\imgui_tables.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="includes\imgui\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -293,7 +299,9 @@
     <ClCompile Include="PointerManager.cpp" />
     <ClCompile Include="RuntimeExceptionHandler.cpp" />
     <ClCompile Include="SetSeed.cpp" />
-    <ClCompile Include="UnitInfo.cpp" />
+    <ClCompile Include="TagInfoBase.cpp" />
+    <ClCompile Include="TextureRandomiserHooks.cpp" />
+    <ClCompile Include="TextureRandomiserLevelLoad.cpp" />
     <ClCompile Include="UserSeed.cpp" />
     <ClCompile Include="WindowsUtilities.cpp" />
   </ItemGroup>

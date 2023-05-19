@@ -20,6 +20,7 @@ bool EnemyRandomiser::hookData_unitRandomised = false;
 
 __int64 EnemyRandomiser::newPlaceObjectFunction(tagBlock* paletteTableRef, objectData* spawningObject)
 {
+	if (!instance) { PLOG_FATAL << "null instance! crash imminent";  }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	return instance->placeObjectHook.get()->getInlineHook().fastcall<__int64>(paletteTableRef, spawningObject);
 
@@ -40,6 +41,7 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(tagBlock* paletteTableRef, objec
 void EnemyRandomiser::vehicleExitHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "vehicleExitHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
@@ -62,6 +64,7 @@ void EnemyRandomiser::vehicleExitHookFunction(SafetyHookContext& ctx)
 void EnemyRandomiser::aiGoToVehicleHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "aiGoToVehicleHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
@@ -89,6 +92,7 @@ void EnemyRandomiser::aiGoToVehicleHookFunction(SafetyHookContext& ctx)
 void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "aiLoadInVehicleHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 	// All we do here is set the zeroflag and parityflag to zero (bits 6 and 2 respectively)
@@ -109,6 +113,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	returnOriginal \
 
 	PLOG_VERBOSE << "newProcessSquadFunction";
+	if (!instance) { PLOG_FATAL << "null instance! imminent crash";  }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 
@@ -264,8 +269,9 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 void EnemyRandomiser::getSquadUnitIndexHookFunction(SafetyHookContext& ctx)
 {
-	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	PLOG_DEBUG << "getSquadUnitIndexHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
 		unitIndex,
@@ -280,6 +286,7 @@ void EnemyRandomiser::getSquadUnitIndexHookFunction(SafetyHookContext& ctx)
 void EnemyRandomiser::setActorDatumHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_DEBUG << "setActorDatumHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 	enum class param
@@ -311,6 +318,7 @@ void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 {
 
 	PLOG_VERBOSE << "fixUnitFactionHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
@@ -334,6 +342,7 @@ void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "fixMajorUpgradeHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 	enum class param
 	{
@@ -361,6 +370,7 @@ void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 void EnemyRandomiser::spawnPositionFuzzHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "spawnPositionFuzzHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 	enum class param

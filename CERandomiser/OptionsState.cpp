@@ -16,6 +16,7 @@ namespace OptionsState
 		nameof(SeedString)
 	);
 
+#pragma region gameplay modifiers
 
 	Option<bool> EnemyRandomiser(
 		false,
@@ -37,9 +38,78 @@ namespace OptionsState
 		nameof(EnemySpawnMultiplier)
 	);
 
-
+	// TODO: add default rules
 	std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules; // starts empty
 	std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules; // starts empty
-	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString, &EnemyRandomiser, &EnemySpawnMultiplier, &RandomiserIncludesFlameThrowers };
+
+#pragma endregion gameplay modifiers
+#pragma region texture rando
+
+	Option<bool> TextureRandomiser(
+		false,
+		[](bool newValue) { return true; },
+		nameof(TextureRandomiser)
+
+	);
+
+
+	Option<double> TextureRandomiserPercent(
+		100.,
+		[](double newValue) { return newValue <= 100. && newValue >= 0.; },
+		nameof(TextureRandomiserPercent)
+
+	);
+
+	Option<bool> TextureRestrictToCategory(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureRestrictToCategory)
+
+	);
+
+	Option<bool> TextureIncludeCharacter(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureIncludeCharacter)
+
+	);
+
+	Option<bool> TextureIncludeWeapVehi(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureIncludeWeapVehi)
+
+	);
+
+	Option<bool> TextureIncludeEffect(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureIncludeEffect)
+
+	);
+	Option<bool> TextureIncludeLevel(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureIncludeLevel)
+
+	);
+	Option<bool> TextureIncludeUI(
+		true,
+		[](bool newValue) { return true; },
+		nameof(TextureIncludeUI)
+
+	);
+
+
+
+
+
+
+
+
+#pragma endregion texture rando
+
+	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString, &EnemyRandomiser, &EnemySpawnMultiplier, &RandomiserIncludesFlameThrowers, 
+		&TextureRandomiser, &TextureRandomiserPercent, &TextureRestrictToCategory, &TextureIncludeCharacter, &TextureIncludeWeapVehi, &TextureIncludeEffect, &TextureIncludeLevel, &TextureIncludeUI };
 }
 

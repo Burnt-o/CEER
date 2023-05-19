@@ -406,4 +406,102 @@
 	</VersionedEntry>-->
 
 	<!--#endregion MapReader-->
+
+
+	<!--#region TextureRandomiser-->
+	<VersionedEntry Name="loadDecalTextureFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<textureOffset>r9</textureOffset>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+
+	<VersionedEntry Name="loadDecalTextureFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB05F40</Offset>
+
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	
+	<VersionedEntry Name="loadRegularTextureFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<textureOffset>r8</textureOffset>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadRegularTextureFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+
+				<Offset>0xB05D8F</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadParticleTextureFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<!--<textureOffset>rcx</textureOffset>-->
+				<textureOffset>rax</textureOffset>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadParticleTextureFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xD591CE</Offset>
+				<!--<Offset>0xBF9C0F</Offset>-->
+				<!--<Offset>0xBF99CA</Offset>-->
+				<!--<Offset>0xA96FC4</Offset>-->
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadContrailTextureFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<textureOffset>rsi</textureOffset>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadContrailTextureFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC2F4F1</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadLensTextureFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<textureOffset>r10</textureOffset>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadLensTextureFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCBF797</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+
+	<!--#endregion TextureRandomiser-->
 </root>

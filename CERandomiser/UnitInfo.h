@@ -1,7 +1,6 @@
 #pragma once
-
 #include "Datum.h"
-
+#include "TagInfoBase.h"
 enum class faction {
 	Undefined = -1,
 	DefaultByUnit = 0,
@@ -32,17 +31,13 @@ const std::map<faction, std::string> factionToString = {
 };
 
 
-// Turns "characters\hunter\hunter" into "hunter"
-std::string getShortNameFromFull(std::string fullName);
 
-class UnitInfo {
+class UnitInfo : public TagInfoBase {
 private:
-	std::string mFullName;
-	std::string mShortName;
+
 public:
 	explicit UnitInfo(std::string fullName)
-		: mFullName(fullName),
-		mShortName(getShortNameFromFull(fullName))
+		: TagInfoBase(fullName)
 	{
 	}
 
@@ -57,8 +52,7 @@ public:
 
 	std::discrete_distribution<int> rollDistribution;
 
-	std::string_view getFullName() const { return mFullName; }
-	std::string_view getShortName() const { return mShortName; }
+
 
 	bool isValidUnit = true;
 };

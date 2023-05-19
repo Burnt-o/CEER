@@ -1,7 +1,8 @@
 #include "pch.h"
-#include "UnitInfo.h";
+#include "TagInfoBase.h"
 
-std::string getShortNameFromFull(std::string fullName)
+
+std::string TagInfoBase::getShortNameFromFull(std::string fullName)
 {
 	auto pos = fullName.find_last_of("\\");
 	if (pos == std::string::npos) return fullName;

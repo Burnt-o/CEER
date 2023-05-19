@@ -24,6 +24,8 @@ public:
 	uint64_t operator()() {
 		return mSeed;
 	}
+
+	void operator++() { mSeed = twist64(mSeed); }
 	static constexpr uint64_t min() { return 0; }
 	static constexpr uint64_t max() { return UINT64_MAX; }
 };

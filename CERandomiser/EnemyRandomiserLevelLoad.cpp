@@ -71,7 +71,7 @@ void EnemyRandomiser::lazyInit()
 
 void EnemyRandomiser::onEitherOptionChange()
 {
-	// we will turn on hooks if either EnemyRandomiser OR EnemySpawnMultiplier is enabled. Off if both our off.
+	// we will turn on hooks if either EnemyRandomiser OR EnemySpawnMultiplier is enabled. Off if both are off.
 	bool shouldEnable = OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue();
 
 	//lazy init (getting pointerData, creating hook objects)
@@ -79,7 +79,7 @@ void EnemyRandomiser::onEitherOptionChange()
 		{
 			std::call_once(lazyInitOnceFlag, [this]() {lazyInit(); }); // flag not flipped if exception thrown
 		}
-		catch (CEERRuntimeException& ex)
+		catch (InitException& ex)
 		{
 			if (shouldEnable) // check helps prevent an infinite loop, since an option getting disabled will callback to this same very function
 			{

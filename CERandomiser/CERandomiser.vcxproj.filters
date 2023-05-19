@@ -171,6 +171,15 @@
     <ClInclude Include="OptionSerialisation.h">
       <Filter>Services</Filter>
     </ClInclude>
+    <ClInclude Include="TextureRandomiser.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureInfo.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TagInfoBase.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -275,9 +284,6 @@
     <ClCompile Include="EnemyGroup.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
-    <ClCompile Include="UnitInfo.cpp">
-      <Filter>Classes</Filter>
-    </ClCompile>
     <ClCompile Include="EnemyRandomiserHooks.cpp">
       <Filter>Services</Filter>
     </ClCompile>
@@ -295,6 +301,15 @@
     </ClCompile>
     <ClCompile Include="OptionSerialisation.cpp">
       <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRandomiserLevelLoad.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRandomiserHooks.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TagInfoBase.cpp">
+      <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

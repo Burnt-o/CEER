@@ -5,7 +5,7 @@
 
 #include "EnemyRule.h"
 #include "OptionSerialisation.h"
-
+#include "TextureRandomiser.h"
 
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
@@ -14,6 +14,7 @@ OptionsGUI* OptionsGUI::instance = nullptr;
 static bool changesPending_Seed = false;
 static bool changesPending_Rand = false;
 static bool changesPending_Mult = false;
+static bool changesPending_Text = false;
 
 
 std::map<RuleType, float> ruleTypeToPixelHeight
@@ -679,11 +680,85 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Unindent();
 
 #pragma endregion EnemySpawnMultiplier
+#pragma region TextureRandomiser
 		ImGui::SeparatorText("");
-		ImGui::Indent();
-		ImGui::Text("Texture rando todo");
-		ImGui::Unindent();
 
+
+		if (ImGui::Checkbox("Enable Texture Randomiser", &OptionsState::TextureRandomiser.GetValueDisplay()))
+		{
+			OptionsState::TextureRandomiser.UpdateValueWithInput();
+			changesPending_Text = false;
+		}
+
+		if (changesPending_Text && (OptionsState::TextureRandomiser.GetValue()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Apply Pending Changes"))
+			{
+				changesPending_Text = false;
+				OptionsState::TextureRandomiser.UpdateValueWithInput();
+			}
+		}
+
+
+
+		ImGui::Indent();
+		ImGui::Dummy((ImVec2(0, 2)));
+		if (ImGui::CollapsingHeader("Texture Randomiser Settings", ImGui::IsItemHovered()))
+		{
+			ImGui::BeginChild("texSettings", ImVec2(0, 0));
+			if (ImGui::InputDouble("Percent of Textures to Randomise", &OptionsState::TextureRandomiserPercent.GetValueDisplay()))
+			{
+				OptionsState::TextureRandomiserPercent.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+
+			if (ImGui::Checkbox("Restrict randomisation to like categories", &OptionsState::TextureRestrictToCategory.GetValueDisplay()))
+			{
+				OptionsState::TextureRestrictToCategory.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+
+			ImGui::SeparatorText("Texture Categories");
+			if (ImGui::Checkbox("Characters", &OptionsState::TextureIncludeCharacter.GetValueDisplay()))
+			{
+				OptionsState::TextureIncludeCharacter.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+			if (ImGui::Checkbox("Weapons and vehicles", &OptionsState::TextureIncludeWeapVehi.GetValueDisplay()))
+			{
+				OptionsState::TextureIncludeWeapVehi.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+			if (ImGui::Checkbox("Effects and particles", &OptionsState::TextureIncludeEffect.GetValueDisplay()))
+			{
+				OptionsState::TextureIncludeEffect.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+			if (ImGui::Checkbox("Level geometry", &OptionsState::TextureIncludeLevel.GetValueDisplay()))
+			{
+				OptionsState::TextureIncludeLevel.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+			if (ImGui::Checkbox("User Interface", &OptionsState::TextureIncludeUI.GetValueDisplay()))
+			{
+				OptionsState::TextureIncludeUI.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+
+
+
+			ImGui::EndChild();
+		}
+		ImGui::Unindent();
+#if CEER_DEBUG
+		if (ImGui::Button("Debug Last Texture"))
+		{
+			TextureRandomiser::DebugLastTexture();
+		}
+#endif
+
+#pragma endregion TextureRandomiser
 
 	}
 
