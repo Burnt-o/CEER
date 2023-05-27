@@ -26,3 +26,9 @@ void Option<float>::deserialise(pugi::xml_node input)
 	UpdateValueWithInput();
 }
 
+void Option<int>::deserialise(pugi::xml_node input)
+{
+	valueDisplay = input.text().as_int();
+	UpdateValueWithInput();
+}
+

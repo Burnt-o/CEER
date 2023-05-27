@@ -8,7 +8,6 @@
 #include "TextureInfo.h"
 
 
-
 class TextureRandomiser
 {
 private:
@@ -57,9 +56,8 @@ private:
 	std::shared_ptr<MidhookContextInterpreter> loadLensTextureFunctionContext;
 
 
-
+	std::vector<MemOffset> seizureModeVector;
 	std::map<MemOffset, TextureInfo> textureMap;
-	std::vector<TextureInfo> textureVector; // needed to index memOffsets for rollDistribution
 	std::map<MemOffset, MemOffset> shuffledTextures;
 
 	std::once_flag lazyInitOnceFlag;
@@ -70,6 +68,19 @@ private:
 	void evaluateTextures();
 	TextureInfo readTextureInfo(const tagElement& textureTag);
 	TextureCategory sortIntoCategory(const TextureInfo& textureInfo);
+
+	//seizure stuff
+	static void induceSeizure(MemOffset* offsetRef);
+	static bool SMseizureModeEnabled;
+	static std::map<TextureCategory, bool> SMcategoryIsEnabled;;
+	static std::map<TextureCategory, std::vector<MemOffset>> SMallTexturePools;
+	static std::mt19937 SMseizureRNG; // generator needed to grab numbers from the int distributions
+	static std::uniform_int_distribution<> SMseizureWillRandomiseRNG; // used to determine whether a texture will be re-randomised on any given frame
+	static std::uniform_int_distribution<> SMseizureWhatRandomiseRNG; // if re-randomised, used to select which texture to rando into 
+
+
+
+
 
 
 public:
@@ -85,6 +96,7 @@ public:
 		// Listen to the events we care about
 		mTextureRandomiserToggleCallbackHandle = mTextureRandomiserToggleEvent.append(&onTextureRandomiserToggleChange);
 		mLevelLoadCallbackHandle = levelLoadEvent.append(&onLevelLoadEvent);
+
 
 	}
 

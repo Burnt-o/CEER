@@ -220,6 +220,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="RuntimeExceptionHandler.h" />
     <ClInclude Include="SetSeed.h" />
+    <ClInclude Include="SoundInfo.h" />
+    <ClInclude Include="SoundRandomiser.h" />
     <ClInclude Include="TagInfoBase.h" />
     <ClInclude Include="TextureInfo.h" />
     <ClInclude Include="TextureRandomiser.h" />
@@ -299,6 +301,8 @@
     <ClCompile Include="PointerManager.cpp" />
     <ClCompile Include="RuntimeExceptionHandler.cpp" />
     <ClCompile Include="SetSeed.cpp" />
+    <ClCompile Include="SoundRandomiserHooks.cpp" />
+    <ClCompile Include="SoundRandomiserLevelLoad.cpp" />
     <ClCompile Include="TagInfoBase.cpp" />
     <ClCompile Include="TextureRandomiserHooks.cpp" />
     <ClCompile Include="TextureRandomiserLevelLoad.cpp" />

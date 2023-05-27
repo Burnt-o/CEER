@@ -25,7 +25,7 @@ ModuleHookManager::ModuleHookManager()
 	mHook_LoadLibraryExW = safetyhook::create_inline(&LoadLibraryExW, &newLoadLibraryExW);
 	mHook_FreeLibrary = safetyhook::create_inline(&FreeLibrary, &newFreeLibrary);
 
-	mModuleHooksMap.reserve(6); // probably only the 6 game dll's that we might care about ever
+	//mModuleHooksMap.reserve(6); // probably only the 6 game dll's that we might care about ever
 	PLOG_VERBOSE << "Hooking module load/unload done";
 }
 

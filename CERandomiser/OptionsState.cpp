@@ -37,13 +37,11 @@ namespace OptionsState
 		[](bool newValue) { return true; },
 		nameof(EnemySpawnMultiplier)
 	);
-
-	// TODO: add default rules
-	std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules; // starts empty
-	std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules; // starts empty
+	std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;
+	std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules;
 
 #pragma endregion gameplay modifiers
-#pragma region texture rando
+#pragma region TextureRandomiser
 
 	Option<bool> TextureRandomiser(
 		false,
@@ -100,16 +98,85 @@ namespace OptionsState
 
 	);
 
+	Option<bool> TextureSeizureMode(
+		false,
+		[](bool newValue) { return true; },
+		nameof(TextureSeizureMode)
+
+	);
+	Option<int> TextureFramesBetweenSeizures(
+		10000,
+		[](int newValue) { return newValue >= 1; },
+		nameof(TextureFramesBetweenSeizures)
+
+	);
+
+#pragma endregion TextureRandomiser
+
+#pragma region SoundRandomiser
+	Option<bool> SoundRandomiser(
+		false,
+		[](bool newValue) { return true; },
+		nameof(SoundRandomiser)
+
+	);
 
 
+	Option<double> SoundRandomiserPercent(
+		100.,
+		[](double newValue) { return newValue <= 100. && newValue >= 0.; },
+		nameof(SoundRandomiserPercent)
 
+	);
 
+	Option<bool> SoundRestrictToCategory(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundRestrictToCategory)
 
+	);
 
+	Option<bool> SoundIncludeDialog(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundIncludeDialog)
 
-#pragma endregion texture rando
+	);
 
-	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString, &EnemyRandomiser, &EnemySpawnMultiplier, &RandomiserIncludesFlameThrowers, 
-		&TextureRandomiser, &TextureRandomiserPercent, &TextureRestrictToCategory, &TextureIncludeCharacter, &TextureIncludeWeapVehi, &TextureIncludeEffect, &TextureIncludeLevel, &TextureIncludeUI };
+	Option<bool> SoundIncludeMusic(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundIncludeMusic)
+
+	);
+
+	Option<bool> SoundIncludeAnimations(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundIncludeAnimations)
+
+	);
+	Option<bool> SoundIncludeEffects(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundIncludeEffects)
+
+	);
+	Option<bool> SoundIncludeWeapVehi(
+		true,
+		[](bool newValue) { return true; },
+		nameof(SoundIncludeWeapVehi)
+
+	);
+
+#pragma endregion SoundRandomiser
+
+	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString,  &RandomiserIncludesFlameThrowers, 
+		&TextureRandomiserPercent, &TextureRestrictToCategory, &TextureIncludeCharacter, &TextureIncludeWeapVehi, &TextureIncludeEffect, &TextureIncludeLevel, &TextureIncludeUI, &TextureSeizureMode, &TextureFramesBetweenSeizures,
+	 & SoundRestrictToCategory, & SoundIncludeDialog, & SoundIncludeMusic, & SoundIncludeAnimations, & SoundIncludeEffects, & SoundIncludeWeapVehi,
+	
+	// main toggles last as they will fire onChange events
+		& EnemyRandomiser, &EnemySpawnMultiplier, &TextureRandomiser, & SoundRandomiser,
+	};
 }
 

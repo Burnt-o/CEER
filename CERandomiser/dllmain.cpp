@@ -21,7 +21,7 @@
 #include "MessagesGUI.h"
 #include "OptionSerialisation.h"
 #include "TextureRandomiser.h"
-
+#include "SoundRandomiser.h"
 
 
 /* GENERAL TODO:: 
@@ -78,6 +78,11 @@ void RealMain(HMODULE dllHandle)
 
     try
     {
+        // setup default rules
+        OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
+        OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
+
+
         ModuleCache::initialize();
         auto mhm = std::make_unique<ModuleHookManager>();
         auto d3d = std::make_unique<D3D11Hook>();
@@ -95,21 +100,21 @@ void RealMain(HMODULE dllHandle)
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(lvl->levelLoadEvent, map.get());
         auto tex = std::make_unique<TextureRandomiser>(lvl->levelLoadEvent, map.get());
+        auto snd = std::make_unique<SoundRandomiser>(lvl->levelLoadEvent, map.get());
 
         OptionSerialisation::deserialiseFromFile();
 
         PLOG_INFO << "All services succesfully initialized! Entering main loop";
-
+        Sleep(100);
         // Shutdown the console on successful init, at least in release mode.
         // If an initialization error occurs before this point, console will be left up so user can look at it.
+        MessagesGUI::addMessage("CEER successfully initialised!");
+
 
 #ifndef CEER_DEBUG
         Logging::closeConsole();
 #else
-        MessagesGUI::addMessage("Hello hello hello");
-        CEERRuntimeException testException("Hello, this is a test exception");
-        RuntimeExceptionHandler::handleMessage(testException);
-        MessagesGUI::addMessage("Another message");
+
 #endif // !CEER_DEBUG
 
         PLOG_DEBUG << OptionsState::EnemyRandomiser.getOptionName();

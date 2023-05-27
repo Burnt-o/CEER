@@ -6,6 +6,14 @@
 
 TextureRandomiser* TextureRandomiser::instance = nullptr;
 
+bool TextureRandomiser::SMseizureModeEnabled = false;
+std::map<TextureCategory, bool> TextureRandomiser::SMcategoryIsEnabled{};
+std::map<TextureCategory, std::vector<MemOffset>> TextureRandomiser::SMallTexturePools{};
+std::mt19937 TextureRandomiser::SMseizureRNG; // generator needed to grab numbers from the int distributions
+std::uniform_int_distribution<> TextureRandomiser::SMseizureWillRandomiseRNG{ 0, 100 }; // used to determine whether a texture will be re-randomised on any given frame
+std::uniform_int_distribution<> TextureRandomiser::SMseizureWhatRandomiseRNG{ 0, 100 }; // if re-randomised, used to select which texture to rando into 
+
+
 void TextureRandomiser::lazyInit()
 {
 	PLOG_DEBUG << "TextureRandomiser::lazyInit()";
@@ -41,9 +49,12 @@ void TextureRandomiser::lazyInit()
 		throw ex;
 	}
 }
-
+std::mutex textureToggleChangeMutex;
 void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
 {
+	
+
+	std::scoped_lock<std::mutex> lock(textureToggleChangeMutex);
 	//lazy init (getting pointerData, creating hook objects)
 	try
 	{
@@ -87,6 +98,7 @@ void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 		{
 			MessagesGUI::addMessage("Loading texture data...");
 			PLOG_DEBUG << "Loading texture data...";
+			PLOG_VERBOSE << "locking TextureRandomiser::mDestructionGuard";
 			std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 			instance->mapReader->cacheTagData(newLevel);
@@ -111,6 +123,7 @@ void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 			RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::TextureRandomiser }); // tell user, disable options
 		}
 	}
+	PLOG_VERBOSE << "unlocking TextureRandomiser::mDestructionGuard";
 }
 
 
@@ -121,8 +134,8 @@ void TextureRandomiser::evaluateTextures()
 {
 	assert(OptionsState::TextureRandomiser.GetValue());
 	textureMap.clear();
-	textureVector.clear();
 	shuffledTextures.clear();
+	seizureModeVector.clear();
 
 	auto tagTable = instance->mapReader->getTagTable();		PLOG_DEBUG << "TagTable count: " << tagTable.size();
 	constexpr auto bitmMagic = MapReader::stringToMagic("bitm");
@@ -133,9 +146,9 @@ void TextureRandomiser::evaluateTextures()
 		if (tag.tagGroupMagic != bitmMagic || tag.tagDatum == nullDatum) continue;
 		auto texture = readTextureInfo(tag);
 		textureMap.emplace(tag.offset, texture);
-		textureVector.emplace_back(texture);
+		seizureModeVector.emplace_back(tag.offset);
+
 	}
-	assert(textureMap.size() == textureVector.size());
 
 	// Then need to parse optionState for what textures are in the pool
 	// and what % of textures to randomise
@@ -188,8 +201,11 @@ void TextureRandomiser::evaluateTextures()
 	}
 
 	// log how many textures found in each category
+	size_t largestTexturePoolSize = 0; // this value is also used by seizureMode
 	for (auto& [texturePoolCategory, texturePool] : allTexturePools)
 	{
+
+		largestTexturePoolSize = std::max(largestTexturePoolSize, texturePool.size());
 		PLOG_DEBUG << std::format("Texture category {} contains {} textures", textureCategoryToString.at(texturePoolCategory), texturePool.size());
 	}
 
@@ -209,7 +225,7 @@ void TextureRandomiser::evaluateTextures()
 	// Setup the shuffled textures
 	SetSeed64 gen(ourSeed); // will increment this as we process each texture so we get a different random number each time
 	std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 }; // to roll against % of textures to randomise
-	double randomiseChance = OptionsState::TextureRandomiserPercent.GetValue();
+	double randomiseChance = OptionsState::TextureRandomiserPercent.GetValue() / 100.;
 	for (auto& [thisTextureOffset, thisTextureInfo] : textureMap)
 	{
 		++gen;
@@ -238,6 +254,23 @@ void TextureRandomiser::evaluateTextures()
 
 	assert(shuffledTextures.size() == textureMap.size());
 
+	// setup seizureMode stuff
+
+	if (OptionsState::TextureSeizureMode.GetValue())
+	{
+		PLOG_VERBOSE << "Updating SeizureSettings";
+		SMcategoryIsEnabled = categoryIsEnabled;
+		SMallTexturePools = allTexturePools;
+
+
+		using param_t = std::uniform_int_distribution<>::param_type;
+		SMseizureWillRandomiseRNG.param(param_t(0, OptionsState::TextureFramesBetweenSeizures.GetValue() - 1));
+		SMseizureWhatRandomiseRNG.param(param_t(0, (int)largestTexturePoolSize - 1));
+
+	}
+	SMseizureModeEnabled = OptionsState::TextureSeizureMode.GetValue(); // important that this is set AFTER settings set, so hooks don't access that data before it's ready
+	PLOG_DEBUG << "SeizureSettings::seizureModeEnabled " << SMseizureModeEnabled;
+	PLOG_DEBUG << "OptionsState::TextureSeizureMode.GetValue() " << OptionsState::TextureSeizureMode.GetValue();
 }
 
 

@@ -68,9 +68,12 @@ void EnemyRandomiser::lazyInit()
 	}
 }
 
-
+std::mutex enemyToggleChangeMutex;
 void EnemyRandomiser::onEitherOptionChange()
 {
+
+	std::scoped_lock<std::mutex> lock(enemyToggleChangeMutex);
+
 	// we will turn on hooks if either EnemyRandomiser OR EnemySpawnMultiplier is enabled. Off if both are off.
 	bool shouldEnable = OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue();
 
@@ -220,7 +223,7 @@ void EnemyRandomiser::evaluateActors()
 					if (thisRule->randomiseGroupSelection.isMatch(actor))
 					{
 						PLOG_DEBUG << "Actor found a matching rule: " << actor.getShortName();
-						actor.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.f;
+						actor.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.;
 						rollGroup = &thisRule->rollGroupSelection;
 					}
 				}
@@ -372,7 +375,7 @@ void EnemyRandomiser::evaluateBipeds()
 
 					if (thisRule->randomiseGroupSelection.isMatch(biped))
 					{
-						biped.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.f;
+						biped.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.;
 						rollGroup = &thisRule->rollGroupSelection;
 					}
 

@@ -504,4 +504,28 @@
 
 
 	<!--#endregion TextureRandomiser-->
+	
+	<!--#region SoundRandomiser-->
+
+	<VersionedEntry Name="loadSoundAFunctionContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3073.0.0">
+			<Parameters>
+				<soundDatum>rcx</soundDatum>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="loadSoundAFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBA24B0</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+
+
+	<!--#endregion SoundRandomiser-->
+
 </root>

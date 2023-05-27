@@ -149,8 +149,10 @@ std::string insertNewLines(const std::string& in, const size_t every_n, int& out
 
 }
 
+std::mutex addMessageMutex;
 void MessagesGUI::addMessage(std::string message)
 {
+	std::scoped_lock<std::mutex> lock(addMessageMutex);
 	// split message to multiple lines if necessary
 	int lineCount;
 	message = insertNewLines(message, 150, lineCount);

@@ -17,7 +17,7 @@ namespace OptionsState
 	extern std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;
 	extern std::vector<std::unique_ptr<EnemyRule>> currentMultiplierRules;
 #pragma endregion gameplay modifiers
-#pragma region texture rando
+#pragma region TextureRandomiser
 	extern Option<bool> TextureRandomiser;
 	extern Option<double> TextureRandomiserPercent;
 	extern Option<bool> TextureRestrictToCategory;
@@ -27,7 +27,22 @@ namespace OptionsState
 	extern Option<bool> TextureIncludeLevel;
 	extern Option<bool> TextureIncludeUI;
 
-#pragma endregion texture rando
+	extern Option<bool> TextureSeizureMode;
+	extern Option<int> TextureFramesBetweenSeizures;
+
+#pragma endregion TextureRandomiser
+
+#pragma region SoundRandomiser
+	extern Option<bool> SoundRandomiser;
+	extern Option<double> SoundRandomiserPercent;
+	extern Option<bool> SoundRestrictToCategory;
+	extern Option<bool> SoundIncludeDialog;
+	extern Option<bool> SoundIncludeMusic;
+	extern Option<bool> SoundIncludeAnimations;
+	extern Option<bool> SoundIncludeEffects;
+	extern Option<bool> SoundIncludeWeapVehi;
+
+#pragma endregion SoundRandomiser
 
 	extern std::vector<SerialisableOption*> allSerialisableOptions;
 };

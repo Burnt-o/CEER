@@ -35,7 +35,8 @@ private:
 	void renderManageCustomGroupsDialog();
 	void renderEnemyRandomiserRules(float rulesWindowHeight);
 	void renderEnemySpawnMultiplierRules(float rulesWindowHeight);
-	
+
+	void renderTextureSeizureWarning();
 
 	// GUI data
 	ImGuiWindowFlags windowFlags;

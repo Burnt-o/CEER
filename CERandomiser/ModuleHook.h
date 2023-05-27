@@ -17,7 +17,7 @@ protected:
 	{
 	}
 
-	virtual ~ModuleHookBase() { PLOG_ERROR << "THIS SHOULD NEVER BE CALLED"; } // child classes will override to detach their hook objects
+	virtual ~ModuleHookBase() { } // child classes will override to detach their hook objects
 
 
 

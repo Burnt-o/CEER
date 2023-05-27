@@ -5,6 +5,7 @@
 
 #include "EnemyRule.h"
 #include "OptionSerialisation.h"
+#include "SoundRandomiser.h"
 #include "TextureRandomiser.h"
 
 bool OptionsGUI::m_WindowOpen = true;
@@ -15,6 +16,7 @@ static bool changesPending_Seed = false;
 static bool changesPending_Rand = false;
 static bool changesPending_Mult = false;
 static bool changesPending_Text = false;
+static bool changesPending_Sound = false;
 
 
 std::map<RuleType, float> ruleTypeToPixelHeight
@@ -82,6 +84,41 @@ void OptionsGUI::onImGuiRenderEvent()
 	instance->renderOptionsGUI();
 
 }
+
+void OptionsGUI::renderTextureSeizureWarning()
+{
+
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("Seizure Warning", NULL, ImGuiWindowFlags_NoResize))
+	{
+
+		ImGui::TextWrapped("Warning! Setting texture re-randomisation to a low (fast) value may potentially trigger seizures for people with photosensitive epilepsy.");
+		ImGui::TextWrapped("Most people are unaware that they have this disorder until it strikes.");
+		ImGui::TextWrapped("If you experience dizziness, altered vision, eye or muscle twitches, loss of awareness, diorientation, any involuntary movement, or convulsions while using this feature, immediately stop and consult a physician.");
+
+		if (ImGui::Button("Continue"))
+		{
+			OptionsState::TextureRandomiser.UpdateValueWithInput();
+			changesPending_Text = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Stop"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+
 
 
 static bool errorDialogShowing = false;
@@ -464,6 +501,11 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 
 
 
+void UpdateTextureRandomiserStateWithSeizureWarning()
+{
+
+}
+
 
 void OptionsGUI::renderOptionsGUI()
 {
@@ -546,16 +588,16 @@ void OptionsGUI::renderOptionsGUI()
 		if (ImGui::IsItemHovered())
 			ImGui::SetTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
 
-		if (changesPending_Seed && (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue()))
+		if (changesPending_Seed && (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue() || OptionsState::TextureRandomiser.GetValue() || OptionsState::SoundRandomiser.GetValue()))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
 				changesPending_Seed = false;
-				// deduplicate firing the events. 
+				// deduplicate firing the enemyRandomsier/multiplier events. 
 				OptionsState::EnemyRandomiser.UpdateValueWithInput(); // Since rando and mult both proc the same stuff we only need to fire one
-
-
+				OptionsState::TextureRandomiser.UpdateValueWithInput();
+				OptionsState::SoundRandomiser.UpdateValueWithInput();
 			}
 		}
 
@@ -684,22 +726,39 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::SeparatorText("");
 
 
+		constexpr int warnSeizureIfFramesLessThan = 1999;
+
 		if (ImGui::Checkbox("Enable Texture Randomiser", &OptionsState::TextureRandomiser.GetValueDisplay()))
 		{
-			OptionsState::TextureRandomiser.UpdateValueWithInput();
-			changesPending_Text = false;
+			// Need to add a check for if the SeizureMode has been set to a really fast setting, and warn the user 
+			if (OptionsState::TextureRandomiser.GetValueDisplay() == true && OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
+			{
+				ImGui::OpenPopup("Seizure Warning");
+			}
+			else
+			{
+				OptionsState::TextureRandomiser.UpdateValueWithInput();
+				changesPending_Text = false;
+			}
 		}
 
-		if (changesPending_Text && (OptionsState::TextureRandomiser.GetValue()))
+		if (changesPending_Text && (OptionsState::TextureRandomiser.GetValue() == true))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				changesPending_Text = false;
-				OptionsState::TextureRandomiser.UpdateValueWithInput();
+				if (OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
+				{
+					ImGui::OpenPopup("Seizure Warning");
+				}
+				else
+				{
+					OptionsState::TextureRandomiser.UpdateValueWithInput();
+					changesPending_Text = false;
+				}
 			}
 		}
-
+		renderTextureSeizureWarning();
 
 
 		ImGui::Indent();
@@ -746,6 +805,22 @@ void OptionsGUI::renderOptionsGUI()
 				changesPending_Text = true;
 			}
 
+			ImGui::Separator();
+			if (ImGui::Checkbox("Re-randomise textures", &OptionsState::TextureSeizureMode.GetValueDisplay()))
+			{
+				OptionsState::TextureSeizureMode.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("every ");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(110.f);
+			if (ImGui::InputInt("frames", &OptionsState::TextureFramesBetweenSeizures.GetValueDisplay()))
+			{
+				OptionsState::TextureFramesBetweenSeizures.UpdateValueWithInput();
+				changesPending_Text = true;
+			}
+
 
 
 			ImGui::EndChild();
@@ -759,6 +834,86 @@ void OptionsGUI::renderOptionsGUI()
 #endif
 
 #pragma endregion TextureRandomiser
+
+#pragma region SoundRandomiser
+		ImGui::SeparatorText("");
+
+
+		if (ImGui::Checkbox("Enable Sound Randomiser", &OptionsState::SoundRandomiser.GetValueDisplay()))
+		{
+			OptionsState::SoundRandomiser.UpdateValueWithInput();
+			changesPending_Sound = false;
+		}
+
+		if (changesPending_Text && (OptionsState::SoundRandomiser.GetValue()))
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Apply Pending Changes"))
+			{
+				changesPending_Sound = false;
+				OptionsState::SoundRandomiser.UpdateValueWithInput();
+			}
+		}
+
+
+
+		ImGui::Indent();
+		ImGui::Dummy((ImVec2(0, 2)));
+		if (ImGui::CollapsingHeader("Sound Randomiser Settings", ImGui::IsItemHovered()))
+		{
+			ImGui::BeginChild("sndSettings", ImVec2(0, 0));
+			if (ImGui::InputDouble("Percent of Sounds to Randomise", &OptionsState::SoundRandomiserPercent.GetValueDisplay()))
+			{
+				OptionsState::SoundRandomiserPercent.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+
+			if (ImGui::Checkbox("Restrict randomisation to like categories", &OptionsState::SoundRestrictToCategory.GetValueDisplay()))
+			{
+				OptionsState::SoundRestrictToCategory.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+
+			ImGui::SeparatorText("Sound Categories");
+			if (ImGui::Checkbox("Dialog", &OptionsState::SoundIncludeDialog.GetValueDisplay()))
+			{
+				OptionsState::SoundIncludeDialog.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+			if (ImGui::Checkbox("Music", &OptionsState::SoundIncludeMusic.GetValueDisplay()))
+			{
+				OptionsState::SoundIncludeMusic.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+			if (ImGui::Checkbox("Animations", &OptionsState::SoundIncludeAnimations.GetValueDisplay()))
+			{
+				OptionsState::SoundIncludeAnimations.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+			if (ImGui::Checkbox("Effects", &OptionsState::SoundIncludeEffects.GetValueDisplay()))
+			{
+				OptionsState::SoundIncludeEffects.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+			if (ImGui::Checkbox("Weapons and vehicles", &OptionsState::SoundIncludeWeapVehi.GetValueDisplay()))
+			{
+				OptionsState::SoundIncludeWeapVehi.UpdateValueWithInput();
+				changesPending_Sound = true;
+			}
+
+
+
+			ImGui::EndChild();
+		}
+		ImGui::Unindent();
+#if CEER_DEBUG
+		if (ImGui::Button("Debug Last Sound"))
+		{
+			SoundRandomiser::DebugLastSound();
+		}
+#endif
+
+#pragma endregion SoundRandomiser
 
 	}
 
