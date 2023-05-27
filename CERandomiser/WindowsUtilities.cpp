@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "WindowsUtilities.h"
-
+#include "InitParameter.h"
 
 std::wstring str_to_wstr(const std::string str)
 {
@@ -55,19 +55,20 @@ void make_minidump(EXCEPTION_POINTERS* e)
 	if (pMiniDumpWriteDump == nullptr)
 		return;
 
-	char name[MAX_PATH];
-	{
-		auto nameEnd = name + GetModuleFileNameA(GetModuleHandleA(0), name, MAX_PATH);
-		SYSTEMTIME t;
-		GetSystemTime(&t);
-		wsprintfA(nameEnd - strlen("MCC-Win64-Shipping.exe"),
-			"..\\..\\..\\MCCTAS\\MCCDMP_%4d%02d%02d_%02d%02d%02d.dmp",
+	SYSTEMTIME t;
+	GetSystemTime(&t);
+	std::string dumpFilePath = g_ourInitParameters->injectorPath + std::format(
+			"\\CEER_MCCDMP_{:04}{:02}{:02}_{:02}{:02}{:02}.dmp",
 			t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
+	
+
+	auto hFile = CreateFileA(dumpFilePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		PLOG_FATAL << "Failed to create crash dump file at " << dumpFilePath;
+		return;
 	}
 
-	auto hFile = CreateFileA(name, GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return;
 
 	MINIDUMP_EXCEPTION_INFORMATION exceptionInfo;
 	exceptionInfo.ThreadId = GetCurrentThreadId();
@@ -82,7 +83,7 @@ void make_minidump(EXCEPTION_POINTERS* e)
 		e ? &exceptionInfo : nullptr,
 		nullptr,
 		nullptr);
-
+	PLOG_FATAL << "Dumped crash information to " << dumpFilePath;
 	CloseHandle(hFile);
 
 	return;

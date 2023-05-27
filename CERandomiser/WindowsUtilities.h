@@ -4,6 +4,9 @@
 
 #define safe_release(p) if (p) { p->Release(); p = nullptr; } 
 
+
+
+// decent chunk of this nicked from Scales' MCCTAS, with slight modifications
 std::wstring str_to_wstr(const std::string str);
 std::string wstr_to_str(const std::wstring wstr);
 

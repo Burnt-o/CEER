@@ -47,7 +47,7 @@ void RealMain(HMODULE dllHandle)
 {
 
 
-    //acquire_global_unhandled_exception_handler();
+    acquire_global_unhandled_exception_handler();
 
 
 
@@ -157,7 +157,7 @@ void RealMain(HMODULE dllHandle)
     std::cout << "CEER singletons succesfully shut down";
 
     curl_global_cleanup();
-    //release_global_unhandled_exception_handler();
+    release_global_unhandled_exception_handler();
 
 #ifdef CEER_DEBUG
     while (!GetKeyState(0x23) & 0x8000) // 'End' key
