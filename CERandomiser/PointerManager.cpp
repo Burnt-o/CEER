@@ -63,7 +63,7 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
     try
     {
         PLOG_INFO << "downloading pointerData.xml";
-        downloadXML("https://raw.githubusercontent.com/Burnt-o/HaloCheckpointManager/HCM2/HCM3/PointerData.xml");
+        downloadXML("https://raw.githubusercontent.com/Burnt-o/CEER/master/CERandomiser/CEERPointerData.xml");
     }
     catch (InitException ex)
     {
@@ -135,7 +135,7 @@ std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager
 std::string PointerManager::PointerManagerImpl::readLocalXML()
 {
     std::string pathToFile;
-#if useDevPointerData == 1
+#if CEER_DEBUG
     pathToFile = "C:\\Users\\mauri\\source\\repos\\CERandomiser\\CERandomiser\\CEERPointerData.xml";
 #else
     pathToFile = pointerDataLocation;
