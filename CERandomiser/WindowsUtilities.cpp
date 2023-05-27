@@ -58,7 +58,7 @@ void make_minidump(EXCEPTION_POINTERS* e)
 	SYSTEMTIME t;
 	GetSystemTime(&t);
 	std::string dumpFilePath = g_ourInitParameters->injectorPath + std::format(
-			"\\CEER_MCCDMP_{:04}{:02}{:02}_{:02}{:02}{:02}.dmp",
+			"\\CEER_CRASHDUMP_{:04}{:02}{:02}_{:02}{:02}{:02}.dmp",
 			t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
 	
 
