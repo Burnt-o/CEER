@@ -215,6 +215,7 @@
     <ClInclude Include="OptionSerialisation.h" />
     <ClInclude Include="OptionsGUI.h" />
     <ClInclude Include="OptionsState.h" />
+    <ClInclude Include="CEERStateLogger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PointerManager.h" />
     <ClInclude Include="resource.h" />
@@ -298,6 +299,7 @@
     <ClCompile Include="OptionSerialisation.cpp" />
     <ClCompile Include="OptionsGUI.cpp" />
     <ClCompile Include="OptionsState.cpp" />
+    <ClCompile Include="CEERStateLogger.cpp" />
     <ClCompile Include="PointerManager.cpp" />
     <ClCompile Include="RuntimeExceptionHandler.cpp" />
     <ClCompile Include="SetSeed.cpp" />

@@ -22,6 +22,7 @@
 #include "OptionSerialisation.h"
 #include "TextureRandomiser.h"
 #include "SoundRandomiser.h"
+#include "CEERStateLogger.h"
 
 
 /* GENERAL TODO:: 
@@ -101,6 +102,7 @@ void RealMain(HMODULE dllHandle)
         auto nme = std::make_unique<EnemyRandomiser>(lvl->levelLoadEvent, map.get());
         auto tex = std::make_unique<TextureRandomiser>(lvl->levelLoadEvent, map.get());
         auto snd = std::make_unique<SoundRandomiser>(lvl->levelLoadEvent, map.get());
+        auto csl = std::make_unique<CEERStateLogger>(lvl->levelLoadEvent);
 
         OptionSerialisation::deserialiseFromFile();
 

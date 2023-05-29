@@ -6,6 +6,8 @@ using System.Threading;
 using System.Collections;
 using System;
 using System.Linq.Expressions;
+using System.Security.Principal;
+using System.Windows;
 
 namespace CSInjector
 {
@@ -21,8 +23,18 @@ namespace CSInjector
         static void Main(string[] args) // args are unused
         {
             Console.WriteLine("DLL Injector running");
+
             try
             {
+
+                if (WindowsIdentity.GetCurrent().Owner?.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid) == false)
+                {
+                    throw new Exception("CEER needs admin privledges to run. Right Click -> Run As Administrator\n" +
+                        "If you're (rightfully) cautious of giving software admin privs,\n" +
+                        "feel free to inspect/build the source from over at \\n github.com/Burnt-o/CEER");
+                }
+
+
                 // Search for our target process
                 Process? targetProcess = FindTargetProcess(targetProcessNames);
                 if (targetProcess == null) { Console.WriteLine("Waiting for MCC to open"); }

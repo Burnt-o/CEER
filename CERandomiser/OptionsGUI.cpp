@@ -7,6 +7,7 @@
 #include "OptionSerialisation.h"
 #include "SoundRandomiser.h"
 #include "TextureRandomiser.h"
+#include <shellapi.h>
 
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
@@ -112,12 +113,44 @@ void OptionsGUI::renderTextureSeizureWarning()
 
 		if (ImGui::Button("Stop"))
 		{
+			OptionsState::TextureRandomiser.GetValueDisplay() = false;
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
 	}
 }
 
+
+void OptionsGUI::renderHighMultiplierWarning()
+{
+
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("High Multiplier Warning", NULL, ImGuiWindowFlags_NoResize))
+	{
+
+		ImGui::TextWrapped("Warning! Setting enemy multiplication to a high value (>3x) is likely to crash the game due to engine limitations.");
+		if (ImGui::Button("Continue"))
+		{
+			OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+			changesPending_Mult = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Stop"))
+		{
+			OptionsState::EnemySpawnMultiplier.GetValueDisplay() = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
 
 
 
@@ -177,6 +210,19 @@ void OptionsGUI::renderErrorDialog()
 }
 
 
+bool debugme = true;
+void renderHyperLinkText(std::string text, std::string url)
+{
+	if (ImGui::Selectable(text.c_str(), true, ImGuiSelectableFlags_DontClosePopups, ImVec2(text.length() * 7, 15)))
+	{
+		ShellExecuteA(NULL, "open", url.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+	}
+
+}
+
+
+
+bool clickedLastFrame = false;
 void OptionsGUI::renderAboutWindow()
 {
 	ImVec2 size = ImVec2(300, 0);
@@ -187,13 +233,22 @@ void OptionsGUI::renderAboutWindow()
 
 	if (ImGui::BeginPopupModal("AboutWindow", NULL, ImGuiWindowFlags_NoResize))
 	{
+		ImGui::TextWrapped("I'll put some text here later");
+		
+		ImGui::Text("Click");
+		ImGui::SameLine();
+		renderHyperLinkText("here", "https://github.com/Burnt-o/CEER");
+
+
 		if (ImGui::Button("Close"))
 		{
 			ImGui::CloseCurrentPopup();
 		}
-		ImGui::TextWrapped("I'll put some text here later");
 
 
+
+
+	
 
 
 		ImGui::EndPopup();
@@ -229,14 +284,14 @@ void OptionsGUI::renderManageCustomGroupsDialog()
 	}
 }
 
-void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
+void OptionsGUI::renderEnemySpawnMultiplierRules()
 {
 
 
 
 
 
-	ImGui::BeginChild("MultiplierRules", ImVec2(0, rulesWindowHeight), true, NULL);
+
 	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
 	for (auto it = OptionsState::currentMultiplierRules.begin(); auto & rule: OptionsState::currentMultiplierRules) // render rules
 	{
@@ -373,15 +428,13 @@ void OptionsGUI::renderEnemySpawnMultiplierRules(float rulesWindowHeight)
 		ImGui::EndChild();
 		it++;
 	}
-	ImGui::EndChild();
+
 
 }
 
-void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
+void OptionsGUI::renderEnemyRandomiserRules()
 {
 
-
-	ImGui::BeginChild("RandomisationRules", ImVec2(0, rulesWindowHeight), true, NULL);
 	//for ( std::unique_ptr<EnemyRandomiserRule>& rule : OptionsState::currentRules) // render rules
 	for (auto it = OptionsState::currentRandomiserRules.begin(); auto & rule: OptionsState::currentRandomiserRules) // render rules
 	{
@@ -496,14 +549,41 @@ void OptionsGUI::renderEnemyRandomiserRules(float rulesWindowHeight)
 		ImGui::EndChild();
 		it++;
 	}
-	ImGui::EndChild();
+
 }
 
 
 
-void UpdateTextureRandomiserStateWithSeizureWarning()
+bool IsEnemyMultiplierTooHigh()
 {
+	SpawnMultiplierPreRando* thisRulePre = nullptr;
+	SpawnMultiplierPostRando* thisRulePost = nullptr;
+	for (auto& rule : OptionsState::currentMultiplierRules)
+	{
+		switch (rule->getType())
+		{
+		case RuleType::SpawnMultiplierPreRando:
 
+			thisRulePre = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+			assert(thisRulePre != nullptr);
+			if (thisRulePre->multiplier.GetValue() > 3.f)
+			{
+				return true;
+			}
+			break;
+
+		case RuleType::SpawnMultiplierPostRando:
+
+			thisRulePost = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+			assert(thisRulePost != nullptr);
+			if (thisRulePost->multiplier.GetValue() > 3.f)
+			{
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
 }
 
 
@@ -637,18 +717,17 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered()))
 		{
-			if (ImGui::Checkbox("Include Flamethrower Flood", &OptionsState::RandomiserIncludesFlameThrowers.GetValueDisplay()))
-			{
-				OptionsState::RandomiserIncludesFlameThrowers.UpdateValueWithInput();
-				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
-			}
-
-
-
 			float rulesWindowHeight = 12.f;
 			for (auto& rule : OptionsState::currentRandomiserRules)
 			{
 				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+			}
+			ImGui::BeginChild("enemyRandoSettings", ImVec2(0, rulesWindowHeight + 50.f), true, 0);
+
+			if (ImGui::Checkbox("Include Flamethrower Flood", &OptionsState::RandomiserIncludesFlameThrowers.GetValueDisplay()))
+			{
+				OptionsState::RandomiserIncludesFlameThrowers.UpdateValueWithInput();
+				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			}
 
 			if (ImGui::Button("Add Randomisation Rule"))
@@ -662,8 +741,8 @@ void OptionsGUI::renderOptionsGUI()
 				ImGui::OpenPopup("ManageCustomGroupsDialog");
 			}
 
-			renderEnemyRandomiserRules(rulesWindowHeight);
-
+			renderEnemyRandomiserRules();
+			ImGui::EndChild();
 		} 
 		ImGui::Unindent();
 		
@@ -674,8 +753,16 @@ void OptionsGUI::renderOptionsGUI()
 	
 		if (ImGui::Checkbox("Enable Enemy Spawn Multiplier", &OptionsState::EnemySpawnMultiplier.GetValueDisplay()))
 		{
-			OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
-			changesPending_Mult = false;
+			if (OptionsState::EnemySpawnMultiplier.GetValueDisplay() == true && IsEnemyMultiplierTooHigh())
+			{
+				ImGui::OpenPopup("High Multiplier Warning");
+			}
+			else
+			{
+				OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+				changesPending_Mult = false;
+			}
+
 		}
 
 		if (changesPending_Mult && (OptionsState::EnemySpawnMultiplier.GetValue()))
@@ -683,10 +770,19 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				changesPending_Mult = false;
-				OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+				if (IsEnemyMultiplierTooHigh())
+				{
+					ImGui::OpenPopup("High Multiplier Warning");
+				}
+				else
+				{
+					changesPending_Mult = false;
+					OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+				}
+
 			}
 		}
+		renderHighMultiplierWarning();
 
 	
 
@@ -701,6 +797,8 @@ void OptionsGUI::renderOptionsGUI()
 				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
 			}
 
+			ImGui::BeginChild("enemyMultiplierSettings", ImVec2(0, rulesWindowHeight + 30.f), true, 0);
+
 			if (ImGui::Button("Add Multiplier Rule"))
 			{
 				ImGui::OpenPopup("AddSpawnMultiplierRulePopup");
@@ -714,8 +812,8 @@ void OptionsGUI::renderOptionsGUI()
 
 
 
-			renderEnemySpawnMultiplierRules(rulesWindowHeight);
-
+			renderEnemySpawnMultiplierRules();
+			ImGui::EndChild();
 
 
 		} 
@@ -765,8 +863,12 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Texture Randomiser Settings", ImGui::IsItemHovered()))
 		{
-			ImGui::BeginChild("texSettings", ImVec2(0, 0));
-			if (ImGui::InputDouble("Percent of Textures to Randomise", &OptionsState::TextureRandomiserPercent.GetValueDisplay()))
+			ImGui::BeginChild("texSettings", ImVec2(0, 260), true, 0);
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Randomise");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(100.f);
+			if (ImGui::InputDouble("Percent of Textures", &OptionsState::TextureRandomiserPercent.GetValueDisplay()))
 			{
 				OptionsState::TextureRandomiserPercent.UpdateValueWithInput();
 				changesPending_Text = true;
@@ -805,14 +907,14 @@ void OptionsGUI::renderOptionsGUI()
 				changesPending_Text = true;
 			}
 
-			ImGui::Separator();
+			ImGui::SeparatorText("Seizure Mode");
 			if (ImGui::Checkbox("Re-randomise textures", &OptionsState::TextureSeizureMode.GetValueDisplay()))
 			{
 				OptionsState::TextureSeizureMode.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
 			ImGui::AlignTextToFramePadding();
-			ImGui::Text("every ");
+			ImGui::Text("every");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(110.f);
 			if (ImGui::InputInt("frames", &OptionsState::TextureFramesBetweenSeizures.GetValueDisplay()))
@@ -861,8 +963,12 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::CollapsingHeader("Sound Randomiser Settings", ImGui::IsItemHovered()))
 		{
-			ImGui::BeginChild("sndSettings", ImVec2(0, 0));
-			if (ImGui::InputDouble("Percent of Sounds to Randomise", &OptionsState::SoundRandomiserPercent.GetValueDisplay()))
+			ImGui::BeginChild("sndSettings", ImVec2(0, 200), true, 0);
+			ImGui::AlignTextToFramePadding();
+			ImGui::Text("Randomise");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(100.f);
+			if (ImGui::InputDouble("Percent of Sounds", &OptionsState::SoundRandomiserPercent.GetValueDisplay()))
 			{
 				OptionsState::SoundRandomiserPercent.UpdateValueWithInput();
 				changesPending_Sound = true;

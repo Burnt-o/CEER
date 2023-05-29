@@ -2,6 +2,7 @@
 #include "OptionSerialisation.h"
 #include "OptionsState.h"
 #include "InitParameter.h"
+#include "MessagesGUI.h"
 namespace OptionSerialisation
 {
 	// need to get some xml code up in here
@@ -187,9 +188,18 @@ namespace OptionSerialisation
 		}
 		else
 		{
-			std::string err = std::format("Error parsing file at {}\nError description: {}\nError offset: {}", filePath, result.description(), result.offset);
-			SerialisationException ex(err);
-			RuntimeExceptionHandler::handleMessage(ex);
+			if (result.description() == "File was not found")
+			{
+				MessagesGUI::addMessage("Config file not found, loading default settings.");
+			}
+			else
+			{
+				std::string err = std::format("Error parsing file at {}\nError description: {}\nError offset: {}", filePath, result.description(), result.offset);
+				SerialisationException ex(err);
+				RuntimeExceptionHandler::handleMessage(ex);
+			}
+
+
 		}
 	}
 

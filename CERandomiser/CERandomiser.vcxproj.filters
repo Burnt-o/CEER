@@ -186,6 +186,9 @@
     <ClInclude Include="SoundInfo.h">
       <Filter>Classes</Filter>
     </ClInclude>
+    <ClInclude Include="CEERStateLogger.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\imgui\imgui.cpp">
@@ -321,6 +324,9 @@
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="SoundRandomiserLevelLoad.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="CEERStateLogger.cpp">
       <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
