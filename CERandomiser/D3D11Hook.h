@@ -62,6 +62,7 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext = nullptr;
 	ID3D11RenderTargetView* m_pMainRenderTargetView = nullptr;
 
+	void CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Device*& pDummyDevice);
 	void initializeD3Ddevice(IDXGISwapChain*);
 	bool isD3DdeviceInitialized = false;
 

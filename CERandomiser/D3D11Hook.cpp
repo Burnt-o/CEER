@@ -2,7 +2,8 @@
 #include "D3D11Hook.h"
 
 #include "GlobalKill.h"
-
+#include <dxgi.h>
+#pragma comment(lib, "dxgi")
 
 D3D11Hook* D3D11Hook::instance = nullptr;
 ImVec2 D3D11Hook::mScreenSize;
@@ -36,6 +37,185 @@ enum class IDXGISwapChainVMT {
 };
 
 
+#define debugDummy FALSE
+
+void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Device*& pDummyDevice)
+{
+
+	std::vector<std::string> results;
+
+#define logSwapChainFailure(x) PLOG_ERROR << x; results.push_back(x)
+
+#if debugDummy == TRUE 
+//#define returnIfNotDebug Sleep(30); safe_release(pDummyDevice); safe_release(pDummyDeviceContext); safe_release(pDummySwapchain)
+#define returnIfNotDebug safe_release(pDummySwapchain);  safe_release(pDummyDevice)
+#else
+#define returnIfNotDebug return
+#endif
+
+	D3D_FEATURE_LEVEL featLevel;
+	DXGI_SWAP_CHAIN_DESC sd{ 0 };
+	sd.BufferCount = 1;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.Height = 800;
+	sd.BufferDesc.Width = 600;
+	sd.BufferDesc.RefreshRate = { 60, 1 };
+	sd.OutputWindow = GetForegroundWindow();
+	sd.Windowed = TRUE;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+
+#define UseDXGI1 TRUE
+
+#if UseDXGI1 == TRUE
+#define IDXGIFactoryA IDXGIFactory1
+#define CreateDXGIFactoryA CreateDXGIFactory1
+#define IDXGIAdapterA IDXGIAdapter1
+#define EnumAdaptersA EnumAdapters1
+#else
+#define IDXGIFactoryA IDXGIFactory
+#define CreateDXGIFactoryA CreateDXGIFactory
+#define IDXGIAdapterA IDXGIAdapter
+#define EnumAdaptersA EnumAdapters
+#endif
+
+	IDXGIFactoryA* pFactory;
+	HRESULT fhr = CreateDXGIFactoryA(__uuidof(IDXGIFactoryA), (void**)(&pFactory));
+	
+	std::vector <IDXGIAdapterA*> vAdapters;
+	IDXGIAdapterA* defaultAdapter = nullptr;
+	if (fhr != S_OK) 
+	{ 
+		PLOG_ERROR << "Failed to create DXGIFactory: " << std::hex << (ULONG)fhr; 
+	}
+	else
+	{
+		UINT i = 0;
+		IDXGIAdapterA* pAdapter;
+		while (pFactory->EnumAdaptersA(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+		{
+			vAdapters.push_back(pAdapter);
+			++i;
+		}
+		PLOG_DEBUG << "default adapter: " << std::hex << vAdapters.front();
+		PLOG_DEBUG << "adapter count: " << vAdapters.size();
+		defaultAdapter = vAdapters.front();
+	}
+	
+
+
+
+	// use D3D_DRIVER_TYPE_REFERENCE. The original code I used.
+	//works for me but not gronchy (need to find out what the error code is)
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "1: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("1: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+	// use D3D_DRIVER_TYPE_WARP
+	// works for me, need to test for gronchy
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "2: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("2: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+
+	// use D3D_DRIVER_TYPE_NULL
+	// does not work for me (DXGI_ERROR_UNSUPPORTED)
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "3: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("3: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+
+	// use D3D_DRIVER_TYPE_UNKNOWN
+	// works if I pass it the adapter manually
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(defaultAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "4: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("4: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+
+	// use D3D_DRIVER_TYPE_SOFTWARE
+	// does not work for me (E_INVALIDARG)
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_SOFTWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "5: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("5: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+
+	// use D3D_DRIVER_TYPE_HARDWARE
+	// works for me
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "6: Succesfully created dummy swapchain";
+			returnIfNotDebug;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+	std::string resultsString;
+	for (auto result : results)
+	{
+		resultsString += result + "\n";
+	}
+	throw InitException(resultsString);
+
+
+}
 
 
 D3D11Hook::D3D11Hook()
@@ -50,26 +230,8 @@ D3D11Hook::D3D11Hook()
 	ID3D11Device* pDummyDevice = nullptr;
 	IDXGISwapChain* pDummySwapchain = nullptr;
 
-	// Create a dummy device, get swapchain vmt, hook present.
-	D3D_FEATURE_LEVEL featLevel;
-	DXGI_SWAP_CHAIN_DESC sd{ 0 };
-	sd.BufferCount = 1;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sd.BufferDesc.Height = 800;
-	sd.BufferDesc.Width = 600;
-	sd.BufferDesc.RefreshRate = { 60, 1 };
-	sd.OutputWindow = GetForegroundWindow();
-	sd.Windowed = TRUE;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-	if (FAILED(hr))
-	{
-		PLOG_FATAL << "failed to create dummy d3d device and swapchain";
-		return;
-	}
+	// Create a dummy device
+	CreateDummySwapchain(pDummySwapchain, pDummyDevice);
 
 	// Get swapchain vmt
 	void** pVMT = *(void***)pDummySwapchain;
