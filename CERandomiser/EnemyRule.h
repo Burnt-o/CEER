@@ -27,7 +27,7 @@ class RandomiseXintoY : public EnemyRule
 {
 public:
 	EnemyGroup randomiseGroupSelection = builtInGroups::GeneralEverything;
-	EnemyGroup rollGroupSelection = builtInGroups::GeneralEverything;
+	EnemyGroup rollPoolGroupSelection = builtInGroups::GeneralEverything;
 
 
 	Option<double> randomisePercent{
@@ -49,13 +49,13 @@ public:
 
 };
 
-class SpawnMultiplierPreRando : public EnemyRule
+class SpawnMultiplierBeforeRando : public EnemyRule
 {
 public:
 	EnemyGroup groupSelection = builtInGroups::GeneralEverything;
 
 	Option<double> multiplier{
-		1.0,
+		2.0, // defaults to 2x multiplier
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive
@@ -63,7 +63,7 @@ public:
 		nameof(multiplier)
 	};
 
-	SpawnMultiplierPreRando()
+	SpawnMultiplierBeforeRando()
 	{
 		thisType = RuleType::SpawnMultiplierPreRando;
 	}
@@ -72,13 +72,13 @@ public:
 	void deserialise(pugi::xml_node in) override;
 };
 
-class SpawnMultiplierPostRando : public EnemyRule
+class SpawnMultiplierAfterRando : public EnemyRule
 {
 public:
 	EnemyGroup groupSelection = builtInGroups::GeneralEverything;
 
 	Option<double> multiplier{
-		1.0,
+		2.0, // defaults to 2x multiplie
 		[](double newValue)
 		{
 			return newValue >= 0.0; // must be positive
@@ -86,7 +86,7 @@ public:
 		nameof(multiplier)
 	};
 
-	SpawnMultiplierPostRando()
+	SpawnMultiplierAfterRando()
 	{
 		thisType = RuleType::SpawnMultiplierPostRando;
 	}

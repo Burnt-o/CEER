@@ -10,8 +10,12 @@ namespace OptionsState
 		"gargamel",
 		[](std::string newValue)
 		{
+			// chars to be alphanumeric
+			for (char x : newValue)
+			{
+				if (!isalnum(x)) return false;
+			}
 			return true;
-			// TODO: should I add a check for non-alphanumeric characters? I think the xml serialisation can handle mostly any unicode char https://www.w3.org/TR/REC-xml/#charsets
 		},
 		nameof(SeedString)
 	);

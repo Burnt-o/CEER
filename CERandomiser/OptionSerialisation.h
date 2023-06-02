@@ -9,6 +9,9 @@ namespace OptionSerialisation
 
 	extern void serialiseToFile();
 	extern void deserialiseFromFile();
+
+	extern std::string compressSettingsString(std::string in);
+	extern std::string decompressSettingsString(std::string in);
 }
 
 

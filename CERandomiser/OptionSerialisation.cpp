@@ -8,13 +8,42 @@ namespace OptionSerialisation
 	// need to get some xml code up in here
 
 
+	void throwOnDuplicateName(pugi::xml_document& doc)
+	{
+		// recursive interface to test if all tag names with the same parent are unique 
+		struct simple_walker : pugi::xml_tree_walker
+		{
+;
+			virtual bool for_each(pugi::xml_node& node)
+			{
+				if (node.name() == "") return true;
 
+				std::set<std::string> checkForDuplicateSymbols;
+				for (pugi::xml_node child : node.children())
+				{	
+					if (child.type() == pugi::node_null) continue;
+					if (checkForDuplicateSymbols.emplace(child.name()).second)
+					{
+						continue;
+					}
+					else
+					{
+						throw SerialisationException(std::format("Non-unique acronym \"{}\"! Burnt made an oopsie", child.name()));
+					}
+				}
+			}
+		}walker;
+		doc.traverse(walker);
+	}
 
 	pugi::xml_document serialiseAll()
 	{
+
+
 		pugi::xml_document doc;
 		// options
-		auto optionArray = doc.append_child(nameof(Option));
+		auto optionArray = doc.append_child(acronymOf(Option));
+
 		for (auto option : OptionsState::allSerialisableOptions)
 		{
 			PLOG_DEBUG << "serialising: " << option->getOptionName();
@@ -22,12 +51,14 @@ namespace OptionSerialisation
 		}
 
 		// rules
-		auto randoArray = doc.append_child(nameof(OptionsState::currentRandomiserRules));
-		auto multiArray = doc.append_child(nameof(OptionsState::currentMultiplierRules));
+		auto randoArray = doc.append_child(acronymOf(OptionsState::currentRandomiserRules));
+		auto multiArray = doc.append_child(acronymOf(OptionsState::currentMultiplierRules));
 
 		RandomiseXintoY* randRule = nullptr;
-		SpawnMultiplierPreRando* preMultRule = nullptr;
-		SpawnMultiplierPostRando* postMultRule = nullptr;
+		SpawnMultiplierBeforeRando* preMultRule = nullptr;
+		SpawnMultiplierAfterRando* postMultRule = nullptr;
+
+		throwOnDuplicateName(doc); // rules are allowed to be duplicate names since you can have multiple of the same type
 
 		for (auto& rule : OptionsState::currentRandomiserRules)
 		{
@@ -43,12 +74,12 @@ namespace OptionSerialisation
 			switch (rule.get()->getType())
 			{
 			case RuleType::SpawnMultiplierPreRando:
-				preMultRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+				preMultRule = dynamic_cast<SpawnMultiplierBeforeRando*>(rule.get());
 				preMultRule->serialise(multiArray);
 				break;
 
 			case RuleType::SpawnMultiplierPostRando:
-				postMultRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+				postMultRule = dynamic_cast<SpawnMultiplierAfterRando*>(rule.get());
 				postMultRule->serialise(multiArray);
 				break;
 
@@ -56,6 +87,11 @@ namespace OptionSerialisation
 				throw SerialisationException("Bad RuleType");
 			}
 		}
+
+
+
+
+
 
 		return doc;
 
@@ -81,11 +117,11 @@ namespace OptionSerialisation
 	{
 
 		// options
-		auto optionArray = doc.child("Option");
+		auto optionArray = doc.child(acronymOf(Option));
 		if (optionArray.type() == pugi::node_null) throw SerialisationException("Could not find OptionArray node");
 		for (auto option : OptionsState::allSerialisableOptions)
 		{
-			auto optionXML = optionArray.child(option->getOptionName().c_str());
+			auto optionXML = optionArray.child(getShortName(option->getOptionName()).c_str());
 			if (optionXML.type() == pugi::node_null) throw SerialisationException(std::format("Could not find Option node {}", option->getOptionName()));
 			option->deserialise(optionXML);
 		}
@@ -94,55 +130,56 @@ namespace OptionSerialisation
 		OptionsState::currentRandomiserRules.clear();
 		OptionsState::currentMultiplierRules.clear();
 
-		auto randoRulesArray = doc.child(nameof(OptionsState::currentRandomiserRules));
-		auto multiRulesArray = doc.child(nameof(OptionsState::currentMultiplierRules));
+		auto randoRulesArray = doc.child(acronymOf(OptionsState::currentRandomiserRules));
+		auto multiRulesArray = doc.child(acronymOf(OptionsState::currentMultiplierRules));
 
 
-		for (auto node : randoRulesArray.children(nameof(RandomiseXintoY)))
+		for (auto& node : randoRulesArray)
 		{
-			auto& rule = OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
-			try
+			if (std::strcmp(node.name(), acronymOf(RandomiseXintoY)) == 0)
 			{
-				rule.get()->deserialise(node);
-			}
-			catch (SerialisationException& ex)
-			{
-				RuntimeExceptionHandler::handlePopup(ex);
-				OptionsState::currentRandomiserRules.pop_back();
+				auto& rule = OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
+				try
+				{
+					rule.get()->deserialise(node);
+				}
+				catch (SerialisationException& ex)
+				{
+					RuntimeExceptionHandler::handlePopup(ex);
+					OptionsState::currentRandomiserRules.pop_back();
+				}
 			}
 		}
 		
-		for (auto node : multiRulesArray.children(nameof(SpawnMultiplierPreRando)))
+		for (auto& node : multiRulesArray)
 		{
-			auto& rule = OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
-			try
+			if (std::strcmp(node.name(), acronymOf(SpawnMultiplierBeforeRando)) == 0)
 			{
-				rule.get()->deserialise(node);
+				auto& rule = OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierBeforeRando());
+				try
+				{
+					rule.get()->deserialise(node);
+				}
+				catch (SerialisationException& ex)
+				{
+					RuntimeExceptionHandler::handlePopup(ex);
+					OptionsState::currentMultiplierRules.pop_back();
+				}
 			}
-			catch (SerialisationException& ex)
+			else if (std::strcmp(node.name(), acronymOf(SpawnMultiplierAfterRando)) == 0)
 			{
-				RuntimeExceptionHandler::handlePopup(ex);
-				OptionsState::currentMultiplierRules.pop_back();
+				auto& rule = OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierAfterRando());
+				try
+				{
+					rule.get()->deserialise(node);
+				}
+				catch (SerialisationException& ex)
+				{
+					RuntimeExceptionHandler::handlePopup(ex);
+					OptionsState::currentMultiplierRules.pop_back();
+				}
 			}
 		}
-
-
-		for (auto node : multiRulesArray.children(nameof(SpawnMultiplierPostRando)))
-		{
-
-			auto& rule = OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPostRando());
-			try
-			{
-				rule.get()->deserialise(node);
-			}
-			catch (SerialisationException& ex)
-			{
-				RuntimeExceptionHandler::handlePopup(ex);
-				OptionsState::currentMultiplierRules.pop_back();
-			}
-		}
-
-		// TODO:: check if vectors need to be reversed
 
 	}
 
@@ -202,6 +239,14 @@ namespace OptionSerialisation
 
 		}
 	}
+
+
+	std::string compressSettingsString(std::string in)
+	{
+
+	}
+	std::string decompressSettingsString(std::string in);
+
 
 
 }

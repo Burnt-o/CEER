@@ -4,40 +4,40 @@
 
 void RandomiseXintoY::serialise(pugi::xml_node parent)
 {
-	auto ruleXML = parent.append_child(nameof(RandomiseXintoY));
-	randomiseGroupSelection.serialise(ruleXML, nameof(randomiseGroupSelection));
-	rollGroupSelection.serialise(ruleXML, nameof(rollGroupSelection));
+	auto ruleXML = parent.append_child(acronymOf(RandomiseXintoY));
+	randomiseGroupSelection.serialise(ruleXML, acronymOf(randomiseGroupSelection));
+	rollPoolGroupSelection.serialise(ruleXML, acronymOf(rollPoolGroupSelection));
 	randomisePercent.serialise(ruleXML);
 
 }
 void RandomiseXintoY::deserialise(pugi::xml_node in)
 {
-	randomiseGroupSelection.deserialise(in.child(nameof(randomiseGroupSelection)));
-	rollGroupSelection.deserialise(in.child(nameof(rollGroupSelection)));
-	randomisePercent.deserialise(in.child(nameof(randomisePercent)));
+	randomiseGroupSelection.deserialise(in.child(acronymOf(randomiseGroupSelection)));
+	rollPoolGroupSelection.deserialise(in.child(acronymOf(rollPoolGroupSelection)));
+	randomisePercent.deserialise(in.child(acronymOf(randomisePercent)));
 }
 
-void SpawnMultiplierPreRando::serialise(pugi::xml_node parent)
+void SpawnMultiplierBeforeRando::serialise(pugi::xml_node parent)
 {
-	auto ruleXML = parent.append_child(nameof(SpawnMultiplierPreRando));
-	groupSelection.serialise(ruleXML, nameof(groupSelection));
+	auto ruleXML = parent.append_child(acronymOf(SpawnMultiplierBeforeRando));
+	groupSelection.serialise(ruleXML, acronymOf(groupSelection));
 	multiplier.serialise(ruleXML);
 	
 }
-void SpawnMultiplierPreRando::deserialise(pugi::xml_node in)
+void SpawnMultiplierBeforeRando::deserialise(pugi::xml_node in)
 {
-	groupSelection.deserialise(in.child(nameof(groupSelection)));
-	multiplier.deserialise(in.child(nameof(multiplier)));
+	groupSelection.deserialise(in.child(acronymOf(groupSelection)));
+	multiplier.deserialise(in.child(acronymOf(multiplier)));
 }
 
-void SpawnMultiplierPostRando::serialise(pugi::xml_node parent)
+void SpawnMultiplierAfterRando::serialise(pugi::xml_node parent)
 {
-	auto ruleXML = parent.append_child(nameof(SpawnMultiplierPostRando));
-	groupSelection.serialise(ruleXML, nameof(groupSelection));
+	auto ruleXML = parent.append_child(acronymOf(SpawnMultiplierAfterRando));
+	groupSelection.serialise(ruleXML, acronymOf(groupSelection));
 	multiplier.serialise(ruleXML);
 }
-void SpawnMultiplierPostRando::deserialise(pugi::xml_node in)
+void SpawnMultiplierAfterRando::deserialise(pugi::xml_node in)
 {
-	groupSelection.deserialise(in.child(nameof(groupSelection)));
-	multiplier.deserialise(in.child(nameof(multiplier)));
+	groupSelection.deserialise(in.child(acronymOf(groupSelection)));
+	multiplier.deserialise(in.child(acronymOf(multiplier)));
 }

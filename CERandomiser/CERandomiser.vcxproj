@@ -172,8 +172,7 @@
       <AdditionalLibraryDirectories>C:\dev\vcpkg\vcpkg\installed\x64-windows-static\lib;$(SolutionDir)includes\curl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>"C:\Program Files\LockHunter\LockHunter.exe" -u -sm C:\Users\mauri\source\repos\CERandomiser\CERandomiser\x64\Release\net6.0\CERandomiser.pdb</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

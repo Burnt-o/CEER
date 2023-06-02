@@ -70,7 +70,7 @@ public:
 	// Should work for any type T
 	void serialise(pugi::xml_node parent) override
 	{
-		auto node = parent.append_child(getOptionName().c_str());
+		auto node = parent.append_child(getShortName(getOptionName()).c_str());
 
 		std::ostringstream out;
 		out << value;

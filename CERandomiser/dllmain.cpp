@@ -81,7 +81,7 @@ void RealMain(HMODULE dllHandle)
     {
         // setup default rules
         OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
-        OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
+        OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierBeforeRando());
 
 
         ModuleCache::initialize();
@@ -118,8 +118,6 @@ void RealMain(HMODULE dllHandle)
 #else
 
 #endif // !CEER_DEBUG
-
-        PLOG_DEBUG << OptionsState::EnemyRandomiser.getOptionName();
 
 
         // We live in this loop 99% of the time

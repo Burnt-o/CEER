@@ -270,13 +270,13 @@ void OptionsGUI::renderAddSpawnMultiplierRulePopup()
 		if (ImGui::Selectable("Spawn Multiplier Pre-Randomisation"))
 		{
 			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
-			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPreRando());
+			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierBeforeRando());
 		}
 		ImGui::SetTooltip("Add a spawn multiplier rule that occurs before any randomisation.");
 		if (ImGui::Selectable("Spawn Multiplier Post-Randomisation"))
 		{
 			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
-			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierPostRando());
+			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierAfterRando());
 		}
 		ImGui::SetTooltip("Add a spawn multiplier rule that occurs after any randomisation.");
 		ImGui::EndPopup();
@@ -340,7 +340,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 		{
 		case RuleType::SpawnMultiplierPreRando:
 		{
-			SpawnMultiplierPreRando* thisRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+			SpawnMultiplierBeforeRando* thisRule = dynamic_cast<SpawnMultiplierBeforeRando*>(rule.get());
 			assert(thisRule != nullptr);
 
 			ImGui::AlignTextToFramePadding();
@@ -387,7 +387,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 
 		case RuleType::SpawnMultiplierPostRando:
 		{
-			SpawnMultiplierPostRando* thisRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+			SpawnMultiplierAfterRando* thisRule = dynamic_cast<SpawnMultiplierAfterRando*>(rule.get());
 			assert(thisRule != nullptr);
 
 			ImGui::AlignTextToFramePadding();
@@ -534,15 +534,15 @@ void OptionsGUI::renderEnemyRandomiserRules()
 
 			ImGui::Text("Into:");
 
-			if (ImGui::BeginCombo("##rollGroup", thisRule->rollGroupSelection.getName().data()))
+			if (ImGui::BeginCombo("##rollGroup", thisRule->rollPoolGroupSelection.getName().data()))
 			{
 				for (int n = 0; n < builtInGroups::builtInGroups.size(); n++)
 				{
-					const bool is_selected = &thisRule->rollGroupSelection == &builtInGroups::builtInGroups.at(n);
+					const bool is_selected = &thisRule->rollPoolGroupSelection == &builtInGroups::builtInGroups.at(n);
 					if (ImGui::Selectable(builtInGroups::builtInGroups[n].getName().data(), is_selected))
 					{
 						changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
-						thisRule->rollGroupSelection = builtInGroups::builtInGroups.at(n);
+						thisRule->rollPoolGroupSelection = builtInGroups::builtInGroups.at(n);
 					}
 
 					if (is_selected)
@@ -571,15 +571,15 @@ void OptionsGUI::renderEnemyRandomiserRules()
 
 bool IsEnemyMultiplierTooHigh()
 {
-	SpawnMultiplierPreRando* thisRulePre = nullptr;
-	SpawnMultiplierPostRando* thisRulePost = nullptr;
+	SpawnMultiplierBeforeRando* thisRulePre = nullptr;
+	SpawnMultiplierAfterRando* thisRulePost = nullptr;
 	for (auto& rule : OptionsState::currentMultiplierRules)
 	{
 		switch (rule->getType())
 		{
 		case RuleType::SpawnMultiplierPreRando:
 
-			thisRulePre = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+			thisRulePre = dynamic_cast<SpawnMultiplierBeforeRando*>(rule.get());
 			assert(thisRulePre != nullptr);
 			if (thisRulePre->multiplier.GetValue() > 3.f)
 			{
@@ -589,7 +589,7 @@ bool IsEnemyMultiplierTooHigh()
 
 		case RuleType::SpawnMultiplierPostRando:
 
-			thisRulePost = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+			thisRulePost = dynamic_cast<SpawnMultiplierAfterRando*>(rule.get());
 			assert(thisRulePost != nullptr);
 			if (thisRulePost->multiplier.GetValue() > 3.f)
 			{
@@ -602,8 +602,11 @@ bool IsEnemyMultiplierTooHigh()
 }
 
 
+
+
 void OptionsGUI::renderOptionsGUI()
 {
+	
 	// Dialogs
 	renderErrorDialog();
 
@@ -630,7 +633,8 @@ void OptionsGUI::renderOptionsGUI()
 				auto doc = OptionSerialisation::serialiseAll();
 				std::ostringstream oss;
 				doc.print(oss);
-				std::string str = oss.str();
+				std::string str = "CEERsettings[" + oss.str() + "]";
+				std::erase_if(str, [](char x) { return x == '\n' || x == '\t'; });
 				ImGui::SetClipboardText(str.c_str());
 			}
 			catch (SerialisationException& ex)
@@ -645,7 +649,11 @@ void OptionsGUI::renderOptionsGUI()
 		{
 			try
 			{
-				auto clipboard = ImGui::GetClipboardText();
+				std::string clipboard = ImGui::GetClipboardText();
+				if (clipboard.starts_with("CEERsettings[")) clipboard.erase(0, 12);
+				if (clipboard.starts_with("[")) clipboard.erase(clipboard.begin());
+				if (clipboard.ends_with("]")) clipboard.erase(std::prev(clipboard.end()));
+				
 				OptionSerialisation::deserialiseAll(clipboard);
 			}
 			catch (SerialisationException& ex)

@@ -18,3 +18,9 @@ void acquire_global_unhandled_exception_handler();
 void release_global_unhandled_exception_handler();
 
 std::string ResurrectException();
+
+std::string getShortName(std::string in);
+
+
+
+#define acronymOf(x) getShortName(#x).c_str()

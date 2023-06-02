@@ -186,8 +186,10 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	double zeroToOneRoll = zeroToOne(generator);
 	// A fun way to do a for loop. Use doubles!
 	// This ensures that if the spawn multiplier is, say, 2.5x, we're guarenteed to spawn 2 enemies and have a 50% chance to spawn a third.
+	bool spawnModified = false;
 	for (double d = 0; d + zeroToOneRoll < originalActorInfo.spawnMultiplierPreRando; d++)
 	{
+		if (d >= 1) spawnModified = true;
 		PLOG_DEBUG << "outer loop " << d;
 		// Construct a new seed for each of these multiplied units
 		seed += ((uint64_t)d << 8);
@@ -201,6 +203,7 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		if (zeroToOne(generator) < originalActorInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
 		{
 			hookData_unitRandomised = true;
+			spawnModified = true;
 			PLOG_DEBUG << "randomizing";
 			auto unitRollIndex = originalActorInfo.rollDistribution(generator);
 
@@ -227,15 +230,19 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		double zeroToOneRollPostRando = zeroToOne(generator);
 		for (double e = 0; e + zeroToOneRollPostRando < newUnit->spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
+			if (e >= 1) spawnModified = true;
 			PLOG_DEBUG << "inner loop " << e;
 			seed += (uint64_t)e;
 			generator = SetSeed64(seed);
 			// store needed data for other hooks
 			hookData_currentUnitSeed = generator(); 
 
-			if (hookData_unitRandomised)
+			if (spawnModified)
 			{
 				// unrandomise spawn position / enemy randomness (nade count etc)
+				// TODO:: looks like we need to do this && gameSpawnRNG even if unit not randomised
+					// why don't they get the same rng w/o it ? 
+					// obviously our std::rng dists are giving the same results.
 				if (!instance->gameRNG.get()->writeData(&hookData_currentUnitSeed))
 				{
 					throwFromNewProcessSquadUnitFunction(std::format("failed to write gameRNG with {}, error {}", hookData_currentUnitSeed, MultilevelPointer::GetLastError()));

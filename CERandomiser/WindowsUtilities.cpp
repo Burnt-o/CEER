@@ -122,3 +122,14 @@ catch (...) {
 	return "Ünknown exception!";
 }
 }
+
+std::string getShortName(std::string in)
+{
+	std::string out{ in.front() };
+	in.erase(0, 1); // remove front char
+
+	std::erase_if(in, [](char x) { return !isupper(x); });
+	out += in;
+	return out;
+}
+

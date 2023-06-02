@@ -224,7 +224,7 @@ void EnemyRandomiser::evaluateActors()
 					{
 						PLOG_DEBUG << "Actor found a matching rule: " << actor.getShortName();
 						actor.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.;
-						rollGroup = &thisRule->rollGroupSelection;
+						rollGroup = &thisRule->rollPoolGroupSelection;
 					}
 				}
 			}
@@ -300,7 +300,7 @@ void EnemyRandomiser::evaluateActors()
 				{
 				case RuleType::SpawnMultiplierPreRando:
 				{
-					SpawnMultiplierPreRando* thisRule = dynamic_cast<SpawnMultiplierPreRando*>(rule.get());
+					SpawnMultiplierBeforeRando* thisRule = dynamic_cast<SpawnMultiplierBeforeRando*>(rule.get());
 					if (thisRule == nullptr) throw CEERRuntimeException("failed to cast rule!");
 
 					if (thisRule->groupSelection.isMatch(actor))
@@ -313,7 +313,7 @@ void EnemyRandomiser::evaluateActors()
 
 				case RuleType::SpawnMultiplierPostRando:
 				{
-					SpawnMultiplierPostRando* thisRule = dynamic_cast<SpawnMultiplierPostRando*>(rule.get());
+					SpawnMultiplierAfterRando* thisRule = dynamic_cast<SpawnMultiplierAfterRando*>(rule.get());
 					if (thisRule == nullptr) throw CEERRuntimeException("failed to cast rule!");
 
 					if (thisRule->groupSelection.isMatch(actor))
@@ -376,7 +376,7 @@ void EnemyRandomiser::evaluateBipeds()
 					if (thisRule->randomiseGroupSelection.isMatch(biped))
 					{
 						biped.probabilityOfRandomize = thisRule->randomisePercent.GetValue() / 100.;
-						rollGroup = &thisRule->rollGroupSelection;
+						rollGroup = &thisRule->rollPoolGroupSelection;
 					}
 
 				}

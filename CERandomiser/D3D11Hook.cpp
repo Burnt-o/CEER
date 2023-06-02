@@ -37,21 +37,14 @@ enum class IDXGISwapChainVMT {
 };
 
 
-#define debugDummy FALSE
+
 
 void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Device*& pDummyDevice)
 {
 
-	std::vector<std::string> results;
+	std::vector<std::string> errorCodes;
 
-#define logSwapChainFailure(x) PLOG_ERROR << x; results.push_back(x)
-
-#if debugDummy == TRUE 
-//#define returnIfNotDebug Sleep(30); safe_release(pDummyDevice); safe_release(pDummyDeviceContext); safe_release(pDummySwapchain)
-#define returnIfNotDebug safe_release(pDummySwapchain);  safe_release(pDummyDevice)
-#else
-#define returnIfNotDebug return
-#endif
+#define logSwapChainFailure(x) PLOG_ERROR << x; errorCodes.push_back(x)
 
 	D3D_FEATURE_LEVEL featLevel;
 	DXGI_SWAP_CHAIN_DESC sd{ 0 };
@@ -66,6 +59,74 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
+
+
+	
+	// the following attempts at D3D11CreateDeviceAndSwapChain differ in the driver_type param
+	// https://learn.microsoft.com/en-us/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_driver_type
+
+	// use D3D_DRIVER_TYPE_WARP
+	// Seems to be the most consistent
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "2: Succesfully created dummy swapchain";
+			return;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("2: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+	// use D3D_DRIVER_TYPE_REFERENCE. The original code I used.
+	// works for me but not gronchy
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "1: Succesfully created dummy swapchain";
+			return;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("1: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+	// use D3D_DRIVER_TYPE_HARDWARE
+	// works for me
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "6: Succesfully created dummy swapchain";
+			return;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+	// use D3D_DRIVER_TYPE_SOFTWARE
+	// does not work for me (E_INVALIDARG)
+	{
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_SOFTWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "5: Succesfully created dummy swapchain";
+			return;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("5: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+		}
+	}
+
+
+	// the next call seems to need us to set the adapter parameter ourselves instead of using null ptr
 
 #define UseDXGI1 TRUE
 
@@ -83,12 +144,11 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 
 	IDXGIFactoryA* pFactory;
 	HRESULT fhr = CreateDXGIFactoryA(__uuidof(IDXGIFactoryA), (void**)(&pFactory));
-	
+
 	std::vector <IDXGIAdapterA*> vAdapters;
-	IDXGIAdapterA* defaultAdapter = nullptr;
-	if (fhr != S_OK) 
-	{ 
-		PLOG_ERROR << "Failed to create DXGIFactory: " << std::hex << (ULONG)fhr; 
+	if (fhr != S_OK)
+	{
+		PLOG_ERROR << "Failed to create DXGIFactory: " << std::hex << (ULONG)fhr;
 	}
 	else
 	{
@@ -101,116 +161,37 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 		}
 		PLOG_DEBUG << "default adapter: " << std::hex << vAdapters.front();
 		PLOG_DEBUG << "adapter count: " << vAdapters.size();
-		defaultAdapter = vAdapters.front();
+
 	}
-	
-
-
-
-	// use D3D_DRIVER_TYPE_REFERENCE. The original code I used.
-	//works for me but not gronchy (need to find out what the error code is)
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "1: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("1: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
-
-
-	// use D3D_DRIVER_TYPE_WARP
-	// works for me, need to test for gronchy
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "2: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("2: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
-
-
-
-	// use D3D_DRIVER_TYPE_NULL
-	// does not work for me (DXGI_ERROR_UNSUPPORTED)
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_NULL, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "3: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("3: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
-
-
 
 	// use D3D_DRIVER_TYPE_UNKNOWN
 	// works if I pass it the adapter manually
+	// tries each adapter
+	for (auto adapter : vAdapters)
 	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(defaultAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "4: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("4: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
+		PLOG_INFO << "Attemtping D3D11CreateDeviceAndSwapChain with adapter: " << std::hex << adapter;
+
+			HRESULT hr = D3D11CreateDeviceAndSwapChain(adapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+			if (SUCCEEDED(hr))
+			{
+				PLOG_INFO << "4: Succesfully created dummy swapchain";
+				return;
+			}
+			else
+			{
+				logSwapChainFailure(std::format("4: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+			}
+
 	}
 
 
 
-	// use D3D_DRIVER_TYPE_SOFTWARE
-	// does not work for me (E_INVALIDARG)
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_SOFTWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "5: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("5: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
-
-
-
-	// use D3D_DRIVER_TYPE_HARDWARE
-	// works for me
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "6: Succesfully created dummy swapchain";
-			returnIfNotDebug;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
-
+	// If execution got here, none of the createdevice calls succeeded. Throw an exception and log the error codes
 
 	std::string resultsString;
-	for (auto result : results)
+	for (auto error : errorCodes)
 	{
-		resultsString += result + "\n";
+		resultsString += error + "\n";
 	}
 	throw InitException(resultsString);
 
