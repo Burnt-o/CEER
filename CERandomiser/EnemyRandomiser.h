@@ -8,12 +8,17 @@
 #include "OptionsState.h"
 
 
+// enables/disables biped randomisation
+#define bipedRandomisation 1
+
 	struct spawnInfo {
 	datum mDatum;
 	faction mFaction;
 	SetSeed64 mSeed;
 	spawnInfo(datum d, faction f, SetSeed64 s) : mDatum(d), mFaction(f), mSeed(s) {}
 };
+
+
 
 struct objectData { // for bipds, vehis, scenery etc
 	uint16_t paletteIndex;
@@ -26,13 +31,16 @@ struct objectData { // for bipds, vehis, scenery etc
 	float rotX;
 	float rotY;
 	float rotZ;
-	// then a bunch of stuff I don't care about (depends on the object type, bipd vs vehi vs scen etc)
-	// length of the struct varies by object type
+	// The following information is specific to bipeds
+	uint16_t unknown;
+	uint8_t appearencePlayerIndex;
+	float bodyVitalityPercent;
+	bool spawnsDead;
 };
 
 
 
-extern "C" typedef __int64 __stdcall placeObjectFunction(tagBlock* paletteTable, objectData* spawningObject);
+extern "C" typedef __int64 __stdcall placeObjectFunction(objectData* spawningObject, tagBlock* paletteTable);
 
 extern "C" typedef bool __stdcall ProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex);
 
@@ -107,9 +115,14 @@ private:
 	static void setActorDatumHookFunction(SafetyHookContext& ctx);
 	std::shared_ptr<MidhookContextInterpreter> setActorDatumFunctionContext;
 
+#if bipedRandomisation == 1
+	std::shared_ptr<ModuleMidHook> setBipedDatumHook;
+	static void setBipedDatumHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> setBipedDatumFunctionContext;
+
 	static placeObjectFunction newPlaceObjectFunction;
 	std::shared_ptr<ModuleInlineHook> placeObjectHook;
-
+#endif
 	static ProcessSquadUnitFunction newProcessSquadUnitFunction;
 	std::shared_ptr<ModuleInlineHook> processSquadUnitHook;
 
@@ -129,6 +142,8 @@ private:
 	static bool hookData_fixSentinelPosition;
 	static uint64_t hookData_currentUnitSeed;
 	static bool hookData_unitRandomised;
+
+	static datum hookData_currentBipedDatum;
 
 
 
@@ -197,15 +212,19 @@ public:
 		mEnemySpawnMultiplierToggleEvent.remove(mEnemySpawnMultiplierToggleCallbackHandle);
 		mLevelLoadEvent.remove(mLevelLoadCallbackHandle);
 
-		//TODO: destroy hooks
+		// destroy hooks
 #define safe_destroy_hook(x) if (x.get()) x->setWantsToBeAttached(false)
+
 		safe_destroy_hook(fixMajorUpgradeHook);
 		safe_destroy_hook(vehicleExitHook);
 		safe_destroy_hook(aiGoToVehicleHook);
 		safe_destroy_hook(aiLoadInVehicleHook);
 		safe_destroy_hook(fixUnitFactionHook);
 		safe_destroy_hook(setActorDatumHook);
+#if bipedRandomisation == 1
 		safe_destroy_hook(placeObjectHook);
+		safe_destroy_hook(setBipedDatumHook);
+#endif
 		safe_destroy_hook(processSquadUnitHook);
 		safe_destroy_hook(getSquadUnitIndexHook);
 		safe_destroy_hook(spawnPositionFuzzHook);

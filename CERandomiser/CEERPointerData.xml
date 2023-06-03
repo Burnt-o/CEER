@@ -54,12 +54,12 @@
 
 	
 	<!--#region EnemyRandomiser-->
-	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": on the lea-->
+	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": scroll to top of function-->
 	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB8CE5E</Offset>
+				<Offset>0xB8CDC0</Offset>
 			</Offsets>
 		</Version>
 		<Version Version="1.2645.0.0">
@@ -70,21 +70,21 @@
 		</Version>
 	</VersionedEntry>
 
-
-	<VersionedEntry Name="placeObjectFunctionContext" Type="MidhookContextInterpreter">
+	<VersionedEntry Name="setBipedDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
-			<ParameterRegisters>
-				<objectType>r15</objectType>
-			</ParameterRegisters>
+			<Parameters>
+				<unitIndex>rdx</unitIndex>
+			</Parameters>
 		</Version>
-		<Version Version="1.2645.0.0">
-			<ParameterRegisters>
-				<objectType>r15</objectType>
-				<paletteIndex>rax</paletteIndex>
-				<objectIndex>r10</objectIndex>
-				<nameIndex>rcx</nameIndex>
-				<nameIndex>rdx</nameIndex>
-			</ParameterRegisters>
+	</VersionedEntry>
+
+	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": on the cmp edx, -01-->
+	<VersionedEntry Name="setBipedDatumFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB8CE69</Offset>
+			</Offsets>
 		</Version>
 	</VersionedEntry>
 

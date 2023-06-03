@@ -31,10 +31,15 @@ void EnemyRandomiser::lazyInit()
 		aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
 
 		// bipeds
+#if bipedRandomisation == 1
 		auto placeObjectFunction = PointerManager::getMultilevelPointer("placeObjectFunction");
 		placeObjectHook = ModuleInlineHook::make(L"halo1.dll", placeObjectFunction, newPlaceObjectFunction, false);
 
-		// actors
+		auto setBipedDatumFunction = PointerManager::getMultilevelPointer("setBipedDatumFunction");
+		setBipedDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setBipedDatumFunctionContext");
+		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
+#endif
+		 //actors
 		auto getSquadUnitIndexFunction = PointerManager::getMultilevelPointer("getSquadUnitIndexFunction");
 		getSquadUnitIndexFunctionContext = PointerManager::getMidhookContextInterpreter("getSquadUnitIndexFunctionContext");
 		getSquadUnitIndexHook = ModuleMidHook::make(L"halo1.dll", getSquadUnitIndexFunction, getSquadUnitIndexHookFunction, false);
@@ -106,7 +111,10 @@ void EnemyRandomiser::onEitherOptionChange()
 	getSquadUnitIndexHook.get()->setWantsToBeAttached(shouldEnable);
 	fixMajorUpgradeHook.get()->setWantsToBeAttached(shouldEnable);
 	spawnPositionFuzzHook.get()->setWantsToBeAttached(shouldEnable);
-
+#if bipedRandomisation == 1
+	placeObjectHook.get()->setWantsToBeAttached(shouldEnable);
+	setBipedDatumHook.get()->setWantsToBeAttached(shouldEnable);
+#endif
 
 	if (shouldEnable)
 	{

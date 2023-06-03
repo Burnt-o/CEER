@@ -13,28 +13,105 @@ int EnemyRandomiser::hookData_currentSquadUnitIndex = 0;
 bool EnemyRandomiser::hookData_fixSentinelPosition = false;
 uint64_t EnemyRandomiser::hookData_currentUnitSeed = 0;
 bool EnemyRandomiser::hookData_unitRandomised = false;
+datum EnemyRandomiser::hookData_currentBipedDatum = nullDatum;
 
 
 
-
-
-__int64 EnemyRandomiser::newPlaceObjectFunction(tagBlock* paletteTableRef, objectData* spawningObject)
+#if bipedRandomisation == 1
+// randomises bipeds (could do other stupid stuff here like randomise scenery, but ceebs)
+__int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagBlock* paletteTableRef)
 {
-	if (!instance) { PLOG_FATAL << "null instance! crash imminent";  }
-	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-	return instance->placeObjectHook.get()->getInlineHook().fastcall<__int64>(paletteTableRef, spawningObject);
+#define returnOriginal return instance->placeObjectHook.get()->getInlineHook().fastcall<__int64>(spawningObject, paletteTableRef)
+#define throwFromNewPlaceObjectFunction(message) CEERRuntimeException ex(message); \
+						RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier }); \
+	returnOriginal \
 
+	if (!instance) { PLOG_FATAL << "null instance! crash imminent"; return 0; }
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	PLOG_DEBUG << "BIPED";
+
+	hookData_currentBipedDatum = nullDatum;
 	auto paletteTable = (tagReference*)instance->mapReader->getTagAddress(paletteTableRef->pointer);
 
 	constexpr auto bipdMagic = MapReader::stringToMagic("bipd");
-	if (paletteTable->tagGroupMagic != bipdMagic) return instance->placeObjectHook.get()->getInlineHook().fastcall<__int64>(paletteTableRef, spawningObject);
+	if (paletteTable->tagGroupMagic != bipdMagic) returnOriginal;
 
-	//TODO
+	// lookup datum of currently spawning object
+	paletteTable += (spawningObject->paletteIndex * 3);
+	datum originalDatum = paletteTable->tagDatum;
+	PLOG_VERBOSE << "original biped datum: " << originalDatum;
+
+	auto& originalBipedInfo = instance->bipedMap.at(originalDatum);
+
+	if (!originalBipedInfo.isValidUnit || spawningObject->spawnsDead) // randomising a dead biped can cause a crash (eg when rolling a popcorn or carrier that don't leave corpses)
+	{
+		hookData_currentBipedDatum = nullDatum;
+		hookData_currentUnitsFaction = faction::Undefined;
+		returnOriginal;
+	}
+			
+
+		hookData_currentUnitsFaction = originalBipedInfo.defaultTeam;
+
+		// roll randomisation
+		UnitInfo* newUnit = &originalBipedInfo;// If not randomised, newUnit will actually be the original unit
+		datum newUnitDatum = nullDatum;
+
+		uint64_t seed = instance->ourSeed ^ (((uint64_t)spawningObject->posX << 32) + ((uint64_t)spawningObject->posY)); // Create a seed from the specific enemy data & XOR with the user-input seed
+		SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
+		PLOG_DEBUG << "seed set: " << std::hex << seed;
+
+		PLOG_DEBUG << "probability of randomisze: " << originalBipedInfo.probabilityOfRandomize;
+		if (zeroToOne(generator) < originalBipedInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
+		{
+			PLOG_DEBUG << "randomizing";
+			auto unitRollIndex = originalBipedInfo.rollDistribution(generator);
+
+			if (unitRollIndex >= instance->bipedDatumVector.size()) // safety check before we access the vector
+			{
+				throwFromNewPlaceObjectFunction("rolled biped index was too large!");
+			}
+
+			newUnitDatum = instance->bipedDatumVector.at(unitRollIndex); // Re-use the seed to see what new enemy we should roll into
+			if (!instance->bipedMap.contains(newUnitDatum)) // safety check before we access the map
+			{
+				throwFromNewPlaceObjectFunction("biped spawning wasn't in our stored map!");
+			}
+			newUnit = &instance->bipedMap.at(newUnitDatum);
+			PLOG_DEBUG << "new unit: " << newUnit->getShortName();
+
+
+			hookData_currentBipedDatum = newUnitDatum;
+
+		}
+
+		returnOriginal;
 
 }
 
 
+void EnemyRandomiser::setBipedDatumHookFunction(SafetyHookContext& ctx)
+{
+	PLOG_DEBUG << "setBipedDatumHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
+	enum class param
+	{
+		BipedDatum,
+	};
+	auto* ctxInterpreter = instance->setBipedDatumFunctionContext.get();
+
+	if (hookData_currentBipedDatum != nullDatum)
+	{
+		PLOG_DEBUG << "setting datum to " << hookData_currentBipedDatum;
+		*ctxInterpreter->getParameterRef(ctx, (int)param::BipedDatum) = (uint32_t)hookData_currentBipedDatum;
+		hookData_currentBipedDatum = nullDatum;
+	}
+
+
+}
+#endif
 
 
 

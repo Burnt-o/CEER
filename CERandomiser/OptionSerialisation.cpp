@@ -241,11 +241,6 @@ namespace OptionSerialisation
 	}
 
 
-	std::string compressSettingsString(std::string in)
-	{
-
-	}
-	std::string decompressSettingsString(std::string in);
 
 
 
