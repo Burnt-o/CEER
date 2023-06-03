@@ -4,6 +4,7 @@
 // Singleton: on construction we subscribe to the ImGuiRenderEvent.
 // In onImGuiRenderEvent we draw our options GUI.
 // destructor just unsubscribes from ImGuiRenderEvent.
+
 class OptionsGUI
 {
 private:
@@ -38,6 +39,7 @@ private:
 
 	void renderTextureSeizureWarning();
 	void renderHighMultiplierWarning();
+	void renderEmptySeedWarning();
 
 	// GUI data
 	ImGuiWindowFlags windowFlags;

@@ -7,6 +7,10 @@
 #include "OptionSerialisation.h"
 #include <shellapi.h>
 
+
+#define addTooltip(x) if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) ImGui::SetTooltip(x)
+
+
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
 
@@ -55,6 +59,9 @@ static ImGuiStyle* mainStyle = nullptr;
 static ImGuiStyle* highlightStyle = nullptr;
 
 
+
+
+
 void OptionsGUI::initializeCEERGUI()
 {
 	ImGui::SetNextWindowCollapsed(false);
@@ -91,6 +98,40 @@ void OptionsGUI::onImGuiRenderEvent()
 
 }
 
+void copySettings()
+{
+	try
+	{
+		auto doc = OptionSerialisation::serialiseAll();
+		std::ostringstream oss;
+		doc.print(oss);
+		std::string str = "CEERsettings[" + oss.str() + "]";
+		std::erase_if(str, [](char x) { return x == '\n' || x == '\t'; });
+		ImGui::SetClipboardText(str.c_str());
+	}
+	catch (SerialisationException& ex)
+	{
+		RuntimeExceptionHandler::handlePopup(ex);
+	}
+}
+
+void pasteSettings()
+{
+	try
+	{
+		std::string clipboard = ImGui::GetClipboardText();
+		if (clipboard.starts_with("CEERsettings[")) clipboard.erase(0, 12);
+		if (clipboard.starts_with("[")) clipboard.erase(clipboard.begin());
+		if (clipboard.ends_with("]")) clipboard.erase(std::prev(clipboard.end()));
+
+		OptionSerialisation::deserialiseAll(clipboard);
+	}
+	catch (SerialisationException& ex)
+	{
+		RuntimeExceptionHandler::handlePopup(ex);
+	}
+}
+
 void OptionsGUI::renderTextureSeizureWarning()
 {
 
@@ -119,6 +160,31 @@ void OptionsGUI::renderTextureSeizureWarning()
 		if (ImGui::Button("Stop"))
 		{
 			OptionsState::TextureRandomiser.GetValueDisplay() = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void OptionsGUI::renderEmptySeedWarning()
+{
+
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("Empty Seed", NULL, ImGuiWindowFlags_NoResize))
+	{
+
+		ImGui::TextWrapped("Warning! Not setting a seed means a random one will be generated.");
+		ImGui::TextWrapped("This is fine for solo play, but for Co-op playthroughs both players must use the same seed, or else the game will desync.");
+	
+
+		if (ImGui::Button("Ok"))
+		{
+			copySettings();
 			ImGui::CloseCurrentPopup();
 		}
 		ImGui::EndPopup();
@@ -272,13 +338,13 @@ void OptionsGUI::renderAddSpawnMultiplierRulePopup()
 			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierBeforeRando());
 		}
-		ImGui::SetTooltip("Add a spawn multiplier rule that occurs before any randomisation.");
+		addTooltip("Add a spawn multiplier rule that occurs before any randomisation.");
 		if (ImGui::Selectable("Spawn Multiplier Post-Randomisation"))
 		{
 			changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 			OptionsState::currentMultiplierRules.emplace_back(new SpawnMultiplierAfterRando());
 		}
-		ImGui::SetTooltip("Add a spawn multiplier rule that occurs after any randomisation.");
+		addTooltip("Add a spawn multiplier rule that occurs after any randomisation.");
 		ImGui::EndPopup();
 	}
 }
@@ -307,7 +373,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
-		ImGui::SetTooltip("Delete this rule.");
+		addTooltip("Delete this rule.");
 
 		if (it == OptionsState::currentMultiplierRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
 		if (ImGui::Button("Move Up"))
@@ -317,7 +383,7 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
-		ImGui::SetTooltip("Move this rule up (rules at the top take precedence if a conflict occurs).");
+		addTooltip("Move this rule up (rules at the top take precedence if a conflict occurs).");
 		if (it == OptionsState::currentMultiplierRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
 
 
@@ -329,11 +395,11 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 			ImGui::EndChild();
 			break;
 		} ImGui::SameLine();
-		ImGui::SetTooltip("Move this rule down (rules at the top take precedence if a conflict occurs).");
+		addTooltip("Move this rule down (rules at the top take precedence if a conflict occurs).");
 		if (it == OptionsState::currentMultiplierRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
 		ImGui::Text(" Rule type:"); ImGui::SameLine();
 		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
-		ImGui::SetTooltip(ruleTypeToRuleTypeToolTip[rule.get()->getType()].c_str());
+		addTooltip(ruleTypeToRuleTypeToolTip[rule.get()->getType()].c_str());
 
 
 		switch (rule->getType())
@@ -368,18 +434,18 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::SetTooltip("The category of enemies which will have their spawn rate modified");
+			addTooltip("The category of enemies which will have their spawn rate modified");
 
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("by:"); ImGui::SameLine();
 
 			ImGui::SetNextItemWidth(110.f);
-			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.2f"))
 			{
 				changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 				thisRule->multiplier.UpdateValueWithInput();
 			}
-			ImGui::SetTooltip("The spawn rate multiplier. Decimal numbers are allowed.");
+			addTooltip("The spawn rate multiplier. Decimal numbers are allowed.");
 			ImGui::SameLine(); ImGui::Text("x");
 
 		}
@@ -415,17 +481,17 @@ void OptionsGUI::renderEnemySpawnMultiplierRules()
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::SetTooltip("The category of enemies which will have their spawn rate modified");
+			addTooltip("The category of enemies which will have their spawn rate modified");
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("by:"); ImGui::SameLine();
 
 			ImGui::SetNextItemWidth(110.f);
-			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.0f"))
+			if (ImGui::InputDouble("##multiplyPercent", &thisRule->multiplier.GetValueDisplay(), 1.0, 10.0, "%.2f"))
 			{
 				changesPending_Mult = OptionsState::EnemySpawnMultiplier.GetValue();
 				thisRule->multiplier.UpdateValueWithInput();
 			}
-			ImGui::SetTooltip("The spawn rate multiplier. Decimal numbers are allowed.");
+			addTooltip("The spawn rate multiplier. Decimal numbers are allowed.");
 			ImGui::SameLine(); ImGui::Text("x");
 
 		}
@@ -457,7 +523,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
-		ImGui::SetTooltip("Delete this rule.");
+		addTooltip("Delete this rule.");
 
 		if (it == OptionsState::currentRandomiserRules.begin()) ImGui::BeginDisabled(); // if at start, disable move up button
 
@@ -468,7 +534,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			ImGui::EndChild();
 			break;
 		}	ImGui::SameLine();
-		ImGui::SetTooltip("Move this rule up (rules at the top take precedence if a conflict occurs).");
+		addTooltip("Move this rule up (rules at the top take precedence if a conflict occurs).");
 		if (it == OptionsState::currentRandomiserRules.begin()) ImGui::EndDisabled(); // if at start, disable move up button
 
 
@@ -480,11 +546,11 @@ void OptionsGUI::renderEnemyRandomiserRules()
 			ImGui::EndChild();
 			break;
 		} ImGui::SameLine();
-		ImGui::SetTooltip("Move this rule down (rules at the top take precedence if a conflict occurs).");
+		addTooltip("Move this rule down (rules at the top take precedence if a conflict occurs).");
 		if (it == OptionsState::currentRandomiserRules.end() - 1) ImGui::EndDisabled(); // if at end, disable move down button
 		ImGui::Text(" Rule type:"); ImGui::SameLine();
 		ImGui::TextColored(ImVec4(0.5f, 1.f, 0.5f, 1.f), ruleTypeToRuleTypeName[rule.get()->getType()].c_str());
-		ImGui::SetTooltip(ruleTypeToRuleTypeToolTip[rule.get()->getType()].c_str());
+		addTooltip(ruleTypeToRuleTypeToolTip[rule.get()->getType()].c_str());
 
 
 		switch (rule->getType())
@@ -502,7 +568,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 				thisRule->randomisePercent.UpdateValueWithInput();
 			} ImGui::SameLine();
-			ImGui::SetTooltip("Percentage of enemies in the selected group that will be randomised.");
+			addTooltip("Percentage of enemies in the selected group that will be randomised.");
 			ImGui::Text("percent of:");
 
 			//ImGui::SetNextItemWidth(150);
@@ -530,7 +596,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::SetTooltip("The category of enemies that will be randomised into something else.");
+			addTooltip("The category of enemies that will be randomised into something else.");
 
 			ImGui::Text("Into:");
 
@@ -553,7 +619,7 @@ void OptionsGUI::renderEnemyRandomiserRules()
 				}
 				ImGui::EndCombo();
 			}
-			ImGui::SetTooltip("The category of enemies that they will be randomised into.");
+			addTooltip("The category of enemies that they will be randomised into.");
 		}
 		break;
 		
@@ -628,41 +694,25 @@ void OptionsGUI::renderOptionsGUI()
 		ImGui::Dummy((ImVec2(0, 2)));
 		if (ImGui::Button("Copy Settings"))
 		{
-			try
+			if (OptionsState::SeedString.GetValue().empty())
 			{
-				auto doc = OptionSerialisation::serialiseAll();
-				std::ostringstream oss;
-				doc.print(oss);
-				std::string str = "CEERsettings[" + oss.str() + "]";
-				std::erase_if(str, [](char x) { return x == '\n' || x == '\t'; });
-				ImGui::SetClipboardText(str.c_str());
+				ImGui::OpenPopup("Empty Seed");
 			}
-			catch (SerialisationException& ex)
+			else
 			{
-				RuntimeExceptionHandler::handlePopup(ex);
+				copySettings();
 			}
 
 		} ImGui::SameLine();
-		ImGui::SetTooltip("Copies all CEER settings to your clipboard, so you can ctrl+v it to a mate over discord to do a coop run.");
+		addTooltip("Copies all CEER settings to your clipboard, so you can ctrl+v it to a mate over discord to do a coop run.");
+		renderEmptySeedWarning();
 
 		if (ImGui::Button("Paste Settings"))
 		{
-			try
-			{
-				std::string clipboard = ImGui::GetClipboardText();
-				if (clipboard.starts_with("CEERsettings[")) clipboard.erase(0, 12);
-				if (clipboard.starts_with("[")) clipboard.erase(clipboard.begin());
-				if (clipboard.ends_with("]")) clipboard.erase(std::prev(clipboard.end()));
-				
-				OptionSerialisation::deserialiseAll(clipboard);
-			}
-			catch (SerialisationException& ex)
-			{
-				RuntimeExceptionHandler::handlePopup(ex);
-			}
+			pasteSettings();
 
 		} ImGui::SameLine();
-		ImGui::SetTooltip("Paste CEER settings from your clipboard.");
+		addTooltip("Paste CEER settings from your clipboard.");
 
 		if (ImGui::Button("About"))
 		{
@@ -677,7 +727,7 @@ void OptionsGUI::renderOptionsGUI()
 		{
 			GlobalKill::killMe();
 		}
-		ImGui::SetTooltip("Closes CEER.");
+		addTooltip("Closes CEER.");
 
 #pragma endregion
 
@@ -691,7 +741,7 @@ void OptionsGUI::renderOptionsGUI()
 
 			changesPending_Seed = (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue());
 		}
-			ImGui::SetTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
+			addTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
 
 		if (changesPending_Seed && (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue() || OptionsState::TextureRandomiser.GetValue() || OptionsState::SoundRandomiser.GetValue()))
 		{
@@ -704,7 +754,7 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::TextureRandomiser.UpdateValueWithInput();
 				OptionsState::SoundRandomiser.UpdateValueWithInput();
 			}
-			ImGui::SetTooltip("Update CEERs internal state with your inputted changed settings.");
+			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
 
 #pragma endregion Seed
@@ -724,7 +774,7 @@ void OptionsGUI::renderOptionsGUI()
 			OptionsState::EnemyRandomiser.UpdateValueWithInput();
 			changesPending_Rand = false;
 		}
-		ImGui::SetTooltip("Enables enemy randomisation: requires a valid rule first, such as turning \"everything\" into \"everything\".");
+		addTooltip("Enables enemy randomisation: requires a valid rule first, such as turning \"everything\" into \"everything\".");
 
 		if (changesPending_Rand && (OptionsState::EnemyRandomiser.GetValue()))
 		{
@@ -734,7 +784,7 @@ void OptionsGUI::renderOptionsGUI()
 				changesPending_Rand = false;
 				OptionsState::EnemyRandomiser.UpdateValueWithInput();
 			}
-			ImGui::SetTooltip("Update CEERs internal state with your inputted changed settings.");
+			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
 
 
@@ -757,7 +807,7 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::RandomiserIncludesFlameThrowers.UpdateValueWithInput();
 				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			}
-			ImGui::SetTooltip("Adds flamethrower-wielding flood (a cut enemy) to the appropiate enemy category pools (eg \"everything\", \"flood\", \"combat forms\".");
+			addTooltip("Adds flamethrower-wielding flood (a cut enemy) to the appropiate enemy category pools (eg \"everything\", \"flood\", \"combat forms\".");
 
 			if (ImGui::Button("Add Randomisation Rule"))
 			{
@@ -775,7 +825,10 @@ void OptionsGUI::renderOptionsGUI()
 			renderEnemyRandomiserRules();
 			ImGui::EndChild();
 		} 
-		ImGui::SetTooltip("Click to expand Enemy Randomiser settings.");
+		else
+		{
+			addTooltip("Click to expand Enemy Randomiser settings.");
+		}
 		ImGui::Unindent();
 		
 #pragma endregion EnemyRandomiser
@@ -796,7 +849,7 @@ void OptionsGUI::renderOptionsGUI()
 			}
 
 		}
-		ImGui::SetTooltip("Enables enemy spawn multiplication: requires a valid rule first, such as doubling the spawnrate of \"everything\".");
+		addTooltip("Enables enemy spawn multiplication: requires a valid rule first, such as doubling the spawnrate of \"everything\".");
 
 		if (changesPending_Mult && (OptionsState::EnemySpawnMultiplier.GetValue()))
 		{
@@ -814,7 +867,7 @@ void OptionsGUI::renderOptionsGUI()
 				}
 
 			}
-			ImGui::SetTooltip("Update CEERs internal state with your inputted changed settings.");
+			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
 		renderHighMultiplierWarning();
 
@@ -852,8 +905,12 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::EndChild();
 
 
-		} 
-		ImGui::SetTooltip("Click to expand Enemy Spawn Multiplier settings.");
+		}
+		else
+		{
+			addTooltip("Click to expand Enemy Spawn Multiplier settings.");
+		}
+
 		ImGui::Unindent();
 
 #pragma endregion EnemySpawnMultiplier
@@ -876,7 +933,7 @@ void OptionsGUI::renderOptionsGUI()
 				changesPending_Text = false;
 			}
 		}
-		ImGui::SetTooltip("Enables texture randomisation. Only supports classic graphics.");
+		addTooltip("Enables texture randomisation. Only supports classic graphics.");
 
 		if (changesPending_Text && (OptionsState::TextureRandomiser.GetValue() == true))
 		{
@@ -893,7 +950,7 @@ void OptionsGUI::renderOptionsGUI()
 					changesPending_Text = false;
 				}
 			}
-			ImGui::SetTooltip("Update CEERs internal state with your inputted changed settings.");
+			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
 		renderTextureSeizureWarning();
 
@@ -907,19 +964,19 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::Text("Randomise");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100.f);
-			if (ImGui::InputDouble("Percent of Textures", &OptionsState::TextureRandomiserPercent.GetValueDisplay()))
+			if (ImGui::InputDouble("Percent of Textures", &OptionsState::TextureRandomiserPercent.GetValueDisplay(), 0, 0, "%.0f"))
 			{
 				OptionsState::TextureRandomiserPercent.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("The percent of textures that should be randomised.");
+			addTooltip("The percent of textures that should be randomised.");
 
 			if (ImGui::Checkbox("Restrict randomisation to like categories", &OptionsState::TextureRestrictToCategory.GetValueDisplay()))
 			{
 				OptionsState::TextureRestrictToCategory.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("If enabled, then, for example, weapon textures will only get randomised into other weapon textures. When disabled, anything can become anything.");
+			addTooltip("If enabled, then, for example, weapon textures will only get randomised into other weapon textures. When disabled, anything can become anything.");
 
 			ImGui::SeparatorText("Texture Categories");
 			if (ImGui::Checkbox("Characters", &OptionsState::TextureIncludeCharacter.GetValueDisplay()))
@@ -927,13 +984,13 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::TextureIncludeCharacter.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of textures associated with NPC's and the player.");
+			addTooltip("Enables randomisation of textures associated with NPC's and the player.");
 			if (ImGui::Checkbox("Weapons and vehicles", &OptionsState::TextureIncludeWeapVehi.GetValueDisplay()))
 			{
 				OptionsState::TextureIncludeWeapVehi.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of textures associated with vehicles and weapons.");
+			addTooltip("Enables randomisation of textures associated with vehicles and weapons.");
 			if (ImGui::Checkbox("Effects and particles", &OptionsState::TextureIncludeEffect.GetValueDisplay()))
 			{
 				OptionsState::TextureIncludeEffect.UpdateValueWithInput();
@@ -944,7 +1001,7 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::TextureIncludeLevel.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of textures associated with the environment / level geometry.");
+			addTooltip("Enables randomisation of textures associated with the environment / level geometry.");
 			if (ImGui::Checkbox("User Interface", &OptionsState::TextureIncludeUI.GetValueDisplay()))
 			{
 				OptionsState::TextureIncludeUI.UpdateValueWithInput();
@@ -957,7 +1014,7 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::TextureSeizureMode.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("When enabled, textures will be constantly mutated into other textures.");
+			addTooltip("When enabled, textures will be constantly mutated into other textures.");
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("every");
 			ImGui::SameLine();
@@ -967,13 +1024,17 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::TextureFramesBetweenSeizures.UpdateValueWithInput();
 				changesPending_Text = true;
 			}
-			ImGui::SetTooltip("How many frames, on average, it takes for a texture to mutate into another texture.");
+			addTooltip("How many frames, on average, it takes for a texture to mutate into another texture.");
 
 
 
 			ImGui::EndChild();
 		}
-		ImGui::SetTooltip("Click to expand Texture Randomiser settings.");
+		else
+		{
+			addTooltip("Click to expand Texture Randomiser settings.");
+		}
+		
 		ImGui::Unindent();
 
 
@@ -988,7 +1049,7 @@ void OptionsGUI::renderOptionsGUI()
 			OptionsState::SoundRandomiser.UpdateValueWithInput();
 			changesPending_Sound = false;
 		}
-		ImGui::SetTooltip("Enables sound randomisation.");
+		addTooltip("Enables sound randomisation.");
 
 		if (changesPending_Text && (OptionsState::SoundRandomiser.GetValue()))
 		{
@@ -998,7 +1059,7 @@ void OptionsGUI::renderOptionsGUI()
 				changesPending_Sound = false;
 				OptionsState::SoundRandomiser.UpdateValueWithInput();
 			}
-			ImGui::SetTooltip("Update CEERs internal state with your inputted changed settings.");
+			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
 
 
@@ -1012,19 +1073,19 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::Text("Randomise");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100.f);
-			if (ImGui::InputDouble("Percent of Sounds", &OptionsState::SoundRandomiserPercent.GetValueDisplay()))
+			if (ImGui::InputDouble("Percent of Sounds", &OptionsState::SoundRandomiserPercent.GetValueDisplay(), 0, 0, "%.0f"))
 			{
 				OptionsState::SoundRandomiserPercent.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("The percent of sounds that should be randomised.");
+			addTooltip("The percent of sounds that should be randomised.");
 
 			if (ImGui::Checkbox("Restrict randomisation to like categories", &OptionsState::SoundRestrictToCategory.GetValueDisplay()))
 			{
 				OptionsState::SoundRestrictToCategory.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("If enabled, then, for example, character dialogue will only get randomised into other character dialogue. When disabled, anything can become anything.");
+			addTooltip("If enabled, then, for example, character dialogue will only get randomised into other character dialogue. When disabled, anything can become anything.");
 
 			ImGui::SeparatorText("Sound Categories");
 			if (ImGui::Checkbox("Dialog", &OptionsState::SoundIncludeDialog.GetValueDisplay()))
@@ -1032,37 +1093,40 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::SoundIncludeDialog.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of sounds associated with character dialogue (anything that comes out of a mouth).");
+			addTooltip("Enables randomisation of sounds associated with character dialogue (anything that comes out of a mouth).");
 			if (ImGui::Checkbox("Music", &OptionsState::SoundIncludeMusic.GetValueDisplay()))
 			{
 				OptionsState::SoundIncludeMusic.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of music.");
+			addTooltip("Enables randomisation of music.");
 			if (ImGui::Checkbox("Animations", &OptionsState::SoundIncludeAnimations.GetValueDisplay()))
 			{
 				OptionsState::SoundIncludeAnimations.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of sounds associated with most animations, such as melee, footsteps, bullet/vehicle impacts.");
+			addTooltip("Enables randomisation of sounds associated with most animations, such as melee, footsteps, bullet/vehicle impacts.");
 			if (ImGui::Checkbox("Effects", &OptionsState::SoundIncludeEffects.GetValueDisplay()))
 			{
 				OptionsState::SoundIncludeEffects.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of sounds associated with effects like explosions, projectiles, ambience, etc.");
+			addTooltip("Enables randomisation of sounds associated with effects like explosions, projectiles, ambience, etc.");
 			if (ImGui::Checkbox("Weapons and vehicles", &OptionsState::SoundIncludeWeapVehi.GetValueDisplay()))
 			{
 				OptionsState::SoundIncludeWeapVehi.UpdateValueWithInput();
 				changesPending_Sound = true;
 			}
-			ImGui::SetTooltip("Enables randomisation of sounds associated with weapons and vehicles like engine sounds, firing and reload sounds.");
+			addTooltip("Enables randomisation of sounds associated with weapons and vehicles like engine sounds, firing and reload sounds.");
 
 
 
 			ImGui::EndChild();
 		}
-		ImGui::SetTooltip("Click to expand Sound Randomiser settings.");
+		else
+		{
+			addTooltip("Click to expand Sound Randomiser settings.");
+		}
 		ImGui::Unindent();
 
 
