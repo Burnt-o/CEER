@@ -74,7 +74,7 @@
 
 // Custom utilities
 #include "CustomExceptions.h"
-
+#include "ControlDefs.h"
 #include "WindowsUtilities.h"
 #include "RuntimeExceptionHandler.h"
 

@@ -148,7 +148,6 @@ namespace builtInGroups
 	const EnemyGroup UnitStealthElitePlasmaRifle("Unit: Stealth Elite Plasma Rifle", "Stealth Elite Plasma Rifle", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "stealth elite plasma rifle";   });
 	const EnemyGroup UnitFloodcarrier("Unit: Floodcarrier", "Floodcarrier", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcarrier";   });
 	const EnemyGroup UnitFloodcombatEliteAssaultRifle("Unit: Floodcombat Elite Assault Rifle", "Floodcombat Elite Assault Rifle", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite assault rifle";   });
-	const EnemyGroup UnitFloodcombatEliteFlameThrower("Unit: Floodcombat Elite Flame Thrower", "Floodcombat Elite Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite flame thrower";   });
 	const EnemyGroup UnitFloodcombatEliteNeedler("Unit: Floodcombat Elite Needler", "Floodcombat Elite Needler", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite needler";   });
 	const EnemyGroup UnitFloodcombatElitePistol("Unit: Floodcombat Elite Pistol", "Floodcombat Elite Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite pistol";   });
 	const EnemyGroup UnitFloodcombatElitePlasmaPistol("Unit: Floodcombat Elite Plasma Pistol", "Floodcombat Elite Plasma Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite plasma pistol";   });
@@ -159,7 +158,6 @@ namespace builtInGroups
 	const EnemyGroup UnitFloodcombatEliteStealthUnarmed("Unit: Floodcombat Elite Stealth Unarmed", "Floodcombat Elite Stealth Unarmed", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite stealth unarmed";   });
 	const EnemyGroup UnitFloodcombatEliteUnarmed("Unit: Floodcombat Elite Unarmed", "Floodcombat Elite Unarmed", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite unarmed";   });
 	const EnemyGroup UnitFloodcombat_HumanAssaultRifle("Unit: Floodcombat_Human Assault Rifle", "Floodcombat_Human Assault Rifle", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human assault rifle";   });
-	const EnemyGroup UnitFloodcombat_HumanFlameThrower("Unit: Floodcombat_Human Flame Thrower", "Floodcombat_Human Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human flame thrower";   });
 	const EnemyGroup UnitFloodcombat_HumanNeedler("Unit: Floodcombat_Human Needler", "Floodcombat_Human Needler", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human needler";   });
 	const EnemyGroup UnitFloodcombat_HumanPistol("Unit: Floodcombat_Human Pistol", "Floodcombat_Human Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human pistol";   });
 	const EnemyGroup UnitFloodcombat_HumanPlasmaPistol("Unit: Floodcombat_Human Plasma Pistol", "Floodcombat_Human Plasma Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human plasma pistol";   });
@@ -198,9 +196,10 @@ namespace builtInGroups
 	const EnemyGroup UnitSentinel_ShieldedMajor("Unit: Sentinel_Shielded Major", "Sentinel_Shielded Major", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "sentinel_shielded major";   });
 	const EnemyGroup UnitSentinel_Shielded("Unit: Sentinel_Shielded", "Sentinel_Shielded", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "sentinel_shielded";   });
 
-
-
-
+#if includeFlamethrowerFlood == 1
+	const EnemyGroup UnitFloodcombatEliteFlameThrower("Unit: Floodcombat Elite Flame Thrower", "Floodcombat Elite Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite flame thrower";   });
+	const EnemyGroup UnitFloodcombat_HumanFlameThrower("Unit: Floodcombat_Human Flame Thrower", "Floodcombat_Human Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human flame thrower";   });
+#endif
 
 	const std::vector<EnemyGroup> builtInGroups
 	{ 
@@ -247,7 +246,9 @@ namespace builtInGroups
 		UnitStealthElitePlasmaRifle,
 		UnitFloodcarrier,
 		UnitFloodcombatEliteAssaultRifle,
+#if includeFlamethrowerFlood == 1
 		UnitFloodcombatEliteFlameThrower,
+#endif
 		UnitFloodcombatEliteNeedler,
 		UnitFloodcombatElitePistol,
 		UnitFloodcombatElitePlasmaPistol,
@@ -258,7 +259,9 @@ namespace builtInGroups
 		UnitFloodcombatEliteStealthUnarmed,
 		UnitFloodcombatEliteUnarmed,
 		UnitFloodcombat_HumanAssaultRifle,
+		#if includeFlamethrowerFlood == 1
 		UnitFloodcombat_HumanFlameThrower,
+		#endif
 		UnitFloodcombat_HumanNeedler,
 		UnitFloodcombat_HumanPistol,
 		UnitFloodcombat_HumanPlasmaPistol,

@@ -29,12 +29,14 @@ namespace OptionsState
 
 	);
 
+#if includeFlamethrowerFloodOption == 1
 	Option<bool> RandomiserIncludesFlameThrowers(
 		false,
 		[](bool newValue) { return true; },
 		nameof(RandomiserIncludesFlameThrowers)
 
 	);
+#endif
 
 	Option<bool> EnemySpawnMultiplier(
 		false,

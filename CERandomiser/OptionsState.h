@@ -11,7 +11,9 @@ namespace OptionsState
 
 #pragma region gameplay modifiers
 	extern Option<bool> EnemyRandomiser;
+#if includeFlamethrowerFloodOption == 1
 	extern Option<bool> RandomiserIncludesFlameThrowers;
+#endif
 	extern Option<bool> EnemySpawnMultiplier;
 
 	extern std::vector<std::unique_ptr<EnemyRule>> currentRandomiserRules;

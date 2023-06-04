@@ -154,6 +154,7 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 		}
 	}
 
+#if includeFlamethrowerFloodOption == 1
 	if (!OptionsState::RandomiserIncludesFlameThrowers.GetValue())
 	{
 		if (info.getFullName().contains("flame"))
@@ -161,6 +162,13 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 			return false;
 		}
 	}
+#else
+	if (info.getFullName().contains("flame"))
+	{
+		return false;
+	}
+#endif
+
 	return true;
 }
 

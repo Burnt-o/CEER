@@ -176,6 +176,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ControlDefs.h" />
     <ClInclude Include="D3D11Hook.h" />
     <ClInclude Include="Datum.h" />
     <ClInclude Include="EnemyRandomiser.h" />

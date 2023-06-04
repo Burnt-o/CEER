@@ -8,8 +8,7 @@
 #include "OptionsState.h"
 
 
-// enables/disables biped randomisation
-#define bipedRandomisation 1
+
 
 	struct spawnInfo {
 	datum mDatum;

@@ -27,7 +27,6 @@
 
 /* GENERAL TODO:: 
 
-
 upload recompiled maps
 remove flamethrower flood option
 add s8 support
@@ -35,9 +34,6 @@ uncaught exception handler not working in release mode
 getting flagged as virus
 warning on empty rules for rando/mult
 
-
-bug:
-if a lazy init fails due to lack of pointer data, things handle the error fine but then if you close CEER, game crashes.
 */ 
 
 

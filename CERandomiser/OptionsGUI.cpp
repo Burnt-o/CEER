@@ -802,13 +802,14 @@ void OptionsGUI::renderOptionsGUI()
 			}
 			ImGui::BeginChild("enemyRandoSettings", ImVec2(0, rulesWindowHeight + 50.f), true, 0);
 
+#if includeFlamethrowerFloodOption == 1
 			if (ImGui::Checkbox("Include Flamethrower Flood", &OptionsState::RandomiserIncludesFlameThrowers.GetValueDisplay()))
 			{
 				OptionsState::RandomiserIncludesFlameThrowers.UpdateValueWithInput();
 				changesPending_Rand = OptionsState::EnemyRandomiser.GetValue();
 			}
 			addTooltip("Adds flamethrower-wielding flood (a cut enemy) to the appropiate enemy category pools (eg \"everything\", \"flood\", \"combat forms\".");
-
+#endif
 			if (ImGui::Button("Add Randomisation Rule"))
 			{
 				OptionsState::currentRandomiserRules.emplace_back(new RandomiseXintoY());
