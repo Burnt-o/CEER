@@ -29,9 +29,6 @@
 
 upload recompiled maps
 add s8 support
-uncaught exception handler not working in release mode
-getting flagged as virus
-warning on empty rules for rando/mult
 
 */ 
 
@@ -105,7 +102,6 @@ void RealMain(HMODULE dllHandle)
         // Shutdown the console on successful init, at least in release mode.
         // If an initialization error occurs before this point, console will be left up so user can look at it.
         MessagesGUI::addMessage("CEER successfully initialised!");
-
 
 #ifndef CEER_DEBUG
         Logging::closeConsole();

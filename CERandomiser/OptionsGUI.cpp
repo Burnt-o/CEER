@@ -66,6 +66,15 @@ void OptionsGUI::initializeCEERGUI()
 {
 	ImGui::SetNextWindowCollapsed(false);
 	windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+
+	auto fullScreenSize = D3D11Hook::getScreenSize();
+
+	if (fullScreenSize.x > mWindowSize.x && fullScreenSize.y > mWindowSize.y) // check for really small screens or getScreenSize returning a junk value, then we just use default 500, 500
+	{
+		// adjust vertical window height to be 2/3rds of screen
+		mWindowSize.y = fullScreenSize.y / 3 * 2;
+	}
+
 }
 
 
@@ -131,6 +140,74 @@ void pasteSettings()
 		RuntimeExceptionHandler::handlePopup(ex);
 	}
 }
+
+void OptionsGUI::renderMissingRulesWarning()
+{
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("Randomiser missing rules", NULL, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("Oops! Can't enable the enemy randomiser without setting a rule first.");
+		ImGui::TextWrapped("Try adding a rule in the enemy randomiser settings, such as turning everything into everything.");
+
+		if (ImGui::Button("Ok"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("Multiplier missing rules", NULL, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("Oops! Can't enable the enemy multiplier without setting a rule first.");
+		ImGui::TextWrapped("Try adding a rule in the enemy multiplier settings, such as doubling enemy spawns.");
+
+		if (ImGui::Button("Ok"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("No textures to randomise", NULL, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("Oops! Can't enable the texture randomiser without enabling some textures to randomise.");
+		ImGui::TextWrapped("Try enabling some texture categories in the texture randomiser settings.");
+
+		if (ImGui::Button("Ok"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("No sounds to randomise", NULL, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("Oops! Can't enable the sound randomiser without enabling some sounds to randomise.");
+		ImGui::TextWrapped("Try enabling some sound categories in the sound randomiser settings.");
+
+		if (ImGui::Button("Ok"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+
 
 void OptionsGUI::renderTextureSeizureWarning()
 {
@@ -668,7 +745,7 @@ bool IsEnemyMultiplierTooHigh()
 }
 
 
-
+bool debugHeight = true;
 
 void OptionsGUI::renderOptionsGUI()
 {
@@ -681,11 +758,58 @@ void OptionsGUI::renderOptionsGUI()
 
 #pragma region MainWindow
 	// Main window
-	ImGui::SetNextWindowSize(ImVec2(500, 500));
-	ImGui::SetNextWindowPos(ImVec2(10, 10));
-	
-	m_WindowOpen = ImGui::Begin(m_WindowOpen ? "CE Enemy Randomiser###CEER" : "CEER###CEER", nullptr, windowFlags); // Create window
 
+	// calculate height of everything
+	float randomiserSettingsChildHeight = 37.f;
+	for (auto& rule : OptionsState::currentRandomiserRules)
+	{
+		randomiserSettingsChildHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+	}
+#if includeFlamethrowerFloodOption == 1
+	randomiserSettingsChildHeight += 25.f;
+#endif
+
+
+	float multiplierSettingsChildHeight = 42.f;
+	for (auto& rule : OptionsState::currentMultiplierRules)
+	{
+		multiplierSettingsChildHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
+	}
+
+	static bool ranSettingsExpanded = false;
+	static bool mulSettingsExpanded = false;
+	static bool texSettingsExpanded = false;
+	static bool sndSettingsExpanded = false;
+
+
+	float totalContentHeight = 400.f
+		+ (ranSettingsExpanded ? randomiserSettingsChildHeight : 0.f)
+		+ (mulSettingsExpanded ? multiplierSettingsChildHeight : 0.f)
+		+ (texSettingsExpanded ? 265.f : 0.f)
+		+ (sndSettingsExpanded ? 200.f : 0.f);
+		
+
+	if (debugHeight)
+	{
+		debugHeight = false;
+		PLOG_VERBOSE << "totalContentHeight " << totalContentHeight;
+		PLOG_VERBOSE << "mWindowSize.y " << mWindowSize.y;
+	}
+
+
+	ImGui::SetNextWindowSize(ImVec2(mWindowSize.x, mWindowSize.y > totalContentHeight ? totalContentHeight : mWindowSize.y));
+	ImGui::SetNextWindowPos(mWindowPos);
+	//style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.90f, 0.90f, 1.00f);
+	
+
+	if (m_WindowOpen)
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00f, 0.80f, 0.40f, 1.00f));
+	else
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00f, 0.60f, 0.25f, 1.00f));
+
+
+	m_WindowOpen = ImGui::Begin(m_WindowOpen ? "CE Enemy Randomiser###CEER" : "CEER###CEER", nullptr, windowFlags); // Create window
+	ImGui::PopStyleColor();
 	if (m_WindowOpen)  //only bother rendering children if it's not collapsed
 	{
 
@@ -771,8 +895,17 @@ void OptionsGUI::renderOptionsGUI()
 
 		if (ImGui::Checkbox("Enable Enemy Randomiser", &OptionsState::EnemyRandomiser.GetValueDisplay()))
 		{
-			OptionsState::EnemyRandomiser.UpdateValueWithInput();
-			changesPending_Rand = false;
+			if (OptionsState::EnemyRandomiser.GetValueDisplay() && OptionsState::currentRandomiserRules.empty())
+			{
+				OptionsState::EnemyRandomiser.GetValueDisplay() = false;
+				ImGui::OpenPopup("Randomiser missing rules");
+			}
+			else
+			{
+				OptionsState::EnemyRandomiser.UpdateValueWithInput();
+				changesPending_Rand = false;
+			}
+
 		}
 		addTooltip("Enables enemy randomisation: requires a valid rule first, such as turning \"everything\" into \"everything\".");
 
@@ -781,8 +914,15 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				changesPending_Rand = false;
-				OptionsState::EnemyRandomiser.UpdateValueWithInput();
+				if (OptionsState::currentRandomiserRules.empty())
+				{
+					ImGui::OpenPopup("Randomiser missing rules");
+				}
+				else
+				{
+					OptionsState::EnemyRandomiser.UpdateValueWithInput();
+					changesPending_Rand = false;
+				}
 			}
 			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
@@ -793,14 +933,12 @@ void OptionsGUI::renderOptionsGUI()
 
 		ImGui::Indent();
 		ImGui::Dummy((ImVec2(0, 2)));
-		if (ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered()))
+		ranSettingsExpanded = ImGui::CollapsingHeader("Enemy Randomiser Settings", ImGui::IsItemHovered());
+		if (ranSettingsExpanded)
 		{
-			float rulesWindowHeight = 12.f;
-			for (auto& rule : OptionsState::currentRandomiserRules)
-			{
-				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
-			}
-			ImGui::BeginChild("enemyRandoSettings", ImVec2(0, rulesWindowHeight + 50.f), true, 0);
+
+
+			ImGui::BeginChild("enemyRandoSettings", ImVec2(0, randomiserSettingsChildHeight), true, 0);
 
 #if includeFlamethrowerFloodOption == 1
 			if (ImGui::Checkbox("Include Flamethrower Flood", &OptionsState::RandomiserIncludesFlameThrowers.GetValueDisplay()))
@@ -843,6 +981,11 @@ void OptionsGUI::renderOptionsGUI()
 			{
 				ImGui::OpenPopup("High Multiplier Warning");
 			}
+			else if (OptionsState::EnemySpawnMultiplier.GetValueDisplay() == true && OptionsState::currentMultiplierRules.empty())
+			{
+				OptionsState::EnemySpawnMultiplier.GetValueDisplay() = false;
+				ImGui::OpenPopup("Multiplier missing rules");
+			}
 			else
 			{
 				OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
@@ -857,14 +1000,18 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				if (IsEnemyMultiplierTooHigh())
+				if (OptionsState::EnemySpawnMultiplier.GetValueDisplay() == true && IsEnemyMultiplierTooHigh())
 				{
 					ImGui::OpenPopup("High Multiplier Warning");
 				}
+				else if (OptionsState::currentMultiplierRules.empty())
+				{
+					ImGui::OpenPopup("Multiplier missing rules");
+				}
 				else
 				{
-					changesPending_Mult = false;
 					OptionsState::EnemySpawnMultiplier.UpdateValueWithInput();
+					changesPending_Mult = false;
 				}
 
 			}
@@ -872,20 +1019,15 @@ void OptionsGUI::renderOptionsGUI()
 		}
 		renderHighMultiplierWarning();
 
+
 	
 
 		ImGui::Indent();
 		ImGui::Dummy((ImVec2(0, 2)));
-		if (ImGui::CollapsingHeader("Enemy Spawn Multiplier Settings", ImGui::IsItemHovered()))
+		mulSettingsExpanded = ImGui::CollapsingHeader("Enemy Spawn Multiplier Settings", ImGui::IsItemHovered());
+		if (mulSettingsExpanded)
 		{
-
-			float rulesWindowHeight = 12.f;
-			for (auto& rule : OptionsState::currentMultiplierRules)
-			{
-				rulesWindowHeight += ruleTypeToPixelHeight[rule.get()->getType()] + 5.f;
-			}
-
-			ImGui::BeginChild("enemyMultiplierSettings", ImVec2(0, rulesWindowHeight + 30.f), true, 0);
+			ImGui::BeginChild("enemyMultiplierSettings", ImVec2(0, multiplierSettingsChildHeight), true, 0);
 
 			if (ImGui::Button("Add Multiplier Rule"))
 			{
@@ -928,6 +1070,16 @@ void OptionsGUI::renderOptionsGUI()
 			{
 				ImGui::OpenPopup("Seizure Warning");
 			}
+			else if (OptionsState::TextureRandomiser.GetValueDisplay() == true &&
+				OptionsState::TextureIncludeCharacter.GetValue() == false &&
+				OptionsState::TextureIncludeEffect.GetValue() == false &&
+				OptionsState::TextureIncludeLevel.GetValue() == false &&
+				OptionsState::TextureIncludeUI.GetValue() == false &&
+				OptionsState::TextureIncludeWeapVehi.GetValue() == false)
+			{
+				ImGui::OpenPopup("No textures to randomise");
+				OptionsState::TextureRandomiser.GetValueDisplay() = false;
+			}
 			else
 			{
 				OptionsState::TextureRandomiser.UpdateValueWithInput();
@@ -945,6 +1097,16 @@ void OptionsGUI::renderOptionsGUI()
 				{
 					ImGui::OpenPopup("Seizure Warning");
 				}
+				else if (OptionsState::TextureRandomiser.GetValueDisplay() == true &&
+					OptionsState::TextureIncludeCharacter.GetValue() == false &&
+					OptionsState::TextureIncludeEffect.GetValue() == false &&
+					OptionsState::TextureIncludeLevel.GetValue() == false &&
+					OptionsState::TextureIncludeUI.GetValue() == false &&
+					OptionsState::TextureIncludeWeapVehi.GetValue() == false)
+				{
+					ImGui::OpenPopup("No textures to randomise");
+					OptionsState::TextureRandomiser.GetValueDisplay() = false;
+				}
 				else
 				{
 					OptionsState::TextureRandomiser.UpdateValueWithInput();
@@ -958,14 +1120,15 @@ void OptionsGUI::renderOptionsGUI()
 
 		ImGui::Indent();
 		ImGui::Dummy((ImVec2(0, 2)));
-		if (ImGui::CollapsingHeader("Texture Randomiser Settings", ImGui::IsItemHovered()))
+		texSettingsExpanded = ImGui::CollapsingHeader("Texture Randomiser Settings", ImGui::IsItemHovered());
+		if (texSettingsExpanded)
 		{
-			ImGui::BeginChild("texSettings", ImVec2(0, 260), true, 0);
+			ImGui::BeginChild("texSettings", ImVec2(0, 265), true, 0);
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("Randomise");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100.f);
-			if (ImGui::InputDouble("Percent of Textures", &OptionsState::TextureRandomiserPercent.GetValueDisplay(), 0, 0, "%.0f"))
+			if (ImGui::InputDouble("Percent of Textures", &OptionsState::TextureRandomiserPercent.GetValueDisplay(), 0, 0, "%.2f"))
 			{
 				OptionsState::TextureRandomiserPercent.UpdateValueWithInput();
 				changesPending_Text = true;
@@ -1047,8 +1210,22 @@ void OptionsGUI::renderOptionsGUI()
 
 		if (ImGui::Checkbox("Enable Sound Randomiser", &OptionsState::SoundRandomiser.GetValueDisplay()))
 		{
+		if (OptionsState::SoundRandomiser.GetValueDisplay() == true &&
+			OptionsState::SoundIncludeAnimations.GetValue() == false &&
+			OptionsState::SoundIncludeDialog.GetValue() == false &&
+			OptionsState::SoundIncludeEffects.GetValue() == false &&
+			OptionsState::SoundIncludeMusic.GetValue() == false &&
+			OptionsState::SoundIncludeWeapVehi.GetValue() == false)
+		{
+			ImGui::OpenPopup("No sounds to randomise");
+			OptionsState::SoundRandomiser.GetValueDisplay() = false;
+		}
+		else
+		{
 			OptionsState::SoundRandomiser.UpdateValueWithInput();
 			changesPending_Sound = false;
+		}
+
 		}
 		addTooltip("Enables sound randomisation.");
 
@@ -1057,8 +1234,21 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				changesPending_Sound = false;
-				OptionsState::SoundRandomiser.UpdateValueWithInput();
+				if (OptionsState::SoundRandomiser.GetValueDisplay() == true &&
+					OptionsState::SoundIncludeAnimations.GetValue() == false &&
+					OptionsState::SoundIncludeDialog.GetValue() == false &&
+					OptionsState::SoundIncludeEffects.GetValue() == false &&
+					OptionsState::SoundIncludeMusic.GetValue() == false &&
+					OptionsState::SoundIncludeWeapVehi.GetValue() == false)
+				{
+					ImGui::OpenPopup("No sounds to randomise");
+					OptionsState::SoundRandomiser.GetValueDisplay() = false;
+				}
+				else
+				{
+					OptionsState::SoundRandomiser.UpdateValueWithInput();
+					changesPending_Sound = false;
+				}
 			}
 			addTooltip("Update CEERs internal state with your inputted changed settings.");
 		}
@@ -1067,14 +1257,15 @@ void OptionsGUI::renderOptionsGUI()
 
 		ImGui::Indent();
 		ImGui::Dummy((ImVec2(0, 2)));
-		if (ImGui::CollapsingHeader("Sound Randomiser Settings", ImGui::IsItemHovered()))
+		sndSettingsExpanded = ImGui::CollapsingHeader("Sound Randomiser Settings", ImGui::IsItemHovered());
+		if (sndSettingsExpanded)
 		{
 			ImGui::BeginChild("sndSettings", ImVec2(0, 200), true, 0);
 			ImGui::AlignTextToFramePadding();
 			ImGui::Text("Randomise");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(100.f);
-			if (ImGui::InputDouble("Percent of Sounds", &OptionsState::SoundRandomiserPercent.GetValueDisplay(), 0, 0, "%.0f"))
+			if (ImGui::InputDouble("Percent of Sounds", &OptionsState::SoundRandomiserPercent.GetValueDisplay(), 0, 0, "%.2f"))
 			{
 				OptionsState::SoundRandomiserPercent.UpdateValueWithInput();
 				changesPending_Sound = true;
@@ -1134,7 +1325,7 @@ void OptionsGUI::renderOptionsGUI()
 #pragma endregion SoundRandomiser
 
 	}
-
+	renderMissingRulesWarning();
 	ImGui::End(); // end main window
 
 #pragma endregion MainWindow

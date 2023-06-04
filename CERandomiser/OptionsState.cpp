@@ -59,7 +59,7 @@ namespace OptionsState
 
 	Option<double> TextureRandomiserPercent(
 		100.,
-		[](double newValue) { return newValue <= 100. && newValue >= 0.; },
+		[](double newValue) { return newValue <= 100. && newValue > 0.; },
 		nameof(TextureRandomiserPercent)
 
 	);
@@ -130,7 +130,7 @@ namespace OptionsState
 
 	Option<double> SoundRandomiserPercent(
 		100.,
-		[](double newValue) { return newValue <= 100. && newValue >= 0.; },
+		[](double newValue) { return newValue <= 100. && newValue > 0.; },
 		nameof(SoundRandomiserPercent)
 
 	);
@@ -177,7 +177,10 @@ namespace OptionsState
 
 #pragma endregion SoundRandomiser
 
-	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString,  &RandomiserIncludesFlameThrowers, 
+	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString,  
+#if includeFlamethrowerFloodOption == 1
+		&RandomiserIncludesFlameThrowers, 
+#endif
 		&TextureRandomiserPercent, &TextureRestrictToCategory, &TextureIncludeCharacter, &TextureIncludeWeapVehi, &TextureIncludeEffect, &TextureIncludeLevel, &TextureIncludeUI, &TextureSeizureMode, &TextureFramesBetweenSeizures,
 	 & SoundRestrictToCategory, & SoundIncludeDialog, & SoundIncludeMusic, & SoundIncludeAnimations, & SoundIncludeEffects, & SoundIncludeWeapVehi,
 	
