@@ -28,7 +28,6 @@
 /* GENERAL TODO:: 
 
 upload recompiled maps
-remove flamethrower flood option
 add s8 support
 uncaught exception handler not working in release mode
 getting flagged as virus

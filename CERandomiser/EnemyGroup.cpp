@@ -196,7 +196,7 @@ namespace builtInGroups
 	const EnemyGroup UnitSentinel_ShieldedMajor("Unit: Sentinel_Shielded Major", "Sentinel_Shielded Major", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "sentinel_shielded major";   });
 	const EnemyGroup UnitSentinel_Shielded("Unit: Sentinel_Shielded", "Sentinel_Shielded", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "sentinel_shielded";   });
 
-#if includeFlamethrowerFlood == 1
+#if includeFlamethrowerFloodOption == 1
 	const EnemyGroup UnitFloodcombatEliteFlameThrower("Unit: Floodcombat Elite Flame Thrower", "Floodcombat Elite Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat elite flame thrower";   });
 	const EnemyGroup UnitFloodcombat_HumanFlameThrower("Unit: Floodcombat_Human Flame Thrower", "Floodcombat_Human Flame Thrower", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "floodcombat_human flame thrower";   });
 #endif
@@ -246,7 +246,7 @@ namespace builtInGroups
 		UnitStealthElitePlasmaRifle,
 		UnitFloodcarrier,
 		UnitFloodcombatEliteAssaultRifle,
-#if includeFlamethrowerFlood == 1
+#if includeFlamethrowerFloodOption == 1
 		UnitFloodcombatEliteFlameThrower,
 #endif
 		UnitFloodcombatEliteNeedler,
@@ -259,7 +259,7 @@ namespace builtInGroups
 		UnitFloodcombatEliteStealthUnarmed,
 		UnitFloodcombatEliteUnarmed,
 		UnitFloodcombat_HumanAssaultRifle,
-		#if includeFlamethrowerFlood == 1
+		#if includeFlamethrowerFloodOption == 1
 		UnitFloodcombat_HumanFlameThrower,
 		#endif
 		UnitFloodcombat_HumanNeedler,
