@@ -38,7 +38,9 @@ void SoundRandomiser::onSoundRandomiserToggleChange(bool& newValue)
 	catch (InitException& ex)
 	{
 		PLOG_ERROR << "EEEEEEE";
-		RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::SoundRandomiser });
+		RuntimeExceptionHandler::handleMessage(ex);
+		OptionsState::SoundRandomiser.GetValue() = false;
+		OptionsState::SoundRandomiser.GetValueDisplay() = false;
 		return;
 	}
 

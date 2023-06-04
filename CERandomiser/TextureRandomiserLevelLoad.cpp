@@ -63,7 +63,9 @@ void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
 	catch (InitException& ex)
 	{
 		PLOG_ERROR << "EEEEEEE";
-		RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::TextureRandomiser });
+		RuntimeExceptionHandler::handleMessage(ex);
+		OptionsState::TextureRandomiser.GetValue() = false;
+		OptionsState::TextureRandomiser.GetValueDisplay() = false;
 		return;
 	}
 

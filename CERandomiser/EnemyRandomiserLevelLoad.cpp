@@ -89,14 +89,11 @@ void EnemyRandomiser::onEitherOptionChange()
 		}
 		catch (InitException& ex)
 		{
-			if (shouldEnable) // check helps prevent an infinite loop, since an option getting disabled will callback to this same very function
-			{
-				RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
-			}
-			else
-			{
-				RuntimeExceptionHandler::handleMessage(ex);
-			}
+			RuntimeExceptionHandler::handleMessage(ex);
+			OptionsState::EnemyRandomiser.GetValue() = false;
+			OptionsState::EnemyRandomiser.GetValueDisplay() = false;
+			OptionsState::EnemySpawnMultiplier.GetValue() = false;
+			OptionsState::EnemySpawnMultiplier.GetValueDisplay() = false;
 			return;
 		}
 
