@@ -15,6 +15,7 @@ public:
 		if(OptionsState::SeedString.GetValue().find_first_not_of(' ') == std::string::npos)
 		{
 			OptionsState::SeedString.GetValue() = generateString();
+			OptionsState::SeedString.UpdateValueWithInput();
 		}
 
 		return hashString(OptionsState::SeedString.GetValue());

@@ -28,13 +28,12 @@
 /* GENERAL TODO:: 
 
 
-test on someone elses comp
-
-
-
-Look into frg and flamethrower
-Texture rando
-Sound rando
+upload recompiled maps
+remove flamethrower flood option
+add s8 support
+uncaught exception handler not working in release mode
+getting flagged as virus
+warning on empty rules for rando/mult
 
 
 bug:

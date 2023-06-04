@@ -62,12 +62,6 @@
 				<Offset>0xB8CDC0</Offset>
 			</Offsets>
 		</Version>
-		<Version Version="1.2645.0.0">
-			<Module>halo1.dll</Module>
-			<Offsets>
-				<Offset>0xB0478E</Offset>
-			</Offsets>
-		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="setBipedDatumFunctionContext" Type="MidhookContextInterpreter">
