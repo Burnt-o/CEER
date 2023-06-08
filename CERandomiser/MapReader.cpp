@@ -50,12 +50,17 @@ private:
 
     // Data
     std::shared_ptr<MultilevelPointer> mlp_currentCache;
+    std::shared_ptr<MultilevelPointer> mlp_encounterMetadata;
+    std::shared_ptr<MultilevelPointer> mlp_encounterSquadData;
     //std::shared_ptr<MultilevelPointer> mlp_tagDataBase;
     uintptr_t currentCacheAddress;
     uintptr_t scenarioAddress;
 
     MCCString* objectNameTable;
     tagBlock* actorPalette;
+
+    uintptr_t encounterMetadata;
+    uintptr_t encounterSquadData;
 
 
 
@@ -80,6 +85,7 @@ public:
     faction getActorsFaction(const datum& actorDatum);
     std::string getObjectName(int nameIndex);
     datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
+    uint16_t getEncounterSquadSpawnCount(int encounterIndex, int squadIndex);
 
     std::span<tagElement> getTagTable();
 
@@ -99,6 +105,8 @@ void MapReader::MapReaderImpl::lazyInit()
     try
     {
         mlp_currentCache = PointerManager::getMultilevelPointer("currentCacheAddress");
+        mlp_encounterMetadata = PointerManager::getMultilevelPointer("encounterMetadata");
+        mlp_encounterSquadData = PointerManager::getMultilevelPointer("encounterSquadData");
         //mlp_tagDataBase = PointerManager::getMultilevelPointer("tagDataBase");
     }
     catch (InitException& ex) // convert initException to runtime exception since this might happen at any time
@@ -135,6 +143,14 @@ void MapReader::MapReaderImpl::cacheTagData(HaloLevel newLevel)
     this->actorPalette = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
     PLOG_DEBUG << "actorPalette ptr" << std::hex << (uintptr_t)this->actorPalette;
 
+
+    if (!mlp_encounterMetadata.get()->resolve(&encounterMetadata)) throw CEERRuntimeException(std::format("Could not resolve encounterMetadata, {}, {:#X}", MultilevelPointer::GetLastError(), (uint64_t)encounterMetadata));
+    // enc metadata is a pointer to the header of that section- we only care about the actual data block. +0x34 in the header contains the offset to the data block.
+    uint16_t blockOffset = *((uint16_t*)(encounterMetadata + 0x34));
+    encounterMetadata += blockOffset;
+    
+    
+    if (!mlp_encounterSquadData.get()->resolve(&encounterSquadData)) throw CEERRuntimeException(std::format("Could not resolve encounterSquadData, {}, {:#X}", MultilevelPointer::GetLastError(), (uint64_t)encounterSquadData));
 }
 
 
@@ -338,6 +354,24 @@ datum MapReader::MapReaderImpl::getEncounterSquadDatum(int encounterIndex, int s
 
 }
 
+uint16_t MapReader::MapReaderImpl::getEncounterSquadSpawnCount(int encounterIndex, int squadIndex)
+{
+    if (!encounterMetadata) throw CEERRuntimeException("encounterMetadata not loaded yet!");
+    if (!encounterSquadData) throw CEERRuntimeException("encounterSquadData not loaded yet!");
+
+    auto ourEncounterMetadata = encounterMetadata + (encounterIndex * 0x58);
+    if (IsBadReadPtr((void*)ourEncounterMetadata, 8)) CEERRuntimeException(std::format("ourEncounterMetadata bad read! {}", ourEncounterMetadata));
+
+    auto ourEncSqdDataIndex = *(uint16_t*)(ourEncounterMetadata + 4);
+    ourEncSqdDataIndex += squadIndex;
+
+    auto ourEncSqdData = (encounterSquadData + (ourEncSqdDataIndex * 0x20));
+    if (IsBadReadPtr((void*)ourEncSqdData, 8)) CEERRuntimeException(std::format("ourEncSqdData bad read! {}", ourEncSqdData));
+
+    return *(uint16_t*)(ourEncSqdData + 0x16);
+
+}
+
 
 
 
@@ -362,7 +396,8 @@ tagElement* MapReader::getTagElement(const datum& tagDatum) { return impl.get()-
 
 faction MapReader::getActorsFaction(const datum& actorDatum) { return impl.get()->getActorsFaction(actorDatum); }
 datum MapReader::getEncounterSquadDatum(int encounterIndex, int squadIndex) { return impl.get()->getEncounterSquadDatum(encounterIndex, squadIndex); }
- 
+uint16_t MapReader::getEncounterSquadSpawnCount(int encounterIndex, int squadIndex) { return impl.get()->getEncounterSquadSpawnCount(encounterIndex, squadIndex); }
+
 uintptr_t MapReader::getTagAddress(const datum& tagDatum) { return impl.get()->getTagAddress(tagDatum); }
 uintptr_t MapReader::getTagAddress(uint32_t tagOffset) { return impl.get()->getTagAddress(tagOffset); }
 void MapReader::cacheTagData(HaloLevel newLevel) { return impl.get()->cacheTagData(newLevel); }

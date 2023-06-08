@@ -9,6 +9,13 @@
 
 PointerManager* PointerManager::instance = nullptr;
 
+enum class MCCProcessType
+{
+    Steam,
+    WinStore
+};
+
+
 class PointerManager::PointerManagerImpl {
 
 
@@ -19,13 +26,14 @@ class PointerManager::PointerManagerImpl {
         void downloadXML(std::string url);
         std::string readLocalXML();
         std::string getCurrentMCCVersion();
+        MCCProcessType getCurrentMCCType();
         void parseXML(std::string& xml);
         void processVersionedEntry(pugi::xml_node entry);
         void instantiateMultilevelPointer(pugi::xml_node entry, std::string entryType, std::string entryName);
         void instantiateMidhookContextInterpreter(pugi::xml_node entry, std::string entryName);
 
         std::string currentGameVersion;
-
+        MCCProcessType currentProcessType;
 
 
     public:
@@ -73,6 +81,7 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
 
     std::string pointerData = readLocalXML();
     this->currentGameVersion = getCurrentMCCVersion();
+    this->currentProcessType = getCurrentMCCType();
     PLOG_INFO << "MCC Version: " << currentGameVersion;
 
     parseXML(pointerData);
@@ -284,6 +293,31 @@ std::string PointerManager::PointerManagerImpl::getCurrentMCCVersion()
 }
 
 
+MCCProcessType PointerManager::PointerManagerImpl::getCurrentMCCType()
+{
+    std::string outCurrentMCCType;
+    HMODULE mccProcess = GetModuleHandle(NULL);
+    char mccProcessPath[MAX_PATH];
+    GetModuleFileNameA(mccProcess, mccProcessPath, sizeof(mccProcessPath));
+
+    std::string mccName = mccProcessPath;
+    mccName = mccName.substr(mccName.find_last_of("\\") + 1, mccName.size() - mccName.find_last_of("\\") - 1);
+
+    if (mccName == "MCCWinStore-Win64-Shipping.exe")
+    {
+        return MCCProcessType::WinStore;
+    }
+    else if (mccName == "MCC-Win64-Shipping.exe")
+    {
+        return MCCProcessType::Steam;
+    }
+    else
+    {
+        throw InitException(std::format("MCC process had the wrong name!: {}", mccName));
+    }
+
+}
+
 
 
 void PointerManager::PointerManagerImpl::parseXML(std::string& xml)
@@ -336,6 +370,18 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
             continue;
         }
         PLOG_DEBUG << "Matching version found";
+
+        // check for steam vs winstore flag
+        if (!versionEntry.attribute("ProcessType").empty())
+        {
+            PLOG_DEBUG << "Checking process type";
+            if ((currentProcessType == MCCProcessType::Steam && !strcmp(versionEntry.attribute("ProcessType").value(), "Steam"))
+                || (currentProcessType == MCCProcessType::WinStore && !strcmp(versionEntry.attribute("ProcessType").value(), "WinStore")))
+            {
+                PLOG_VERBOSE << "wrong process type";
+                continue;
+            }
+        }
 
                 // check for duplicates
         if (mMultilevelPointerData.contains(entryName))

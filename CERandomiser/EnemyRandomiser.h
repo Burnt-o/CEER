@@ -125,9 +125,7 @@ private:
 	static ProcessSquadUnitFunction newProcessSquadUnitFunction;
 	std::shared_ptr<ModuleInlineHook> processSquadUnitHook;
 
-	std::shared_ptr<ModuleMidHook> getSquadUnitIndexHook;
-	static void getSquadUnitIndexHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> getSquadUnitIndexFunctionContext;
+
 	
 	std::shared_ptr<ModuleMidHook> spawnPositionFuzzHook;
 	static void spawnPositionFuzzHookFunction(SafetyHookContext& ctx);
@@ -138,6 +136,7 @@ private:
 	static faction hookData_currentUnitsFaction;
 	static datum hookData_currentUnitDatum;
 	static int hookData_currentSquadUnitIndex;
+	static int hookData_lastUnitSpawnPositionIndex;
 	static bool hookData_fixSentinelPosition;
 	static uint64_t hookData_currentUnitSeed;
 	static bool hookData_unitRandomised;
@@ -225,8 +224,8 @@ public:
 		safe_destroy_hook(setBipedDatumHook);
 #endif
 		safe_destroy_hook(processSquadUnitHook);
-		safe_destroy_hook(getSquadUnitIndexHook);
 		safe_destroy_hook(spawnPositionFuzzHook);
+
 
 		instance = nullptr;
 	}

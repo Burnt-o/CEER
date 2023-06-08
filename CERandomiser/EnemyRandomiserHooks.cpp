@@ -14,10 +14,13 @@ bool EnemyRandomiser::hookData_fixSentinelPosition = false;
 uint64_t EnemyRandomiser::hookData_currentUnitSeed = 0;
 bool EnemyRandomiser::hookData_unitRandomised = false;
 datum EnemyRandomiser::hookData_currentBipedDatum = nullDatum;
+int EnemyRandomiser::hookData_lastUnitSpawnPositionIndex = -1;
 
 
 
 #if bipedRandomisation == 1
+datum expectedBipedDatum = nullDatum;
+
 // randomises bipeds (could do other stupid stuff here like randomise scenery, but ceebs)
 __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagBlock* paletteTableRef)
 {
@@ -40,6 +43,8 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagB
 	paletteTable += (spawningObject->paletteIndex * 3);
 	datum originalDatum = paletteTable->tagDatum;
 	PLOG_VERBOSE << "original biped datum: " << originalDatum;
+
+	expectedBipedDatum = originalDatum; // for debug
 
 	auto& originalBipedInfo = instance->bipedMap.at(originalDatum);
 
@@ -89,12 +94,12 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagB
 
 }
 
-
+int debugSetBipedDatum = 0;
 void EnemyRandomiser::setBipedDatumHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_DEBUG << "setBipedDatumHookFunction";
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
-	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
 	enum class param
 	{
@@ -104,8 +109,24 @@ void EnemyRandomiser::setBipedDatumHookFunction(SafetyHookContext& ctx)
 
 	if (hookData_currentBipedDatum != nullDatum)
 	{
-		PLOG_DEBUG << "setting datum to " << hookData_currentBipedDatum;
-		*ctxInterpreter->getParameterRef(ctx, (int)param::BipedDatum) = (uint32_t)hookData_currentBipedDatum;
+		debugSetBipedDatum++;
+		PLOG_DEBUG << "debugSetBipedDatum: " << debugSetBipedDatum;
+
+		datum currentDatum = *(datum*)ctxInterpreter->getParameterRef(ctx, (int)param::BipedDatum);
+		PLOG_DEBUG << "setBipedDatumHookFunction changing from " << currentDatum;
+		PLOG_DEBUG << " to " << hookData_currentBipedDatum;
+
+		if (currentDatum != expectedBipedDatum)
+		{
+			PLOG_ERROR << "WOAH WHAT THE FUCK";
+			PLOG_ERROR << "expected" << expectedBipedDatum << " but got " << currentDatum;
+		}
+
+		if (debugSetBipedDatum != 1400)
+		{
+			*ctxInterpreter->getParameterRef(ctx, (int)param::BipedDatum) = (uint32_t)hookData_currentBipedDatum;
+		}
+		
 		hookData_currentBipedDatum = nullDatum;
 	}
 
@@ -212,8 +233,6 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	}
 
 	PLOG_VERBOSE << "originalActor: " << originalActor;
-	PLOG_VERBOSE << "nullDatum: " << nullDatum;
-	PLOG_VERBOSE << "equal? " << (originalActor == nullDatum);
 
 	if (originalActor == nullDatum)
 	{
@@ -242,19 +261,28 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 		returnOriginal;
 	}
 
+	// Some infinite enemy spawns won't give us a currentSquadUnitIndex. To get around this we'll precalculate the next units spawn position.
+	uint16_t nextSpawnPositionIndex;
+	try
+	{
+		 nextSpawnPositionIndex = instance->mapReader->getEncounterSquadSpawnCount(encounterIndex, squadIndex);
+	}
+	catch (CEERRuntimeException& ex)
+	{
+		RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::EnemyRandomiser, &OptionsState::EnemySpawnMultiplier });
+		returnOriginal;
+	}
+
+	PLOG_DEBUG << "nextSpawnPositionIndex: " << nextSpawnPositionIndex;
+
 
 	// Construct a seed
-	uint64_t seed = instance->ourSeed ^ (((uint64_t)encounterIndex << 32) + ((uint64_t)squadIndex << 24) + ((uint64_t)hookData_currentSquadUnitIndex << 16)); // Create a seed from the specific enemy data & XOR with the user-input seed
-	PLOG_DEBUG << "construction seed from" << std::hex << std::endl
-		<< "instance->ourSeed " << instance->ourSeed << std::endl
-		<< "encounterIndex " << encounterIndex << std::endl
-		<< "((uint64_t)encounterIndex << 32) " << ((uint64_t)encounterIndex << 24) << std::endl
-		<< "squadIndex " << squadIndex << std::endl
-		<< "((uint64_t)squadIndex << 16) " << ((uint64_t)squadIndex << 16) << std::endl
-		<< "hookData_currentSquadUnitIndex" << hookData_currentSquadUnitIndex << std::endl
-	<< "(hookData_currentSquadUnitIndex << 8)" << (hookData_currentSquadUnitIndex << 8);
+	uint64_t seed = instance->ourSeed ^ (((uint64_t)encounterIndex << 32) + ((uint64_t)squadIndex << 24) + ((uint64_t)hookData_currentSquadUnitIndex << 16)) + ((uint64_t)nextSpawnPositionIndex << 8); // Create a seed from the specific enemy data & XOR with the user-input seed
 	
-	
+	// clear hookdata so data doesn't bleed over
+	hookData_currentSquadUnitIndex = 0;
+
+
 	
 	SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
 	PLOG_DEBUG << "seed set: " << std::hex << seed;
@@ -349,21 +377,6 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 	return true; // Tell the calling game function that we handled everything fine
 	
-}
-
-void EnemyRandomiser::getSquadUnitIndexHookFunction(SafetyHookContext& ctx)
-{
-	PLOG_DEBUG << "getSquadUnitIndexHookFunction";
-	if (!instance) { PLOG_ERROR << "null instance!"; return; }
-	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-	enum class param
-	{
-		unitIndex,
-	};
-	auto* ctxInterpreter = instance->getSquadUnitIndexFunctionContext.get();
-
-	hookData_currentSquadUnitIndex = *ctxInterpreter->getParameterRef(ctx, (int)param::unitIndex);
-	PLOG_VERBOSE << "setting hookData_currentSquadUnitIndex to " << hookData_currentSquadUnitIndex;
 }
 
 

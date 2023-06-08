@@ -107,6 +107,7 @@ public:
 	static std::string magicToString(uint32_t magic);
 	tagElement* getTagElement(const datum& tagDatum);
 	datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
+	uint16_t getEncounterSquadSpawnCount(int encounterIndex, int squadIndex);
 
 	uintptr_t getTagAddress(const datum& tagDatum);
 	uintptr_t getTagAddress(uint32_t tagOffset);

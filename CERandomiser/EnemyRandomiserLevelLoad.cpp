@@ -40,10 +40,6 @@ void EnemyRandomiser::lazyInit()
 		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
 #endif
 		 //actors
-		auto getSquadUnitIndexFunction = PointerManager::getMultilevelPointer("getSquadUnitIndexFunction");
-		getSquadUnitIndexFunctionContext = PointerManager::getMidhookContextInterpreter("getSquadUnitIndexFunctionContext");
-		getSquadUnitIndexHook = ModuleMidHook::make(L"halo1.dll", getSquadUnitIndexFunction, getSquadUnitIndexHookFunction, false);
-
 		auto processSquadUnitFunction = PointerManager::getMultilevelPointer("processSquadUnitFunction");
 		processSquadUnitHook = ModuleInlineHook::make(L"halo1.dll", processSquadUnitFunction, newProcessSquadUnitFunction, false);
 
@@ -105,7 +101,7 @@ void EnemyRandomiser::onEitherOptionChange()
 	fixUnitFactionHook.get()->setWantsToBeAttached(shouldEnable);
 	setActorDatumHook.get()->setWantsToBeAttached(shouldEnable);
 	processSquadUnitHook.get()->setWantsToBeAttached(shouldEnable);
-	getSquadUnitIndexHook.get()->setWantsToBeAttached(shouldEnable);
+
 	fixMajorUpgradeHook.get()->setWantsToBeAttached(shouldEnable);
 	spawnPositionFuzzHook.get()->setWantsToBeAttached(shouldEnable);
 #if bipedRandomisation == 1

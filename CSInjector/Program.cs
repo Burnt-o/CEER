@@ -15,7 +15,7 @@ namespace CSInjector
     internal class Program
     {
         
-        static readonly string[] targetProcessNames = { "MCC-Win64-Shipping", "MCC-Win64-Shipping-Winstore" }; // MCC has two different process names depending whether user playing on Steam or Winstore
+        static readonly string[] targetProcessNames = { "MCC-Win64-Shipping", "MCCWinStore-Win64-Shipping" }; // MCC has two different process names depending whether user playing on Steam or Winstore
         static readonly string dllToInjectName = "CERandomiser";
         static readonly string dllToInjectPath = AppDomain.CurrentDomain.BaseDirectory.ToString() + dllToInjectName + ".dll";
         static readonly TimeSpan MCCBootTime = new TimeSpan(0, 0, 3); // mininum number of seconds MCC needs to be open for before we inject
