@@ -226,6 +226,7 @@ public:
 #if bipedRandomisation == 1
 		safe_destroy_hook(placeObjectHook);
 		safe_destroy_hook(setBipedDatumHook);
+		safe_destroy_hook(fixWinstoreBipedCrashPatch);
 #endif
 		safe_destroy_hook(processSquadUnitHook);
 		safe_destroy_hook(spawnPositionFuzzHook);

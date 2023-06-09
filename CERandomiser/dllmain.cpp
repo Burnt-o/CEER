@@ -79,7 +79,7 @@ void RealMain(HMODULE dllHandle)
         auto mhm = std::make_unique<ModuleHookManager>();
         auto d3d = std::make_unique<D3D11Hook>();
         auto imm = std::make_unique<ImGuiManager>(d3d.get()->presentHookEvent);
-        auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback);
+        auto optGUI = std::make_unique<OptionsGUI>(imm.get()->ImGuiRenderCallback, d3d.get()->resizeBuffersHookEvent);
         auto mesGUI = std::make_unique<MessagesGUI>(imm.get()->ImGuiRenderCallback);
 
         auto exp = std::make_unique<RuntimeExceptionHandler>(imm.get()->ImGuiRenderCallback);
@@ -103,8 +103,15 @@ void RealMain(HMODULE dllHandle)
         // If an initialization error occurs before this point, console will be left up so user can look at it.
         MessagesGUI::addMessage("CEER successfully initialised!");
 
+
+
+
+
+
 #ifndef CEER_DEBUG
         Logging::closeConsole();
+        Logging::SetConsoleLoggingLevel(plog::info);
+        Logging::SetFileLoggingLevel(plog::info);
 #else
 
 #endif // !CEER_DEBUG

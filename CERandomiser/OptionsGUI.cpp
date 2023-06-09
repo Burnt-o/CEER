@@ -7,9 +7,10 @@
 #include "OptionSerialisation.h"
 #include <shellapi.h>
 
-
+#include "Logging.h"
 #define addTooltip(x) if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) ImGui::SetTooltip(x)
 
+ImVec2 minimumWindowSize{ 500, 500 };
 
 bool OptionsGUI::m_WindowOpen = true;
 OptionsGUI* OptionsGUI::instance = nullptr;
@@ -46,10 +47,16 @@ std::map<RuleType, std::string> ruleTypeToRuleTypeToolTip
 OptionsGUI::~OptionsGUI()
 {
 	std::scoped_lock<std::mutex> lock(mDestructionGuard); // onPresentHookCallback also locks this
-	if (mCallbackHandle && pImGuiRenderEvent)
+	if (mImGuiRenderCallbackHandle && pImGuiRenderEvent)
 	{
-		pImGuiRenderEvent.remove(mCallbackHandle);
-		mCallbackHandle = {};
+		pImGuiRenderEvent.remove(mImGuiRenderCallbackHandle);
+		mImGuiRenderCallbackHandle = {};
+	}
+
+	if (mWindowResizeCallbackHandle && pWindowResizeEvent)
+	{
+		pWindowResizeEvent.remove(mWindowResizeCallbackHandle);
+		mWindowResizeCallbackHandle = {};
 	}
 
 	instance = nullptr;
@@ -68,15 +75,25 @@ void OptionsGUI::initializeCEERGUI()
 	windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 
 	auto fullScreenSize = D3D11Hook::getScreenSize();
-
-	if (fullScreenSize.x > mWindowSize.x && fullScreenSize.y > mWindowSize.y) // check for really small screens or getScreenSize returning a junk value, then we just use default 500, 500
+	PLOG_VERBOSE << "actual screen size: " << fullScreenSize.x << ", " << fullScreenSize.y;
+	if (fullScreenSize.x > minimumWindowSize.x && fullScreenSize.y > minimumWindowSize.y) // check for really small screens or getScreenSize returning a junk value, then we just use default 500, 500
 	{
 		// adjust vertical window height to be 2/3rds of screen
-		mWindowSize.y = fullScreenSize.y / 3 * 2;
+		minimumWindowSize.y = fullScreenSize.y / 3 * 2;
 	}
 
 }
 
+void OptionsGUI::onWindowResizeEvent(ImVec2 newScreenSize)
+{
+
+	PLOG_VERBOSE << "new actual screen size: " << newScreenSize.x << ", " << newScreenSize.y;
+	if (newScreenSize.x > minimumWindowSize.x && newScreenSize.y > minimumWindowSize.y) // check for really small screens or getScreenSize returning a junk value, then we just use default 500, 500
+	{
+		// adjust vertical window height to be 2/3rds of screen
+		minimumWindowSize.y = newScreenSize.y / 3 * 2;
+	}
+}
 
 void OptionsGUI::onImGuiRenderEvent()
 {
@@ -745,7 +762,7 @@ bool IsEnemyMultiplierTooHigh()
 }
 
 
-bool debugHeight = true;
+
 
 void OptionsGUI::renderOptionsGUI()
 {
@@ -782,22 +799,27 @@ void OptionsGUI::renderOptionsGUI()
 	static bool sndSettingsExpanded = false;
 
 
-	float totalContentHeight = 400.f
+	float totalContentHeight = 400.f + 40.f
 		+ (ranSettingsExpanded ? randomiserSettingsChildHeight : 0.f)
 		+ (mulSettingsExpanded ? multiplierSettingsChildHeight : 0.f)
 		+ (texSettingsExpanded ? 265.f : 0.f)
 		+ (sndSettingsExpanded ? 200.f : 0.f);
 		
 
+
+	mWindowSize.y = (minimumWindowSize.y > totalContentHeight ? totalContentHeight : minimumWindowSize.y);
+
+	static bool debugHeight = true;
 	if (debugHeight)
 	{
-		debugHeight = false;
 		PLOG_VERBOSE << "totalContentHeight " << totalContentHeight;
 		PLOG_VERBOSE << "mWindowSize.y " << mWindowSize.y;
+		PLOG_VERBOSE << "minimumWindowSize.y " << minimumWindowSize.y;
+		debugHeight = false;
 	}
 
 
-	ImGui::SetNextWindowSize(ImVec2(mWindowSize.x, mWindowSize.y > totalContentHeight ? totalContentHeight : mWindowSize.y));
+	ImGui::SetNextWindowSize(mWindowSize);
 	ImGui::SetNextWindowPos(mWindowPos);
 	//style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.90f, 0.90f, 1.00f);
 	
@@ -1326,6 +1348,16 @@ void OptionsGUI::renderOptionsGUI()
 
 	}
 	renderMissingRulesWarning();
+
+	ImGui::SeparatorText("");
+
+	static bool verbose = true;
+	if (ImGui::Checkbox("Verbose logging", &verbose))
+	{
+		Logging::SetConsoleLoggingLevel(verbose ? plog::verbose : plog::info);
+		Logging::SetFileLoggingLevel(verbose ? plog::verbose : plog::info);
+	}
+	addTooltip("Puts more info in the log file so Burnt can diagnose issues/crashes better, but reduces performance.");
 	ImGui::End(); // end main window
 
 #pragma endregion MainWindow

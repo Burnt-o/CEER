@@ -22,6 +22,8 @@ void MessagesGUI::onImGuiRenderEvent()
 	instance->iterateMessages();
 }
 
+
+
 // in milliseconds
 constexpr float messageExpiryTimeout = 12000.f;
 constexpr float messageFullOpacityTime = 8000.f;
@@ -47,8 +49,8 @@ void MessagesGUI::iterateMessages()
 		});
 
 	// draw remaining messages
-	constexpr ImVec2 mesPosWhenOptionsOpen(10, 530);
-	constexpr ImVec2 mesPosWhenOptionsClosed(10, 30);
+	ImVec2 mesPosWhenOptionsOpen(10, OptionsGUI::getOptionsGUIHeight() + 15.f);
+	constexpr ImVec2 mesPosWhenOptionsClosed(10, 35);
 
 	ImVec2 messagePosition = OptionsGUI::isWindowOpen() ? mesPosWhenOptionsOpen : mesPosWhenOptionsClosed;
 	for (auto& message : messages)

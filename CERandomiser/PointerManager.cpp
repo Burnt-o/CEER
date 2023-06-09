@@ -5,7 +5,7 @@
 #include <pugixml.hpp>
 #include "InitParameter.h"
 #define useDevPointerData 1
-#define debugPointerManager 1
+#define debugPointerManager 0
 
 PointerManager* PointerManager::instance = nullptr;
 

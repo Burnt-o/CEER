@@ -275,17 +275,20 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 	if (!pBackBuffer) throw InitException("Failed to get BackBuffer");
 
+	// Store the windows size
+	D3D11_TEXTURE2D_DESC desc;
+	pBackBuffer->GetDesc(&desc);
+	PLOG_INFO << "Initializing screen size: " << desc.Width << ", " << desc.Height;
+	mScreenSize = { ((float)desc.Width), ((float)desc.Height) };
+
+
+
+
 	m_pDevice->CreateRenderTargetView(pBackBuffer, NULL, &m_pMainRenderTargetView);
 	pBackBuffer->Release();
 	if (!m_pMainRenderTargetView) throw InitException("Failed to get MainRenderTargetView");
 
-	// Store the windows size
-	D3D11_VIEWPORT pViewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE]{ 0 };
-	UINT numViewports = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
-	m_pDeviceContext->RSGetViewports(&numViewports, pViewports);
-	PLOG_VERBOSE << "number of viewports: " << numViewports;
-
-	mScreenSize = { (pViewports->Width), (pViewports->Height) };
+	
 	
 
 }
@@ -360,6 +363,9 @@ HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferC
 
 	// Grab the new windows size
 	mScreenSize = { (float)Width, (float)Height };
+	
+	// fire screen resize event
+	d3d->resizeBuffersHookEvent(mScreenSize);
 
 	return hr;
 }

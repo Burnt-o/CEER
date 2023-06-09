@@ -77,6 +77,8 @@ public:
 	// Callback for present rendering
 	eventpp::CallbackList<void(ID3D11Device*, ID3D11DeviceContext*, IDXGISwapChain*, ID3D11RenderTargetView*)> presentHookEvent;
 
+	// Callback for window resize
+	eventpp::CallbackList<void(ImVec2 newScreenSize)> resizeBuffersHookEvent;
 
 	// Banned operations for singleton
 	D3D11Hook(const D3D11Hook& arg) = delete; // Copy constructor

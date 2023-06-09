@@ -13,10 +13,15 @@ private:
 
 	// ImGuiManager Event reference and our handle to the append so we can remove it in destructor
 	eventpp::CallbackList<void()>& pImGuiRenderEvent;
-	eventpp::CallbackList<void()>::Handle mCallbackHandle = {};
+	eventpp::CallbackList<void()>::Handle mImGuiRenderCallbackHandle = {};
+
+	// resize Window event and handle
+	eventpp::CallbackList<void(ImVec2)>& pWindowResizeEvent;
+	eventpp::CallbackList<void(ImVec2)>::Handle mWindowResizeCallbackHandle = {};
 
 	// What we run when ImGuiManager ImGuiRenderEvent is invoked
 	static void onImGuiRenderEvent();
+	static void onWindowResizeEvent(ImVec2 newScreenSize);
 
 	// initialize resources in the first onImGuiRenderEvent
 	void initializeCEERGUI();
@@ -51,7 +56,7 @@ private:
 public:
 
 	// Gets passed ImGuiManager ImGuiRenderEvent reference so we can subscribe and unsubscribe
-	explicit OptionsGUI(eventpp::CallbackList<void()>& pEvent) : pImGuiRenderEvent(pEvent)//
+	explicit OptionsGUI(eventpp::CallbackList<void()>& pRenderEvent, eventpp::CallbackList<void(ImVec2)>& pResizeEvent) : pImGuiRenderEvent(pRenderEvent), pWindowResizeEvent(pResizeEvent)
 	{
 		if (instance != nullptr)
 		{
@@ -59,12 +64,15 @@ public:
 		}
 		instance = this;
 
-		mCallbackHandle = pImGuiRenderEvent.append(onImGuiRenderEvent);
+		mImGuiRenderCallbackHandle = pImGuiRenderEvent.append(onImGuiRenderEvent);
+		mWindowResizeCallbackHandle = pWindowResizeEvent.append(onWindowResizeEvent);
 	}
 
 	~OptionsGUI(); // release resources
 
 	static void addError(CEERExceptionBase error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
 	static bool isWindowOpen() { return m_WindowOpen; };
+
+	static float getOptionsGUIHeight() { return instance->mWindowSize.y; };
 };
 
