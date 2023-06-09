@@ -19,6 +19,18 @@ int EnemyRandomiser::hookData_lastUnitSpawnPositionIndex = -1;
 
 
 #if bipedRandomisation == 1
+
+constexpr std::string_view badBipedNames[] = { "nipple_grunt"};
+bool isBadBipedName(std::string_view& nameView)
+{
+	for (auto& badName : badBipedNames)
+	{
+		if (nameView == badName) return true;
+	}
+	return false;
+}
+
+
 datum expectedBipedDatum = nullDatum;
 
 // randomises bipeds (could do other stupid stuff here like randomise scenery, but ceebs)
@@ -38,6 +50,17 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagB
 
 	constexpr auto bipdMagic = MapReader::stringToMagic("bipd");
 	if (paletteTable->tagGroupMagic != bipdMagic) returnOriginal;
+
+	// look up assigned name of this biped. There's a few we don't want to randomise, like the nipple_grunt at the end of Maw (the game will crash)
+	auto objectNameIndex = spawningObject->nameIndex;
+	PLOG_VERBOSE << "objectNameIndex: " << objectNameIndex;
+	if (objectNameIndex >= 0)
+	{
+		auto nameView = instance->mapReader->getObjectName(objectNameIndex);
+		PLOG_DEBUG << "biped name: " << nameView;
+		if (isBadBipedName(nameView)) returnOriginal;
+	}
+	
 
 	// lookup datum of currently spawning object
 	paletteTable += (spawningObject->paletteIndex * 3);
@@ -89,6 +112,7 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagB
 			hookData_currentBipedDatum = newUnitDatum;
 
 		}
+
 
 		returnOriginal;
 

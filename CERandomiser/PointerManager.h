@@ -6,6 +6,8 @@
 // Uses libcurl to download PointerData.xml from the github page,
 // instantiating all the MultilevelPointers (and other data) specific to the current MCC version we were injected into
 
+
+
 class PointerManager
 {
 
@@ -18,6 +20,9 @@ private:
 	static PointerManager* instance;
 
 
+	template <typename T>
+	static std::vector<T> getVectorImpl(std::string dataName);
+
 	class PointerManagerImpl;
 	std::unique_ptr<PointerManagerImpl> impl;
 public:
@@ -26,4 +31,9 @@ public:
 
 	static std::shared_ptr<MultilevelPointer> getMultilevelPointer(std::string dataName);
 	static std::shared_ptr<MidhookContextInterpreter> getMidhookContextInterpreter(std::string dataName);
+
+
+
+	template <typename T> 
+	static std::vector<T> getVector(std::string dataName);
 };

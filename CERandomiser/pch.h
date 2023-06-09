@@ -47,6 +47,9 @@
 #include <inttypes.h>
 #include <ranges>
 #include <math.h>
+#include <any>
+#include <type_traits>
+#include <variant>
 
 // External Libraries
 // hooking

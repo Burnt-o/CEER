@@ -19,6 +19,12 @@ std::unique_ptr<ModuleMidHook> ModuleMidHook::make(const std::wstring associated
 	return ptr;
 }
 
+std::unique_ptr<ModulePatch> ModulePatch::make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, std::vector<byte> patchedBytes, bool startEnabled)
+{
+	auto ptr = std::unique_ptr< ModulePatch>(new ModulePatch(associatedModule, original_func, patchedBytes, startEnabled));
+	ModuleHookManager::addHook(associatedModule, ptr.get());
+	return ptr;
+}
 
 const std::wstring& ModuleHookBase::getAssociatedModule() const
 {
@@ -37,6 +43,13 @@ ModuleMidHook::~ModuleMidHook()
 	detach();
 	ModuleHookManager::removeHook(getAssociatedModule(), this);
 }
+
+ModulePatch::~ModulePatch()
+{
+	detach();
+	ModuleHookManager::removeHook(getAssociatedModule(), this);
+}
+
 
 
 void ModuleInlineHook::attach()
@@ -123,6 +136,50 @@ void ModuleMidHook::detach()
 
 
 
+void ModulePatch::attach()
+{
+	PLOG_VERBOSE << " ModulePatch::attach()";
+#define logErrorReturn(x, y) if (x) { PLOG_ERROR << y; return; }
+	if (mOriginalBytes.empty())
+	{
+		mOriginalBytes.resize(mPatchedBytes.size());
+		logErrorReturn(mOriginalFunction.get()->readArrayData(mOriginalBytes.data(), mPatchedBytes.size()) == false, "Could not resolve original function");
+	}
+
+	std::vector<byte> currentBytes;
+	currentBytes.resize(mPatchedBytes.size());
+	logErrorReturn(mOriginalFunction.get()->readArrayData(currentBytes.data(), mPatchedBytes.size()) == false, "Could not resolve original function");
+
+	logErrorReturn(currentBytes != mOriginalBytes, "Current bytes did not match original bytes");
+
+	uintptr_t addy;
+	mOriginalFunction.get()->resolve(&addy);
+	PLOG_DEBUG << "mOriginalFunction loc: " << std::hex << (uint64_t)addy;
+		PLOG_DEBUG << "mPatchedBytes size: " << mPatchedBytes.size();
+
+	logErrorReturn(mOriginalFunction.get()->writeArrayData(mPatchedBytes.data(), mPatchedBytes.size(), true) == false, "Failed to patch new bytes");
+}
+
+void ModulePatch::detach()
+{
+	PLOG_VERBOSE << " ModulePatch::detach()";
+#define logErrorReturn(x, y) if (x) { PLOG_ERROR << y; return; }
+	logErrorReturn(mOriginalBytes.empty(), "No original bytes saved to restore");
+
+	PLOG_VERBOSE << "mOriginalBytes size: " << mOriginalBytes.size();
+
+	std::vector<byte> currentBytes;
+	currentBytes.resize(mPatchedBytes.size());
+	logErrorReturn(mOriginalFunction.get()->readArrayData(currentBytes.data(), mPatchedBytes.size()) == false, "Failed to read current bytes");
+
+	logErrorReturn(currentBytes != mPatchedBytes, "Current bytes did not match patched bytes")
+
+	logErrorReturn(mOriginalFunction.get()->writeArrayData(mOriginalBytes.data(), mOriginalBytes.size(), true) == false, "Failed to restore original bytes");
+
+}
+
+
+
 
 
 void ModuleHookBase::updateHookState()
@@ -170,4 +227,11 @@ bool ModuleInlineHook::isHookInstalled() const
 bool ModuleMidHook::isHookInstalled() const
 {
 	return this->mMidHook.operator bool();
+}
+
+bool ModulePatch::isHookInstalled() const
+{
+	std::vector<byte> currentBytes;
+	if (!mOriginalFunction.get()->readArrayData(&currentBytes, mOriginalBytes.size())) return false;
+	return currentBytes == mPatchedBytes;
 }

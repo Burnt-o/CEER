@@ -30,10 +30,31 @@ struct MCCString {
 			return std::string(longString, stringLength);
 		}
 	}
+
+	std::string_view view() const
+	{
+		if (stringLength < 0x10)
+		{
+			return std::string_view(&shortString[0], stringLength);
+		}
+		else
+		{
+			if (IsBadReadPtr(longString, stringLength))
+			{
+				PLOG_ERROR << "Bad string read";
+				return "Error";
+			}
+			return std::string_view(longString, stringLength);
+		}
+	}
 };
 static_assert(sizeof(MCCString) == 0x20);
 
-
+struct objectName {
+	char string[0x20];
+	uint16_t objectType;
+	uint16_t placementIndex;
+};
 
 
 static_assert(sizeof(datum) == 0x4);
@@ -91,7 +112,7 @@ public:
 	faction getActorsFaction(const datum& actorDatum);
 	void cacheTagData(HaloLevel newLevel);
 
-	std::string getObjectName(int nameIndex);
+	std::string_view getObjectName(int nameIndex);
 
 	std::span<tagElement> getTagTable();
 

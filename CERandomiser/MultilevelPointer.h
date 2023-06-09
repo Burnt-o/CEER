@@ -83,7 +83,7 @@ public:
 	}
 
 	template<typename T>
-	bool writeData(T* dataIn)
+	bool writeData(T* dataIn, bool protectedMemory = false)
 	{
 		if (typeid(T) == typeid(std::string))
 		{
@@ -93,9 +93,43 @@ public:
 		uintptr_t address;
 		if (!this->resolve(&address)) return false;
 
-
-		*(T*)address = *dataIn;
+		if (protectedMemory)
+		{
+			patch_memory((void*)address, dataIn, sizeof(T));
+		}
+		else
+		{
+			patch_memory((void*)address, dataIn, sizeof(T));
+			memcpy((void*)address, dataIn, sizeof(T));
+		}
 		return true;
+	}
+
+	template<typename T>
+	bool writeArrayData(T* dataIn, size_t arraySize, bool protectedMemory = false)
+	{
+		if (typeid(T) == typeid(std::string))
+		{
+			return false;
+		}
+
+		if (arraySize <= 0) return false;
+
+		uintptr_t address;
+		if (!this->resolve(&address)) return false;
+
+
+		if (protectedMemory)
+		{
+			patch_memory((void*)address, dataIn, arraySize);
+		}
+		else
+		{
+			memcpy((void*)address, dataIn, arraySize);
+		}
+
+		return true;
+
 	}
 
 };

@@ -10,6 +10,7 @@ class ModuleHookManager
 private:
 	friend class ModuleInlineHook;
 	friend class ModuleMidHook;
+	friend class ModulePatch;
 	static ModuleHookManager* instance;
 
 

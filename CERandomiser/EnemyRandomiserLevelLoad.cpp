@@ -38,6 +38,17 @@ void EnemyRandomiser::lazyInit()
 		auto setBipedDatumFunction = PointerManager::getMultilevelPointer("setBipedDatumFunction");
 		setBipedDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setBipedDatumFunctionContext");
 		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
+
+		PLOG_VERBOSE << "getting fixWinstoreBipedCrashFunction";
+		auto fixWinstoreBipedCrashFunction = PointerManager::getMultilevelPointer("fixWinstoreBipedCrashFunction");
+		PLOG_VERBOSE << "getting fixWinstoreBipedCrashPatchBytes";
+		auto fixWinstoreBipedCrashPatchBytes = PointerManager::getVector<byte>("fixWinstoreBipedCrashPatchBytes");
+
+		for (auto b : fixWinstoreBipedCrashPatchBytes)
+		{
+			PLOG_VERBOSE << "b: " << std::hex << b;
+		}
+		fixWinstoreBipedCrashPatch = ModulePatch::make(L"halo1.dll", fixWinstoreBipedCrashFunction, fixWinstoreBipedCrashPatchBytes, false);
 #endif
 		 //actors
 		auto processSquadUnitFunction = PointerManager::getMultilevelPointer("processSquadUnitFunction");
@@ -107,6 +118,7 @@ void EnemyRandomiser::onEitherOptionChange()
 #if bipedRandomisation == 1
 	placeObjectHook.get()->setWantsToBeAttached(shouldEnable);
 	setBipedDatumHook.get()->setWantsToBeAttached(shouldEnable);
+	fixWinstoreBipedCrashPatch.get()->setWantsToBeAttached(shouldEnable);
 #endif
 
 	if (shouldEnable)

@@ -20,8 +20,8 @@
 
 
 struct objectData { // for bipds, vehis, scenery etc
-	uint16_t paletteIndex;
-	uint16_t nameIndex;
+	int16_t paletteIndex;
+	int16_t nameIndex;
 	uint16_t placementFlags;
 	uint16_t desiredPermutation;
 	float posX;
@@ -121,9 +121,13 @@ private:
 
 	static placeObjectFunction newPlaceObjectFunction;
 	std::shared_ptr<ModuleInlineHook> placeObjectHook;
+
+	std::shared_ptr<ModulePatch> fixWinstoreBipedCrashPatch;
 #endif
 	static ProcessSquadUnitFunction newProcessSquadUnitFunction;
 	std::shared_ptr<ModuleInlineHook> processSquadUnitHook;
+
+
 
 
 	

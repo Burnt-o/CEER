@@ -88,6 +88,23 @@
 	</VersionedEntry>
 
 
+
+	<VersionedEntry Name="fixWinstoreBipedCrashFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3073.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBDC50E</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="fixWinstoreBipedCrashPatchBytes" Type="Vector" Typename="byte">
+		<Version Version="1.3073.0.0">
+			<Data>0xEB, 0x05</Data>
+		</Version>
+	</VersionedEntry>
+
+
 	<!--scan nw "66 89 43 74 48 8b 15": on mov [rbx+74], ax-->
 	<VersionedEntry Name="fixUnitFactionFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">

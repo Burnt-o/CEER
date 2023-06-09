@@ -5,7 +5,7 @@
 #include <pugixml.hpp>
 #include "InitParameter.h"
 #define useDevPointerData 1
-#define debugPointerManager 0
+#define debugPointerManager 1
 
 PointerManager* PointerManager::instance = nullptr;
 
@@ -31,6 +31,11 @@ class PointerManager::PointerManagerImpl {
         void processVersionedEntry(pugi::xml_node entry);
         void instantiateMultilevelPointer(pugi::xml_node entry, std::string entryType, std::string entryName);
         void instantiateMidhookContextInterpreter(pugi::xml_node entry, std::string entryName);
+        template <typename T>
+        void instantiateVectorFloat(pugi::xml_node entry, std::string entryName);
+        template <typename T>
+        void instantiateVectorInteger(pugi::xml_node entry, std::string entryName);
+
 
         std::string currentGameVersion;
         MCCProcessType currentProcessType;
@@ -43,6 +48,7 @@ class PointerManager::PointerManagerImpl {
         // data mapped by strings
         static std::map<std::string, std::shared_ptr<MultilevelPointer>> mMultilevelPointerData;
         static std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> mMidhookContextInterpreterData;
+        static std::map<std::string, std::vector<std::any>> mVectorData;
 };
 
 PointerManager::PointerManager() : impl(new PointerManagerImpl) 
@@ -124,10 +130,45 @@ std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInte
     return instance->impl.get()->mMidhookContextInterpreterData.at(dataName);
 }
 
+template <>
+std::vector<byte> PointerManager::getVectorImpl<byte>(std::string dataName)
+{
+    auto anyVec = instance->impl.get()->mVectorData.at(dataName);
+    PLOG_VERBOSE << "a";
+    std::vector<byte> out;
+    out.reserve(anyVec.size());
+    PLOG_VERBOSE << "b";
+    for (int i = 0; i < anyVec.size(); i++)
+    {
+        out.push_back(std::any_cast<byte>(anyVec.at(i)));
+    }
+    PLOG_VERBOSE << "c";
+    return out;
+}
+
+
+template <>
+std::vector<byte> PointerManager::getVector<byte>(std::string dataName)
+{
+    if (!instance->impl.get()->mVectorData.contains(dataName))
+    {
+        PLOG_ERROR << "no valid pointer data for " << dataName;
+        throw InitException(std::format("pointerData was null for {0}", dataName));
+    }
+
+    try
+    {
+        return getVectorImpl<byte>(dataName);
+    }
+    catch (const std::bad_any_cast& e)
+    {
+        throw InitException(std::format("Bad typecast of vector data with name {}: {}", dataName, e.what()));
+    }
+}
 
 std::map<std::string, std::shared_ptr<MultilevelPointer>> PointerManager::PointerManagerImpl::mMultilevelPointerData{};
 std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager::PointerManagerImpl::mMidhookContextInterpreterData{};
-
+std::map<std::string, std::vector<std::any>> PointerManager::PointerManagerImpl::mVectorData{};
 
 
 
@@ -402,6 +443,27 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
             PLOG_DEBUG << "instantiating MidhookContextInterpreter";
             instantiateMidhookContextInterpreter(versionEntry, entryName);
         }
+        else if (entryType.starts_with("Vector"))
+        {
+            PLOG_DEBUG << "instantiating Vector";
+            std::string typeName = entry.attribute("Typename").as_string();
+            // I'll have to manually add each type I want to support here.
+            if (typeName == nameof(byte))
+                instantiateVectorInteger<byte>(versionEntry, entryName);
+            else if (typeName == nameof(int))
+                instantiateVectorInteger<int>(versionEntry, entryName);
+            else if (typeName == nameof(long))
+                instantiateVectorInteger<long>(versionEntry, entryName);
+            else if (typeName == nameof(float))
+                instantiateVectorFloat<float>(versionEntry, entryName);
+            else if (typeName == nameof(double))
+                instantiateVectorFloat<double>(versionEntry, entryName);
+            else if (typeName == nameof(long double))
+                instantiateVectorFloat<long double>(versionEntry, entryName);
+            else
+                throw InitException(std::format("Unsupported typename passed to instantiateVector {}: {}", entryName, typeName));
+
+        }
     }
 }
 
@@ -535,4 +597,74 @@ void PointerManager::PointerManagerImpl::instantiateMidhookContextInterpreter(pu
     PLOG_DEBUG << "MidhookContextInterpreter added to map: " << entryName;
     mMidhookContextInterpreterData.try_emplace(entryName, result);
    
+}
+
+
+template <typename T>
+void PointerManager::PointerManagerImpl::instantiateVectorInteger(pugi::xml_node versionEntry, std::string entryName)
+{
+    std::vector<std::any> out;
+
+    std::string tmp;
+    std::string s = versionEntry.first_child().text().as_string();
+    PLOG_INFO << "instantiateVectorNumber: " << s;
+    std::stringstream ss(s);
+
+
+    while (std::getline(ss, tmp, ','))
+    {
+        // Hexadecimal conversion
+        auto number = tmp.contains("0x") ? stoll(tmp, 0, 16) : stoll(tmp);
+        try
+        {
+            out.push_back((T)number);
+
+        }
+        catch (const std::bad_cast& e)
+        {
+            throw InitException(std::format("Could not convert number to typename for entry {}: {}", entryName, e.what()));
+        }
+    }
+
+    
+    mVectorData.try_emplace(entryName, out);
+
+   
+
+}
+
+
+template <typename T>
+void PointerManager::PointerManagerImpl::instantiateVectorFloat(pugi::xml_node versionEntry, std::string entryName)
+{
+    std::vector < std::any > out;
+
+    std::string tmp;
+    std::string s = versionEntry.first_child().text().as_string();
+    PLOG_INFO << "instantiateVectorNumber: " << s;
+    std::stringstream ss(s);
+
+  
+    while (std::getline(ss, tmp, ','))
+    {
+        // string to long double which we dynamic_cast down to T
+        auto number = stold(tmp);
+        try
+        {
+
+            out.push_back((T)number);
+        
+        }
+        catch (const std::bad_cast& e)
+        {
+            throw InitException(std::format("Could not convert number to typename for entry {}: {}", entryName, e.what()));
+        }
+    }
+   
+   
+
+    mVectorData.try_emplace(entryName, out);
+
+
+
 }

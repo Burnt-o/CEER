@@ -15,9 +15,6 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{8d50ac2a-fcb1-4dc7-b3fc-bd8d4a09c12b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Services">
-      <UniqueIdentifier>{140bc533-6f2c-4451-9138-701beae435a4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Global">
       <UniqueIdentifier>{43cfbde5-1ac8-47f1-904f-288926581f9d}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,9 @@
     </Filter>
     <Filter Include="Source Files\pugixml">
       <UniqueIdentifier>{f38b1629-57dc-45e1-bee7-b812ac91fd53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Services">
+      <UniqueIdentifier>{140bc533-6f2c-4451-9138-701beae435a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,22 +64,22 @@
       <Filter>Source Files\safetyhook</Filter>
     </ClInclude>
     <ClInclude Include="D3D11Hook.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="ModuleHookManager.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="ModuleCache.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="OptionsGUI.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="OptionsState.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Global</Filter>
@@ -91,10 +91,10 @@
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="GlobalKill.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="MirrorMode.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="ModuleHook.h">
       <Filter>Classes</Filter>
@@ -109,16 +109,16 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="LevelLoadHook.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="EnemyRandomiser.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="HaloEnums.h">
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="PointerManager.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="includes\pugixml\src\pugiconfig.hpp">
       <Filter>Source Files\pugixml</Filter>
@@ -133,13 +133,13 @@
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="MapReader.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="CustomExceptions.h">
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="RuntimeExceptionHandler.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="SetSeed.h">
       <Filter>Classes</Filter>
@@ -160,19 +160,19 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="Logging.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="MessagesGUI.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="UserSeed.h">
       <Filter>Global</Filter>
     </ClInclude>
     <ClInclude Include="OptionSerialisation.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="TextureRandomiser.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="TextureInfo.h">
       <Filter>Classes</Filter>
@@ -181,13 +181,13 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="SoundRandomiser.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="SoundInfo.h">
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="CEERStateLogger.h">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClInclude>
     <ClInclude Include="ControlDefs.h">
       <Filter>Global</Filter>
@@ -219,28 +219,28 @@
       <Filter>Source Files\safetyhook</Filter>
     </ClCompile>
     <ClCompile Include="D3D11Hook.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="ModuleHookManager.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="ModuleCache.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="OptionsGUI.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="OptionsState.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="MirrorMode.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="WindowsUtilities.cpp">
       <Filter>Global</Filter>
@@ -255,13 +255,13 @@
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="LevelLoadHook.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="EnemyRandomiserLevelLoad.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="PointerManager.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="includes\pugixml\src\pugixml.cpp">
       <Filter>Source Files\pugixml</Filter>
@@ -273,10 +273,10 @@
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="MapReader.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="RuntimeExceptionHandler.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="SetSeed.cpp">
       <Filter>Classes</Filter>
@@ -297,40 +297,40 @@
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="EnemyRandomiserHooks.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="Logging.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="Datum.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="MessagesGUI.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="UserSeed.cpp">
       <Filter>Global</Filter>
     </ClCompile>
     <ClCompile Include="OptionSerialisation.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="TextureRandomiserLevelLoad.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="TextureRandomiserHooks.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="TagInfoBase.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
     <ClCompile Include="SoundRandomiserHooks.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="SoundRandomiserLevelLoad.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
     <ClCompile Include="CEERStateLogger.cpp">
-      <Filter>Services</Filter>
+      <Filter>Resource Files\Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

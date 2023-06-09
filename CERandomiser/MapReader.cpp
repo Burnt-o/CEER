@@ -56,7 +56,7 @@ private:
     uintptr_t currentCacheAddress;
     uintptr_t scenarioAddress;
 
-    MCCString* objectNameTable;
+    objectName* objectNameTable;
     tagBlock* actorPalette;
 
     uintptr_t encounterMetadata;
@@ -83,7 +83,7 @@ public:
     //datum getActorsBiped(const datum& actorDatum);
     faction getBipedFaction(const datum& bipedDatum);
     faction getActorsFaction(const datum& actorDatum);
-    std::string getObjectName(int nameIndex);
+    std::string_view getObjectName(int nameIndex);
     datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
     uint16_t getEncounterSquadSpawnCount(int encounterIndex, int squadIndex);
 
@@ -137,7 +137,7 @@ void MapReader::MapReaderImpl::cacheTagData(HaloLevel newLevel)
     if (*(char*)scenarioAddress != 0x70) throw CEERRuntimeException("scenarioAddress bad address");
 
     auto objectNameTableTagBlock = (tagBlock*)(scenarioAddress + 0x204);
-    objectNameTable = (MCCString*)getTagAddress(objectNameTableTagBlock->pointer);
+    objectNameTable = (objectName*)getTagAddress(objectNameTableTagBlock->pointer);
 
     constexpr int actorPaletteReferenceOffset = 0x420; // relative to scenario tag
     this->actorPalette = (tagBlock*)(scenarioAddress + actorPaletteReferenceOffset);
@@ -270,10 +270,14 @@ std::string MapReader::MapReaderImpl::getTagName(const datum& tagDatum)
 }
 
 
-std::string MapReader::MapReaderImpl::getObjectName(int nameIndex)
+std::string_view MapReader::MapReaderImpl::getObjectName(int nameIndex)
 {
-    if (nameIndex < 0 || nameIndex > 0xFFFF) return "";
-    return (objectNameTable + nameIndex)->copy();
+    PLOG_VERBOSE << "objectNameTable: " << std::hex << (uint64_t)objectNameTable;
+
+
+    if (nameIndex < 0 || nameIndex > 0xFFFF) return "bad index";
+    PLOG_VERBOSE << "pString: " << std::hex << (uint64_t)(objectNameTable + nameIndex);
+    return (objectNameTable + nameIndex)->string;
 }
 
 
@@ -388,7 +392,7 @@ std::string MapReader::getTagName(const datum& tagDatum) { return impl.get()->ge
 
 faction MapReader::getBipedFaction(const datum& bipedDatum) { return impl.get()->getBipedFaction(bipedDatum); }
 
-std::string MapReader::getObjectName(int nameIndex) { return impl.get()->getObjectName(nameIndex); }
+std::string_view MapReader::getObjectName(int nameIndex) { return impl.get()->getObjectName(nameIndex); }
 
 std::span<tagElement> MapReader::getTagTable() { return impl.get()->getTagTable(); }
 

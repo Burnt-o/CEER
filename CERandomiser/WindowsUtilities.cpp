@@ -36,13 +36,13 @@ void patch_memory(void* dest_address, void* src_address, size_t size)
 {
 	unsigned long old_protection, unused;
 	//give that address read and write permissions and store the old permissions at oldProtection
-	VirtualProtect(dest_address, 8, PAGE_EXECUTE_READWRITE, &old_protection);
+	VirtualProtect(dest_address, size, PAGE_EXECUTE_READWRITE, &old_protection);
 
 	//write the memory into the program and overwrite previous value
 	std::memcpy(dest_address, src_address, size);
 
 	//reset the permissions of the address back to oldProtection after writting memory
-	VirtualProtect(dest_address, 8, old_protection, &unused);
+	VirtualProtect(dest_address, size, old_protection, &unused);
 }
 
 

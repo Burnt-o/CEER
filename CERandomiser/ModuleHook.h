@@ -120,3 +120,33 @@ class ModuleIATHook : public ModuleHookBase
 
 	// TODO: whether doing it globally or module-ally, we will need a IAThook class. could just extend safetyhook?
 };
+
+
+class ModulePatch : public ModuleHookBase {
+private:
+	std::shared_ptr<MultilevelPointer> mOriginalFunction;
+	std::vector<byte> mOriginalBytes;
+	std::vector<byte> mPatchedBytes;
+
+	ModulePatch(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, std::vector<byte> patchedBytes, bool startEnabled = false)
+		: ModuleHookBase(associatedModule, startEnabled), mOriginalFunction(original_func), mPatchedBytes(patchedBytes) 
+	{
+		if (startEnabled)
+		{
+			attach();
+		}
+	}
+
+
+public:
+	static std::unique_ptr<ModulePatch> make(const std::wstring associatedModule, std::shared_ptr<MultilevelPointer> original_func, std::vector<byte> patchedBytes, bool startEnabled = false);
+
+	~ModulePatch() final; 
+	ModulePatch(const ModulePatch&) = delete;
+	ModulePatch& operator=(const ModulePatch&) = delete;
+
+	void attach() final;
+	void detach() final;
+
+	bool isHookInstalled() const final;
+};
