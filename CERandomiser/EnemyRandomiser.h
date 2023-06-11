@@ -104,6 +104,9 @@ private:
 	static void aiLoadInVehicleHookFunction(SafetyHookContext& ctx);
 	// doesn't have interpreter, just modifies r flags
 
+	std::shared_ptr<ModuleMidHook> killVehicleOverflowHook;
+	static void killVehicleOverflowHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> killVehicleOverflowFunctionContext;
 
 	std::shared_ptr<ModuleMidHook> fixUnitFactionHook;
 	static void fixUnitFactionHookFunction(SafetyHookContext& ctx);
@@ -113,6 +116,8 @@ private:
 	std::shared_ptr<ModuleMidHook> setActorDatumHook;
 	static void setActorDatumHookFunction(SafetyHookContext& ctx);
 	std::shared_ptr<MidhookContextInterpreter> setActorDatumFunctionContext;
+
+
 
 #if bipedRandomisation == 1
 	std::shared_ptr<ModuleMidHook> setBipedDatumHook;
@@ -221,6 +226,7 @@ public:
 		safe_destroy_hook(vehicleExitHook);
 		safe_destroy_hook(aiGoToVehicleHook);
 		safe_destroy_hook(aiLoadInVehicleHook);
+		safe_destroy_hook(killVehicleOverflowHook);
 		safe_destroy_hook(fixUnitFactionHook);
 		safe_destroy_hook(setActorDatumHook);
 #if bipedRandomisation == 1

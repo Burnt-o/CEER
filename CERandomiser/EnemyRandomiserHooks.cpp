@@ -223,6 +223,32 @@ void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
 	ctx.rflags = ctx.rflags & ~(1UL << 6) & ~(1UL << 2);
 }
 
+// With the multiplied enabled, NPC's that can't fit inside a dropship will instead just spawn at a default location, usually out of reach of the player.
+// This causes softlocks as the player is unable to easily kill them and progress the game script.
+// This hook is placed in a branch in the aiLoadInVehicle func, at a branch that's hit 
+// only when all the vehicles seats are full. The hook simply kills (and hides) the enemy.
+void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
+{
+	PLOG_VERBOSE << "killVehicleOverflowHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	enum class param
+	{
+		pUnitObjectInstance,
+	};
+	auto* ctxInterpreter = instance->killVehicleOverflowFunctionContext.get();
+
+	auto pUnitInstance = (byte*)*ctxInterpreter->getParameterRef(ctx, (int)param::pUnitObjectInstance);
+	if (IsBadWritePtr(pUnitInstance, 8))
+	{
+		PLOG_ERROR << "Bad biped object instance pointer";
+		return;
+	}
+
+	*(pUnitInstance + 0x1FB) = 1; // kill the unit
+	*(pUnitInstance - 1) = 1; // hide the unit model
+
+}
 
 
 

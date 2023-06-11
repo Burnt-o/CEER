@@ -30,6 +30,10 @@ void EnemyRandomiser::lazyInit()
 		auto aiLoadInVehicleFunction = PointerManager::getMultilevelPointer("aiLoadInVehicleFunction");
 		aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
 
+		auto killVehicleOverflowFunction = PointerManager::getMultilevelPointer("killVehicleOverflowFunction");
+		killVehicleOverflowFunctionContext = PointerManager::getMidhookContextInterpreter("killVehicleOverflowFunctionContext");
+		killVehicleOverflowHook = ModuleMidHook::make(L"halo1.dll", killVehicleOverflowFunction, killVehicleOverflowHookFunction, false);
+
 		// bipeds
 #if bipedRandomisation == 1
 		auto placeObjectFunction = PointerManager::getMultilevelPointer("placeObjectFunction");
@@ -109,6 +113,7 @@ void EnemyRandomiser::onEitherOptionChange()
 	vehicleExitHook.get()->setWantsToBeAttached(shouldEnable);
 	aiGoToVehicleHook.get()->setWantsToBeAttached(shouldEnable);
 	aiLoadInVehicleHook.get()->setWantsToBeAttached(shouldEnable);
+	killVehicleOverflowHook.get()->setWantsToBeAttached(shouldEnable);
 	fixUnitFactionHook.get()->setWantsToBeAttached(shouldEnable);
 	setActorDatumHook.get()->setWantsToBeAttached(shouldEnable);
 	processSquadUnitHook.get()->setWantsToBeAttached(shouldEnable);
@@ -181,7 +186,7 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 }
 
 
-constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop"};
+constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {
