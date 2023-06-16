@@ -36,16 +36,20 @@ namespace OptionSerialisation
 		doc.traverse(walker);
 	}
 
-	pugi::xml_document serialiseAll()
+
+
+
+
+	pugi::xml_document serialiseAllOptions(bool clipboardOnlySettings)
 	{
-
-
 		pugi::xml_document doc;
 		// options
 		auto optionArray = doc.append_child(acronymOf(Option));
 
 		for (auto option : OptionsState::allSerialisableOptions)
 		{
+			if (clipboardOnlySettings && !option->isIncludedInClipboard()) continue;
+
 			PLOG_DEBUG << "serialising: " << option->getOptionName();
 			option->serialise(optionArray);
 		}
@@ -62,7 +66,7 @@ namespace OptionSerialisation
 
 		for (auto& rule : OptionsState::currentRandomiserRules)
 		{
-			if (rule.get()->getType() != RuleType::RandomiseXintoY) 
+			if (rule.get()->getType() != RuleType::RandomiseXintoY)
 				throw SerialisationException("Bad RuleType");
 
 			randRule = dynamic_cast<RandomiseXintoY*>(rule.get());
@@ -88,43 +92,24 @@ namespace OptionSerialisation
 			}
 		}
 
-
-
-
-
-
 		return doc;
 
 	}
 
-	void deserialiseAll(std::string in)
-	{
-		PLOG_DEBUG << "deserialising\n" << in;
-		// try parsing string to doc
-		pugi::xml_document doc;
-		auto result = doc.load_string(in.c_str());
 
-		if (!result)
-		{
-			throw SerialisationException(std::format("Failed to parse clipboard string as xml doc\nError: {}\nOffset: {}: Location: {}",
-				result.description(), result.offset, (in.c_str() + result.offset)
-			));
-		}
-		deserialiseAll(doc);
-	}
 
-	void deserialiseAll(pugi::xml_document& doc)
+
+	//void deserialiseAll(std::string in)
+	//{
+
+	//	deserialiseAll(doc);
+	//}
+
+
+	void deserialiseAllOptions(pugi::xml_document& doc)
 	{
 
-		// options
-		auto optionArray = doc.child(acronymOf(Option));
-		if (optionArray.type() == pugi::node_null) throw SerialisationException("Could not find OptionArray node");
-		for (auto option : OptionsState::allSerialisableOptions)
-		{
-			auto optionXML = optionArray.child(getShortName(option->getOptionName()).c_str());
-			if (optionXML.type() == pugi::node_null) throw SerialisationException(std::format("Could not find Option node {}", option->getOptionName()));
-			option->deserialise(optionXML);
-		}
+		// rules must be deserialised before options, so that the rules are loaded in before any of the options actually turn on.
 
 		// rules
 		OptionsState::currentRandomiserRules.clear();
@@ -150,7 +135,7 @@ namespace OptionSerialisation
 				}
 			}
 		}
-		
+
 		for (auto& node : multiRulesArray)
 		{
 			if (std::strcmp(node.name(), acronymOf(SpawnMultiplierBeforeRando)) == 0)
@@ -181,7 +166,18 @@ namespace OptionSerialisation
 			}
 		}
 
+		// options
+		auto optionArray = doc.child(acronymOf(Option));
+		if (optionArray.type() == pugi::node_null) throw SerialisationException("Could not find OptionArray node");
+		for (auto option : OptionsState::allSerialisableOptions)
+		{
+			auto optionXML = optionArray.child(getShortName(option->getOptionName()).c_str());
+			if (optionXML.type() == pugi::node_null) throw SerialisationException(std::format("Could not find Option node {}", option->getOptionName()));
+			option->deserialise(optionXML);
+		}
+
 	}
+
 
 
 
@@ -192,7 +188,7 @@ namespace OptionSerialisation
 
 		try
 		{
-			auto xml = serialiseAll();
+			auto xml = serialiseAllOptions();
 			if (!xml.save_file(filePath.c_str()))
 			{
 				PLOG_ERROR << "Error saving config to " << filePath;
@@ -216,7 +212,7 @@ namespace OptionSerialisation
 		{
 			try
 			{
-				deserialiseAll(doc);
+				deserialiseAllOptions(doc);
 			}
 			catch (SerialisationException& ex)
 			{

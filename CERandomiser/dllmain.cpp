@@ -32,7 +32,7 @@ add s8 support
 look into cursed halo again compatibility
 look into rule combination logic (enemy rando)
 finish playthru of game (check nipple grunt)
-why do energy swords go invisible?
+why do energy swords instantly vanish on levels they don't usually appear on?
 looks like specifics of your enemy rules get ignored if you load it in via deserialisation (but only via the startup-serialisation. Copy-paste works fine).
 
 

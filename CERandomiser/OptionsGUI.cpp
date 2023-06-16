@@ -128,7 +128,7 @@ void copySettings()
 {
 	try
 	{
-		auto doc = OptionSerialisation::serialiseAll();
+		auto doc = OptionSerialisation::serialiseAllOptions(true);
 		std::ostringstream oss;
 		doc.print(oss);
 		std::string str = "CEERsettings[" + oss.str() + "]";
@@ -150,7 +150,18 @@ void pasteSettings()
 		if (clipboard.starts_with("[")) clipboard.erase(clipboard.begin());
 		if (clipboard.ends_with("]")) clipboard.erase(std::prev(clipboard.end()));
 
-		OptionSerialisation::deserialiseAll(clipboard);
+	// try parsing string to doc
+	pugi::xml_document doc;
+	auto result = doc.load_string(clipboard.c_str());
+
+	if (!result)
+	{
+		throw SerialisationException(std::format("Failed to parse clipboard string as xml doc\nError: {}\nOffset: {}: Location: {}",
+			result.description(), result.offset, (clipboard.c_str() + result.offset)
+		));
+	}
+
+		OptionSerialisation::deserialiseAllOptions(doc);
 	}
 	catch (SerialisationException& ex)
 	{

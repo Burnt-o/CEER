@@ -6,7 +6,7 @@ void optionStateSnapshot()
 {
 	try
 	{
-		PLOG_INFO << "OptionsState snapshot: \n" << OptionSerialisation::serialiseAll();
+		PLOG_INFO << "OptionsState snapshot: \n" << OptionSerialisation::serialiseAllOptions();
 	}
 	catch (SerialisationException& ex)
 	{
