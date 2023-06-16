@@ -291,6 +291,7 @@ TextureCategory TextureRandomiser::sortIntoCategory(const TextureInfo& textureIn
 {
 	PLOG_VERBOSE << textureInfo.getFullName();
 	if (textureInfo.getFullName().starts_with("rasterizer")
+		|| textureInfo.getFullName().contains("angle_ticks_black") // sniper hud element that looks dumb if rando'd
 		) return TextureCategory::Invalid;
 		
 

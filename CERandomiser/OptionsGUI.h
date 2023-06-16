@@ -51,7 +51,7 @@ private:
 	ImGuiWindowFlags windowFlags;
 	static bool m_WindowOpen;
 	ImVec2 mWindowSize{ 500, 500 };
-	ImVec2 mWindowPos{ 10, 10 };
+	ImVec2 mWindowPos{ 10, 25 };
 
 public:
 

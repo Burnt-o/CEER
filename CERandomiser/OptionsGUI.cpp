@@ -885,7 +885,7 @@ void OptionsGUI::renderOptionsGUI()
 		{
 			OptionsState::SeedString.UpdateValueWithInput();
 
-			changesPending_Seed = (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue());
+			changesPending_Seed = (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue() || OptionsState::TextureRandomiser.GetValue() || OptionsState::SoundRandomiser.GetValue());
 		}
 			addTooltip("Seed determines the outcome of randomisation. Leave blank to have a seed auto-generated for you.");
 
@@ -1251,7 +1251,7 @@ void OptionsGUI::renderOptionsGUI()
 		}
 		addTooltip("Enables sound randomisation.");
 
-		if (changesPending_Text && (OptionsState::SoundRandomiser.GetValue()))
+		if (changesPending_Sound && (OptionsState::SoundRandomiser.GetValue()))
 		{
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))

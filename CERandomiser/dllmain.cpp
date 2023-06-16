@@ -29,6 +29,7 @@
 
 upload recompiled maps
 add s8 support
+combine texture mutation with randomisation%
 
 */ 
 

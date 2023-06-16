@@ -12,14 +12,10 @@ void TextureRandomiser::DebugLastTexture()
 #endif
 
 
-#define debug_seizureInduction 0
 
 // re-randomises textures
 void TextureRandomiser::induceSeizure(MemOffset* offsetRef)
 {
-#if debug_seizureInduction == 1
-	if (!instance->textureMap.contains(*offsetRef)) PLOG_FATAL << "textureMap didn't contain offsetRef: " << std::hex << *offsetRef;
-#endif
 
 	TextureCategory currentTextureCategory = instance->textureMap.at(*offsetRef).category;
 	if (SMcategoryIsEnabled.at(currentTextureCategory) == false) // check if current texture has it's category enabled
@@ -27,9 +23,11 @@ void TextureRandomiser::induceSeizure(MemOffset* offsetRef)
 		return;
 	}
 
-#if debug_seizureInduction == 1
-	if (!SMallTexturePools.contains(currentTextureCategory)) PLOG_FATAL << "allTexturePools didn't contain category: " << textureCategoryToString.at(currentTextureCategory);
-#endif
+	// check if current texture already maps to itself (ie should not be randomised)
+	if (instance->shuffledTextures.at(*offsetRef) == *offsetRef)
+	{
+		return;
+	}
 
 	std::vector<MemOffset>& texturePool = SMallTexturePools.at(currentTextureCategory);
 
@@ -38,18 +36,10 @@ void TextureRandomiser::induceSeizure(MemOffset* offsetRef)
 	do
 	{
 		int choiceIndex = SMseizureWhatRandomiseRNG(SMseizureRNG) % (texturePool.size());
-
-#if debug_seizureInduction == 1
-		if (texturePool.size() < choiceIndex) PLOG_FATAL << "choice index too large";
-#endif
-
 		newTexture = texturePool.at(choiceIndex);
+
 	} while (newTexture == *offsetRef); // We don't want to randomise back into the original texture because of a check that's done in the hooks for that case
 
-#if debug_seizureInduction == 1
-	if (newTexture == 0) PLOG_FATAL << "wtf";
-	if (!instance->shuffledTextures.contains(*offsetRef)) PLOG_FATAL << "REEEEEEEE";
-#endif
 	// write the new texture to the shuffledTextures map
 	instance->shuffledTextures[*offsetRef] = newTexture;
 }
