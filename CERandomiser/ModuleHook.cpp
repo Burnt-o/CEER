@@ -104,9 +104,12 @@ void ModuleMidHook::attach()
 	}
 
 	PLOG_VERBOSE << "pOriginalFunction " << pOriginalFunction;
-
+	// per https://github.com/cursey/safetyhook/commit/77243791d72bfe49b94349922710c443db1df0fa
+	// mid hooks don't freeze the threads. 
+	// I don't know why they made this change but it can obv cause crashes with hooks that run frequently
+	auto freeze = safetyhook::ThreadFreezer();
 	this->mMidHook = safetyhook::create_mid((void*)pOriginalFunction, this->mHookFunction);
-
+	freeze.~ThreadFreezer();
 	PLOG_DEBUG << "mid_hook successfully attached: " << this->getAssociatedModule();
 }
 

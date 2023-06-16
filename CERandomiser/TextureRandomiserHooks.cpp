@@ -62,7 +62,6 @@ void TextureRandomiser::loadRegularTextureHookFunction(SafetyHookContext& ctx)
 
 	if (SMseizureModeEnabled && SMseizureWillRandomiseRNG(SMseizureRNG) == 0)
 	{
-
 		induceSeizure(offsetRef);
 	}
 

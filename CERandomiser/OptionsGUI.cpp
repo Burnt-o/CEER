@@ -1099,7 +1099,7 @@ void OptionsGUI::renderOptionsGUI()
 		if (ImGui::Checkbox("Enable Texture Randomiser", &OptionsState::TextureRandomiser.GetValueDisplay()))
 		{
 			// Need to add a check for if the SeizureMode has been set to a really fast setting, and warn the user 
-			if (OptionsState::TextureRandomiser.GetValueDisplay() == true && OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
+			if (OptionsState::TextureSeizureMode.GetValue() && OptionsState::TextureRandomiser.GetValueDisplay() == true && OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
 			{
 				ImGui::OpenPopup("Seizure Warning");
 			}
@@ -1126,7 +1126,7 @@ void OptionsGUI::renderOptionsGUI()
 			ImGui::SameLine();
 			if (ImGui::Button("Apply Pending Changes"))
 			{
-				if (OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
+				if (OptionsState::TextureSeizureMode.GetValue() && OptionsState::TextureFramesBetweenSeizures.GetValue() < warnSeizureIfFramesLessThan)
 				{
 					ImGui::OpenPopup("Seizure Warning");
 				}

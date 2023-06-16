@@ -32,8 +32,9 @@ add s8 support
 look into cursed halo again compatibility
 look into rule combination logic (enemy rando)
 finish playthru of game (check nipple grunt)
-why do energy swords instantly vanish on levels they don't usually appear on?
-looks like specifics of your enemy rules get ignored if you load it in via deserialisation (but only via the startup-serialisation. Copy-paste works fine).
+energy swords disappear if elite forced out of vehicle - the issue is tied to the "detonates when dropped" flag.
+    // happens to frg too
+    // would have to follow breakpoints on what checks the detonate flag and what is setting it off etc.. ceebs
 
 
 the game 100% freezes if you shutdown CEER while on the first part of the main menu after booting MCC.
