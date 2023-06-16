@@ -49,8 +49,8 @@ void MessagesGUI::iterateMessages()
 		});
 
 	// draw remaining messages
-	ImVec2 mesPosWhenOptionsOpen(10, OptionsGUI::getOptionsGUIHeight() + 15.f);
-	constexpr ImVec2 mesPosWhenOptionsClosed(10, 35);
+	ImVec2 mesPosWhenOptionsOpen(10, OptionsGUI::getOptionsGUIHeight() + 15.f + 15.f);
+	constexpr ImVec2 mesPosWhenOptionsClosed(10.f, 35.f + 15.f);
 
 	ImVec2 messagePosition = OptionsGUI::isWindowOpen() ? mesPosWhenOptionsOpen : mesPosWhenOptionsClosed;
 	for (auto& message : messages)

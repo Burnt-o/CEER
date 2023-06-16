@@ -33,6 +33,7 @@ struct objectData { // for bipds, vehis, scenery etc
 	// The following information is specific to bipeds
 	uint16_t unknown;
 	uint8_t appearencePlayerIndex;
+	char unknownPadding[0x22];
 	float bodyVitalityPercent;
 	bool spawnsDead;
 };
