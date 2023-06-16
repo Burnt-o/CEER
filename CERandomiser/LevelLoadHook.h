@@ -16,25 +16,27 @@ private:
 	static HaloLevel getCurrentLevel() 
 	{
 		// Find the current level
-		char currentLevel[4];
-		if (!instance->currentLevelName->readArrayData(&currentLevel, 4))
+		char curLevel[4];
+		if (!instance->currentLevelName->readArrayData(&curLevel, 4))
 		{
 			throw CEERRuntimeException(std::format("Failed to read current level: {}", MultilevelPointer::GetLastError()));
 		}
 
 		// Set the null terminator at the end
-		currentLevel[3] = '\0';
+		curLevel[3] = '\0';
+		std::string currentLevel{ curLevel }; // convert to string
 
-		auto itr = std::ranges::find(instance->mapNames, currentLevel);
-		if (itr == instance->mapNames.end())
+		if (codeStringToLevel.contains(currentLevel))
 		{
-			throw CEERRuntimeException(std::format("Failed to read current level: {}", currentLevel));
+			PLOG_VERBOSE << std::format("Read current level {} from codeString {}", levelToString.at(codeStringToLevel.at(currentLevel)), currentLevel);
+			return codeStringToLevel.at(currentLevel);
+		}
+		else
+		{
+			PLOG_INFO << std::format("Failed to read current level: {}", curLevel);
+			return HaloLevel::UNK;
 		}
 
-		// Get index of HaloLevel enum
-		int index = std::distance(instance->mapNames.begin(), itr);
-
-		return (HaloLevel)index;
 	}
 
 
@@ -62,8 +64,6 @@ private:
 	// Hook that invokes event
 	std::unique_ptr<ModuleMidHook> levelLoadHook;
 
-
-	std::vector<std::string> mapNames = { "a10", "a30", "a50", "b30", "b40", "c10", "c20", "c40", "d20", "d40"};
 	std::shared_ptr<MultilevelPointer> currentLevelName;
 	std::shared_ptr<MultilevelPointer> currentCacheAddress;
 	std::shared_ptr<MultilevelPointer> stateIndicator;

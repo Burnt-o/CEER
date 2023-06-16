@@ -14,7 +14,8 @@ enum class HaloLevel {
 	C20 = 6,
 	C40 = 7,
 	D20 = 8,
-	D40 = 0,
+	D40 = 9,
+	UNK = -1,
 };
 
 // used for debugging / user messages
@@ -30,4 +31,19 @@ const std::map<HaloLevel, std::string> levelToString
 	{HaloLevel::C40, "Two Betrayals" },
 	{HaloLevel::D20, "Keyes" },
 	{HaloLevel::D40, "The Maw" },
+	{HaloLevel::UNK, "Unknown Level" },
+};
+
+const std::map<std::string, HaloLevel> codeStringToLevel
+{
+	{ "a10", HaloLevel::A10 },
+	{ "a30", HaloLevel::A30 },
+	{ "a50", HaloLevel::A50 },
+	{ "b30", HaloLevel::B30},
+	{ "b40", HaloLevel::B40},
+	{ "c10", HaloLevel::C10},
+	{ "c20", HaloLevel::C20},
+	{ "c40", HaloLevel::C40},
+	{ "d20", HaloLevel::D20},
+	{ "d40", HaloLevel::D40},
 };

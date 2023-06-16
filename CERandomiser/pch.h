@@ -73,6 +73,7 @@
 
 // boost
 #include "boost\stacktrace.hpp"
+#include "boost\algorithm\string\predicate.hpp"
 
 
 // Custom utilities

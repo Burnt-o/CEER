@@ -27,9 +27,17 @@
 
 /* GENERAL TODO:: 
 
-upload recompiled maps
+upload recompiled maps DONE
 add s8 support
+look into cursed halo again compatibility
+look into rule combination logic (enemy rando)
+finish playthru of game (check nipple grunt)
+why do energy swords go invisible?
+looks like specifics of your enemy rules get ignored if you load it in via deserialisation (but only via the startup-serialisation. Copy-paste works fine).
 
+
+the game 100% freezes if you shutdown CEER while on the first part of the main menu after booting MCC.
+the game *sometimes* crashes if you launch CEER with TexRando enabled in your config while already loaded into a level.
 */ 
 
 

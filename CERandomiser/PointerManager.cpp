@@ -344,11 +344,12 @@ MCCProcessType PointerManager::PointerManagerImpl::getCurrentMCCType()
     std::string mccName = mccProcessPath;
     mccName = mccName.substr(mccName.find_last_of("\\") + 1, mccName.size() - mccName.find_last_of("\\") - 1);
 
-    if (mccName == "MCCWinStore-Win64-Shipping.exe")
+    // checks need to ignore letter case
+    if (boost::iequals(mccName, "MCCWinStore-Win64-Shipping.exe")) 
     {
         return MCCProcessType::WinStore;
     }
-    else if (mccName == "MCC-Win64-Shipping.exe")
+    else if (boost::iequals(mccName, "MCC-Win64-Shipping.exe"))
     {
         return MCCProcessType::Steam;
     }
