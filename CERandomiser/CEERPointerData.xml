@@ -20,8 +20,8 @@
 			</Offsets>
 		</Version>
 	</VersionedEntry>
-	
-	
+
+	<!--load keyes, scan wr "00 00 64 32 30 00 00". Second of two results. --> 
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -29,12 +29,18 @@
 				<Offset>0x2C9F7E4</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2A52DA4</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 	
 	
 	
 	<!--scan nw "C6 44 24 30 01 0f b6 44 24 30", halo1.dll result
-	but actually put it down towards teh end of the function
+	but actually put it down towards teh end of the function (ie on the pops is fine)
 		-->
 	<VersionedEntry Name="levelLoadFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
@@ -53,7 +59,7 @@
 
 	
 	<!--#region EnemyRandomiser-->
-	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": scroll to top of function-->
+	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": top of function-->
 	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -61,10 +67,22 @@
 				<Offset>0xB8CDC0</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB046F0</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 
+	
 	<VersionedEntry Name="setBipedDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
+			<Parameters>
+				<unitIndex>rdx</unitIndex>
+			</Parameters>
+		</Version>
+		<Version Version="1.2645.0.0">
 			<Parameters>
 				<unitIndex>rdx</unitIndex>
 			</Parameters>
@@ -79,10 +97,16 @@
 				<Offset>0xB8CE69</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB04799</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 
 
-
+	<!--scan nw "4a 63 4c 00 08 83 f9 ff ** ** 48 8b c6 ** ** 48 8d 42 34 48 03 c1", first of two results. jne needs to become jmp-->
 	<VersionedEntry Name="fixWinstoreBipedCrashFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -90,10 +114,19 @@
 				<Offset>0xBDC50E</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBCBB0E</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="fixWinstoreBipedCrashPatchBytes" Type="Vector" Typename="byte">
 		<Version Version="1.3073.0.0">
+			<Data>0xEB, 0x05</Data>
+		</Version>
+		<Version Version="1.2645.0.0">
 			<Data>0xEB, 0x05</Data>
 		</Version>
 	</VersionedEntry>
@@ -204,6 +237,7 @@
 		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "4c 8b 6c 24 60 44 0f b7 64 24 30", the instr immed before (mov r8, [listobjectreference])-->
 	<VersionedEntry Name="killVehicleOverflowFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -211,10 +245,21 @@
 				<Offset>0xB3708C</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB4B79C</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="killVehicleOverflowFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
+			<Parameters>
+				<pUnitObjectInstance>rcx</pUnitObjectInstance>
+			</Parameters>
+		</Version>
+		<Version Version="1.2645.0.0">
 			<Parameters>
 				<pUnitObjectInstance>rcx</pUnitObjectInstance>
 			</Parameters>
@@ -392,6 +437,7 @@
 		</Version>
 	</VersionedEntry>
 
+	<!--scan wr "65 6e 63 6f 75 6e 74 65 72 00 00 00 00 00 00 00", first result. needs pointer -->
 	<VersionedEntry Name="encounterMetadata" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
@@ -400,13 +446,28 @@
 				<Offset>0x0</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x02879378</Offset>
+				<Offset>0x0</Offset>
+			</Offsets>
+		</Version>
 	</VersionedEntry>
 
+	<!--+0x10 base of prev pointer. "00 00 00 00 FF FF FF FF" -->
 	<VersionedEntry Name="encounterSquadData" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2b5cBF8</Offset>
+				<Offset>0x0</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x02879388</Offset>
 				<Offset>0x0</Offset>
 			</Offsets>
 		</Version>
@@ -424,34 +485,55 @@
 				<textureOffset>r9</textureOffset>
 			</Parameters>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<textureOffset>r9</textureOffset>
+			</Parameters>
+		</Version>
 	</VersionedEntry>
 
-
+	<!--scan nw "4e 63 4c 30 14  8b c7 45 85 c9", put it on mov eax, edi-->
 	<VersionedEntry Name="loadDecalTextureFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB05F40</Offset>
-
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB14ED0</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
-	
+
 	<VersionedEntry Name="loadRegularTextureFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
 			<Parameters>
 				<textureOffset>r8</textureOffset>
 			</Parameters>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<textureOffset>r8</textureOffset>
+			</Parameters>
+		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "4e 63 44 38 14 48 8b c7 45 85 c0", put it on mov rax, rdi -->
 	<VersionedEntry Name="loadRegularTextureFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-
 				<Offset>0xB05D8F</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB14D1F</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -459,20 +541,28 @@
 	<VersionedEntry Name="loadParticleTextureFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
 			<Parameters>
-				<!--<textureOffset>rcx</textureOffset>-->
+				<textureOffset>rax</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
 				<textureOffset>rax</textureOffset>
 			</Parameters>
 		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "49 63 44 02 14 85 c0" put it on test eax, eax-->
 	<VersionedEntry Name="loadParticleTextureFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xD591CE</Offset>
-				<!--<Offset>0xBF9C0F</Offset>-->
-				<!--<Offset>0xBF99CA</Offset>-->
-				<!--<Offset>0xA96FC4</Offset>-->
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCEC7CE</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -483,13 +573,25 @@
 				<textureOffset>rsi</textureOffset>
 			</Parameters>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<textureOffset>rsi</textureOffset>
+			</Parameters>
+		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "48 63 74 01 14 85 f6" put it on test esi, esi-->
 	<VersionedEntry Name="loadContrailTextureFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC2F4F1</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC1A4D1</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -500,13 +602,25 @@
 				<textureOffset>r10</textureOffset>
 			</Parameters>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<textureOffset>r10</textureOffset>
+			</Parameters>
+		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "4c 63 54 10 14 8b c3" put it on mov eax, ebx-->
 	<VersionedEntry Name="loadLensTextureFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xCBF797</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC9B807</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -522,13 +636,25 @@
 				<soundDatum>rcx</soundDatum>
 			</Parameters>
 		</Version>
+		<Version Version="1.2645.0.0">
+			<Parameters>
+				<soundDatum>rcx</soundDatum>
+			</Parameters>
+		</Version>
 	</VersionedEntry>
 
+	<!--scan nw "4c 89 4c 24 20 44 89 44 24 18 89 4c 24 08" goes on top of function-->
 	<VersionedEntry Name="loadSoundAFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xBA24B0</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.2645.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB1B3C0</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>

@@ -26,19 +26,21 @@
 
 
 /* GENERAL TODO:: 
+make recompiled maps for S8 and upload to mega or something
 
-upload recompiled maps DONE
-add s8 support
 look into cursed halo again compatibility
 look into rule combination logic (enemy rando)
 finish playthru of game (check nipple grunt)
+
+
+-- known issues (won't fix)
 energy swords disappear if elite forced out of vehicle - the issue is tied to the "detonates when dropped" flag.
-    // happens to frg too
-    // would have to follow breakpoints on what checks the detonate flag and what is setting it off etc.. ceebs
+    happens to frg too
+    would have to follow breakpoints on what checks the detonate flag and what is setting it off etc.. ceebs
+    - might not bother fixing
 
-
-the game 100% freezes if you shutdown CEER while on the first part of the main menu after booting MCC.
-the game *sometimes* crashes if you launch CEER with TexRando enabled in your config while already loaded into a level.
+the game sometimes freezes if you shutdown CEER while on the first part of the main menu after booting MCC.
+    - won't fix
 */ 
 
 
