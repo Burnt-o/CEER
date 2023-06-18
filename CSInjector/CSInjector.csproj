@@ -8,12 +8,31 @@
     <BaseOutputPath>$(SolutionDir)x64\</BaseOutputPath>
     <PlatformTarget>x64</PlatformTarget>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Title>CE Enemy Randomiser</Title>
+    <Authors>Burnt</Authors>
+    <PackageProjectUrl>https://github.com/Burnt-o/CEER</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Burnt-o/CEER</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>CEER.png</PackageIcon>
+    <AssemblyName>CEER</AssemblyName>
+    <ApplicationIcon>CEER.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="CEER.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\CERandomiser\CEER.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

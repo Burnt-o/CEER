@@ -2,18 +2,23 @@
 ***Halo CE Enemy Randomiser***
 
 Randomises enemies in Halo CE for MCC. 
+Can also multiply enemies.
+And randomise textures.
+And randomise sounds. 
+[Why did I do this?](https://youtu.be/KikdwMUtx1Q)
+
+Grab the latest release [here.](https://github.com/Burnt-o/CEER/releases)
 
 More info in this video [here.](https://www.youtube.com/watch?v=17N8_E40Nl0)
+[TODO: Make a new video.]
 
-Custom Campaign files if you want to play with every enemy on every level [here.](https://www.mediafire.com/file/nazogqdm99jwnda/CEER_Classic_Maps.rar/file)
+Custom Campaign files if you want to play with every enemy on every level [here](https://steamcommunity.com/sharedfiles/filedetails/?id=2990052285) (not necessary but highly recommended).
 
-Requires [Cheatengine](https://www.cheatengine.org/) to be installed.
 Remember to run MCC with anticheat disabled.
+You also need to run CEER with admin privileges (right click -> run as admin)
 
-Supports current patch (v2904) as of 19th of August, 2022, as well as Season 8 (v2645).
+Supports current patch (v3073) as of 18th of June 2023, as well as Season 8 (v2645).
 
-The "Don't Randomise Popcorn" setting makes it so popcorn (infection forms) can't get randomised into other enemies. I recommend leaving this option disabled to make for a more fun (and chaotic, and challenging) experience, but YMMV. 
 
 COOP:
-To play coop, both players must use the "Set Seed" setting, and use the exact same seed. Preferably activate the randomiser while still in the lobby menu.
-
+To play coop, both players must use identical settings (and with a set seed, not an empty one). The copy & paste functions can help you set this up. You also want to get all your settings set while in the pre-game lobby, as changing settings mid-game is likely to cause desync.
