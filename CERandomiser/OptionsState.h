@@ -45,6 +45,8 @@ namespace OptionsState
 	extern Option<bool> SoundIncludeWeapVehi;
 
 #pragma endregion SoundRandomiser
+	extern Option<bool> VerboseLogging;
+
 
 	extern std::vector<SerialisableOption*> allSerialisableOptions;
 };

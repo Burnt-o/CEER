@@ -1362,11 +1362,12 @@ void OptionsGUI::renderOptionsGUI()
 
 	ImGui::SeparatorText("");
 
-	static bool verbose = true;
-	if (ImGui::Checkbox("Verbose logging", &verbose))
+
+	if (ImGui::Checkbox("Verbose logging", &OptionsState::VerboseLogging.GetValueDisplay()))
 	{
-		Logging::SetConsoleLoggingLevel(verbose ? plog::verbose : plog::info);
-		Logging::SetFileLoggingLevel(verbose ? plog::verbose : plog::info);
+		OptionsState::VerboseLogging.UpdateValueWithInput();
+		Logging::SetConsoleLoggingLevel(OptionsState::VerboseLogging.GetValue() ? plog::verbose : plog::info);
+		Logging::SetFileLoggingLevel(OptionsState::VerboseLogging.GetValue() ? plog::verbose : plog::info);
 	}
 	addTooltip("Puts more info in the log file so Burnt can diagnose issues/crashes better, but reduces performance.");
 	ImGui::End(); // end main window

@@ -177,6 +177,15 @@ namespace OptionsState
 
 #pragma endregion SoundRandomiser
 
+	Option<bool> VerboseLogging(
+		true,
+		[](bool newValue) { return true; },
+		nameof(VerboseLogging), 
+		false // not included in clipboard 
+
+	);
+
+
 	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString,  
 #if includeFlamethrowerFloodOption == 1
 		&RandomiserIncludesFlameThrowers, 

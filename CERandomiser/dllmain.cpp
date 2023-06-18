@@ -26,7 +26,7 @@
 
 
 /* GENERAL TODO:: 
-make recompiled maps for S8 and upload to mega or something
+
 
 look into cursed halo again compatibility
 look into rule combination logic (enemy rando)
@@ -51,9 +51,6 @@ void RealMain(HMODULE dllHandle)
 
 
     acquire_global_unhandled_exception_handler();
-
-
-
 
     // wait for init parameters from the injector
     auto startTime = GetTickCount64();

@@ -5,3 +5,6 @@
 
 // enables/disables biped randomisation
 #define bipedRandomisation 1
+
+// whether we print the config sig every time a toggle changes (leads to message spam, not really necessary)
+#define printConfigSignatureOnToggleChange 0
