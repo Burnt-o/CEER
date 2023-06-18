@@ -486,29 +486,19 @@ void EnemyRandomiser::fixUnitFactionHookFunction(SafetyHookContext& ctx)
 
 }
 
+
+
 void EnemyRandomiser::fixMajorUpgradeHookFunction(SafetyHookContext& ctx)
 {
 	PLOG_VERBOSE << "fixMajorUpgradeHookFunction";
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
-	enum class param
-	{
-		majorDatum,
-		normalDatum
-	};
-	auto* ctxInterpreter = instance->fixMajorUpgradeFunctionContext.get();
-
 
 	if (hookData_unitRandomised)
 	{
 		// Disallow major upgrades
-		auto normDat = *(uint32_t*)ctxInterpreter->getParameterRef(ctx, (int)param::normalDatum);
-		*ctxInterpreter->getParameterRef(ctx, (int)param::majorDatum) = normDat;
-		return;
-	}
-	else
-	{
-		return;
+		// set zeroFlag to 1 (bit 6) also parity flag (bit 2)
+		ctx.rflags = ctx.rflags | (1UL << 6) | (1UL << 2);
 	}
 
 

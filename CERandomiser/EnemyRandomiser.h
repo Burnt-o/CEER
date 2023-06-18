@@ -91,7 +91,6 @@ private:
 
 	std::shared_ptr<ModuleMidHook> fixMajorUpgradeHook;
 	static void fixMajorUpgradeHookFunction(SafetyHookContext& ctx);
-	std::shared_ptr<MidhookContextInterpreter> fixMajorUpgradeFunctionContext;
 
 	std::shared_ptr<ModuleMidHook> vehicleExitHook;
 	static void vehicleExitHookFunction(SafetyHookContext& ctx);

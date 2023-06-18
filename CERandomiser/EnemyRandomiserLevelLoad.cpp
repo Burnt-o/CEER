@@ -67,7 +67,6 @@ void EnemyRandomiser::lazyInit()
 		fixUnitFactionHook = ModuleMidHook::make(L"halo1.dll", fixUnitFactionFunction, fixUnitFactionHookFunction, false);
 
 		auto fixMajorUpgradeFunction = PointerManager::getMultilevelPointer("fixMajorUpgradeFunction");
-		fixMajorUpgradeFunctionContext = PointerManager::getMidhookContextInterpreter("fixMajorUpgradeFunctionContext");
 		fixMajorUpgradeHook = ModuleMidHook::make(L"halo1.dll", fixMajorUpgradeFunction, fixMajorUpgradeHookFunction, false);
 
 		auto spawnPositionFuzzFunction = PointerManager::getMultilevelPointer("spawnPositionFuzzFunction");

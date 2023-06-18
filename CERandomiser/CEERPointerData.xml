@@ -316,33 +316,18 @@
 
 
 
-	<VersionedEntry Name="fixMajorUpgradeFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3073.0.0">
-			<Parameters>
-				<majorDatum>r15</majorDatum>
-				<normalDatum>r11</normalDatum>
-			</Parameters>
-		</Version>
-		<Version Version="1.2645.0.0">
-			<Parameters>
-				<majorDatum>r15</majorDatum>
-				<normalDatum>rdi</normalDatum>
-			</Parameters>
-		</Version>
-	</VersionedEntry>
-
-	<!--scan nw "48 8b cb 49 0f bf c7": on mov rcx, rbx-->
+	<!--scan nw "48 8b cb 49 0f bf c7": on the je. We just modify the rflag to ensure jump taken when we want to disallow major upgrades.-->
 	<VersionedEntry Name="fixMajorUpgradeFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xCADD99</Offset>
+				<Offset>0xCADD93</Offset>
 			</Offsets>
 		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xC73CA9</Offset>
+				<Offset>0xC73CA3</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
