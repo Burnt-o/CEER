@@ -20,12 +20,12 @@ int EnemyRandomiser::hookData_lastUnitSpawnPositionIndex = -1;
 
 #if bipedRandomisation == 1
 
-constexpr std::string_view badBipedNames[] = { "nipple_grunt"};
+constexpr std::string_view badBipedNames[] = { "nipple"};
 bool isBadBipedName(std::string_view& nameView)
 {
 	for (auto& badName : badBipedNames)
 	{
-		if (nameView == badName) return true;
+		if (nameView.contains(badName)) return true;
 	}
 	return false;
 }
