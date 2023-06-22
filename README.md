@@ -9,8 +9,7 @@ And randomise sounds.
 
 Grab the latest release [here.](https://github.com/Burnt-o/CEER/releases)
 
-More info in this video [here.](https://www.youtube.com/watch?v=17N8_E40Nl0)
-[TODO: Make a new video.]
+More info in this video [here.](https://youtu.be/SojgjP5Z7GI)
 
 Custom Campaign files if you want to play with every enemy on every level [here](https://steamcommunity.com/sharedfiles/filedetails/?id=2990052285) (not necessary but highly recommended).
 
