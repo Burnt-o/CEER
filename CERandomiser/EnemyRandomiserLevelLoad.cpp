@@ -43,9 +43,7 @@ void EnemyRandomiser::lazyInit()
 		setBipedDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setBipedDatumFunctionContext");
 		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
 
-		PLOG_VERBOSE << "getting fixWinstoreBipedCrashFunction";
 		auto fixWinstoreBipedCrashFunction = PointerManager::getMultilevelPointer("fixWinstoreBipedCrashFunction");
-		PLOG_VERBOSE << "getting fixWinstoreBipedCrashPatchBytes";
 		auto fixWinstoreBipedCrashPatchBytes = PointerManager::getVector<byte>("fixWinstoreBipedCrashPatchBytes");
 
 		for (auto b : fixWinstoreBipedCrashPatchBytes)
@@ -185,7 +183,7 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 }
 
 
-constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun", "suicidal"};
+constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun", "suicidal", "special", "greeny", "purpy"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {

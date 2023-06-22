@@ -137,13 +137,14 @@
 		<Version Version="1.3073.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB294F7</Offset>
+				<!--<Offset>0xB294F7</Offset>-->
+				<Offset>0xB29502</Offset>
 			</Offsets>
 		</Version>
 		<Version Version="1.2645.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB3DBD4</Offset>
+				<Offset>0xB3DBDF</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -151,12 +152,12 @@
 	<VersionedEntry Name="fixUnitFactionFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3073.0.0">
 			<Parameters>
-				<currentlySpawningUnitsFaction>rax</currentlySpawningUnitsFaction>
+				<currentlySpawningUnitsFaction>rbx+0x74</currentlySpawningUnitsFaction>
 			</Parameters>
 		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
-				<currentlySpawningUnitsFaction>rax</currentlySpawningUnitsFaction>
+				<currentlySpawningUnitsFaction>rbx+0x74</currentlySpawningUnitsFaction>
 			</Parameters>
 		</Version>
 	</VersionedEntry>
