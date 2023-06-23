@@ -38,14 +38,6 @@ namespace builtInGroups
 		[](UnitInfo& checkEnemy) { return checkEnemy.getShortName().contains("rocket") == false; });
 
 
-	const std::vector<EnemyGroup> builtInGroups_General
-	{
-		GeneralEverything,
-		GeneralEverythingButPopcorn,
-		GeneralEverythingButRocketFlood,
-	};
-
-
 	const EnemyGroup FactionHuman("Faction: Human", "All NPC's on the human team (does not include player, keyes, or cortana)",
 		[](UnitInfo& checkEnemy) { return checkEnemy.defaultTeam == faction::Human; });
 
@@ -170,7 +162,6 @@ namespace builtInGroups
 	const EnemyGroup UnitGruntMajorPlasmaPistol("Unit: Grunt Major Plasma Pistol", "Grunt Major Plasma Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt major plasma pistol";   });
 	const EnemyGroup UnitGruntMinorNeedler("Unit: Grunt Minor Needler", "Grunt Minor Needler", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt minor needler";   });
 	const EnemyGroup UnitGruntMinorPlasmaPistol("Unit: Grunt Minor Plasma Pistol", "Grunt Minor Plasma Pistol", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt minor plasma pistol";   });
-	const EnemyGroup UnitGruntSpecopsFuelRodAirdef("Unit: Grunt Specops Fuel Rod Airdef", "Grunt Specops Fuel Rod Airdef", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt specops fuel rod airdef";   });
 	const EnemyGroup UnitGruntSpecopsFuelRod("Unit: Grunt Specops Fuel Rod", "Grunt Specops Fuel Rod", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt specops fuel rod";   });
 	const EnemyGroup UnitGruntSpecopsNeedler("Unit: Grunt Specops Needler", "Grunt Specops Needler", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "grunt specops needler";   });
 	const EnemyGroup UnitHunterMajor("Unit: Hunter Major", "Hunter Major", [](UnitInfo& checkEnemy) {    return checkEnemy.getShortName() == "hunter major";   });
@@ -274,7 +265,6 @@ namespace builtInGroups
 		UnitGruntMajorPlasmaPistol,
 		UnitGruntMinorNeedler,
 		UnitGruntMinorPlasmaPistol,
-		UnitGruntSpecopsFuelRodAirdef,
 		UnitGruntSpecopsFuelRod,
 		UnitGruntSpecopsNeedler,
 		UnitHunterMajor,

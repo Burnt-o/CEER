@@ -32,6 +32,9 @@ namespace builtInGroups // built in group declarations - defined in cpp
 	const extern std::vector<EnemyGroup> builtInGroups; // contains all the below
 
 	const extern EnemyGroup GeneralEverything;
+	const extern EnemyGroup GeneralEverythingButPopcorn;
+	const extern EnemyGroup GeneralEverythingButRocketFlood;
+	// rest declared in .cpp and added to buildInGroups there
 }
 
 

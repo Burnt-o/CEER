@@ -205,7 +205,7 @@ namespace OptionSerialisation
 		filePath += "CEERConfig.xml";
 		
 		pugi::xml_document doc;
-
+			
 		pugi::xml_parse_result result = doc.load_file(filePath.c_str());
 
 		if (result)
@@ -221,13 +221,14 @@ namespace OptionSerialisation
 		}
 		else
 		{
-			if (result.description() == "File was not found")
+			std::string resultString = result.description();
+			if (resultString == "File was not found")
 			{
 				MessagesGUI::addMessage("Config file not found, loading default settings.");
 			}
 			else
 			{
-				std::string err = std::format("Error parsing file at {}\nError description: {}\nError offset: {}", filePath, result.description(), result.offset);
+				std::string err = std::format("Error parsing file at {}\nError description: {}\nError offset: {}", filePath, resultString, result.offset);
 				SerialisationException ex(err);
 				RuntimeExceptionHandler::handleMessage(ex);
 			}

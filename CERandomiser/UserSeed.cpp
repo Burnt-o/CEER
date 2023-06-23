@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "UserSeed.h"
 #include "SetSeed.h"
+#include "MessagesGUI.h"
 
 uint64_t UserSeed::hashString(std::string str)
 {
@@ -38,5 +39,8 @@ uint64_t UserSeed::hashString(std::string str)
 			temp += vowels[rand() % (sizeof(vowels) - 1)];
 		}
 	}
+
+	MessagesGUI::addMessage(std::format("Generated random seed: ", temp));
+
 	return temp;
 }

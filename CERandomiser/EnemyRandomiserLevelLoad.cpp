@@ -183,7 +183,7 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 }
 
 
-constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun", "suicidal", "special", "greeny", "purpy"};
+constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun", "suicidal", "special", "greeny", "purpy", "airdef"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {

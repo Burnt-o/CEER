@@ -101,14 +101,13 @@ std::string insertNewLines(const std::string& in, const size_t every_n, int& out
 	}
 
 	std::string temp;
-	PLOG_VERBOSE << "insertNewLines2";
 	std::vector<std::string> lines;
 	for (std::string::size_type i = 0; i < in.size(); i++)
 	{
-		PLOG_VERBOSE << (int)in[i];
+		//PLOG_VERBOSE << (int)in[i];
 		if (in[i] == '\n')
 		{
-			PLOG_DEBUG << "Found preexisting endline";
+			//PLOG_DEBUG << "Found preexisting endline";
 			lines.push_back(temp);
 			temp.clear();
 		}
@@ -145,7 +144,7 @@ std::string insertNewLines(const std::string& in, const size_t every_n, int& out
 	// get rid of extra last newLineChar at the end
 	temp.pop_back();
 	outLineCount = lines.size();
-	PLOG_DEBUG << "lineCount: " << outLineCount;
+	PLOG_VERBOSE << "lineCount: " << outLineCount;
 	return temp;
 
 

@@ -26,8 +26,8 @@ public:
 class RandomiseXintoY : public EnemyRule
 {
 public:
-	EnemyGroup randomiseGroupSelection = builtInGroups::GeneralEverything;
-	EnemyGroup rollPoolGroupSelection = builtInGroups::GeneralEverything;
+	EnemyGroup randomiseGroupSelection = builtInGroups::GeneralEverythingButPopcorn;
+	EnemyGroup rollPoolGroupSelection = builtInGroups::GeneralEverythingButRocketFlood;
 
 
 	Option<double> randomisePercent{
