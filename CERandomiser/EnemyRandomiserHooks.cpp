@@ -251,7 +251,7 @@ void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
 }
 
 
-
+constexpr std::array badEncounterNames { "shoot_anti", "cryo_tech"};
 
 bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int16 squadIndex)
 {
@@ -274,6 +274,18 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	{
 		// Need to go to scenario tag and lookup the encounter & squad index ourselves, see what the original unit is
 		originalActor = instance->mapReader->getEncounterSquadDatum(encounterIndex, squadIndex);
+
+		// also need to check if this is an encounter we shouldn't randomise/multiply
+		auto encounterName = instance->mapReader->getEncounterName(encounterIndex);
+		PLOG_VERBOSE << "encounterName: " << encounterName;
+		for (auto badName : badEncounterNames)
+		{
+			if (encounterName == badName)
+			{
+				PLOG_DEBUG << "Bailing on invalid encounter " << encounterName;
+				returnOriginal;
+			}
+		}
 
 	}
 	catch (CEERRuntimeException& ex)

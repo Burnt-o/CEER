@@ -86,6 +86,7 @@ public:
     std::string_view getObjectName(int nameIndex);
     datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
     uint16_t getEncounterSquadSpawnCount(int encounterIndex, int squadIndex);
+    std::string_view getEncounterName(int encounterIndex);
 
     std::span<tagElement> getTagTable();
 
@@ -297,7 +298,7 @@ static_assert(sizeof(squadData) == 0xE8);
 
 struct encounterData
 {
-    MCCString encounterName;
+    char encounterName[0x20];
     uint32_t flags;
 private:
     uint16_t mTeamIndex;
@@ -319,9 +320,25 @@ public:
 };
 static_assert(sizeof(encounterData) == 0xB0);
 
+
+std::string_view MapReader::MapReaderImpl::getEncounterName(int encounterIndex)
+{
+    if (!scenarioAddress) throw CEERRuntimeException("scenarioAddress not loaded yet!");
+
+    constexpr int encounterOffset = 0x42C;
+    tagBlock* encounterBlock = (tagBlock*)(scenarioAddress + encounterOffset);
+
+    if (encounterIndex > encounterBlock->entryCount)
+        throw CEERRuntimeException(std::format("recieved bad encounterIndex! encIndex {}, entryCount {}", encounterIndex, encounterBlock->entryCount));
+
+    auto thisEncounter = (encounterData*)(getTagAddress(encounterBlock->pointer) + (encounterIndex * sizeof(encounterData)));
+    return std::string_view(thisEncounter->encounterName);
+
+
+}
+
 datum MapReader::MapReaderImpl::getEncounterSquadDatum(int encounterIndex, int squadIndex)
 {
-    // Note; needs to throw_from_hook since running from hook. No actually should try catch in enemy randomiser
 
     if (!scenarioAddress) throw CEERRuntimeException("scenarioAddress not loaded yet!");
 
@@ -401,6 +418,7 @@ tagElement* MapReader::getTagElement(const datum& tagDatum) { return impl.get()-
 faction MapReader::getActorsFaction(const datum& actorDatum) { return impl.get()->getActorsFaction(actorDatum); }
 datum MapReader::getEncounterSquadDatum(int encounterIndex, int squadIndex) { return impl.get()->getEncounterSquadDatum(encounterIndex, squadIndex); }
 uint16_t MapReader::getEncounterSquadSpawnCount(int encounterIndex, int squadIndex) { return impl.get()->getEncounterSquadSpawnCount(encounterIndex, squadIndex); }
+std::string_view MapReader::getEncounterName(int encounterIndex) { return impl.get()->getEncounterName(encounterIndex); }
 
 uintptr_t MapReader::getTagAddress(const datum& tagDatum) { return impl.get()->getTagAddress(tagDatum); }
 uintptr_t MapReader::getTagAddress(uint32_t tagOffset) { return impl.get()->getTagAddress(tagOffset); }

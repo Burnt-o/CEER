@@ -129,6 +129,7 @@ public:
 	tagElement* getTagElement(const datum& tagDatum);
 	datum getEncounterSquadDatum(int encounterIndex, int squadIndex);
 	uint16_t getEncounterSquadSpawnCount(int encounterIndex, int squadIndex);
+	std::string_view getEncounterName(int encounterIndex);
 
 	uintptr_t getTagAddress(const datum& tagDatum);
 	uintptr_t getTagAddress(uint32_t tagOffset);
