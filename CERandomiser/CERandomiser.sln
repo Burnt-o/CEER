@@ -11,6 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Injector", "..\Injector\Inj
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{78B94D44-9D1D-424B-A31F-4C79A02ED336}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSInjector", "..\CSInjector\CSInjector.csproj", "{A3B48EE3-AA53-4774-B58B-4D2A0CBCF4C8}"
 	ProjectSection(ProjectDependencies) = postProject

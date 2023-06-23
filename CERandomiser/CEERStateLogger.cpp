@@ -26,15 +26,11 @@ void printConfigSignature()
 		std::stringstream ss;
 		OptionSerialisation::serialiseAllOptions(true).print(ss);
 		std::string optionsString = ss.str();
-		PLOG_DEBUG << "cum " << optionsString;
 		SetSeed64 twister(0);
 		for (char c : optionsString)
 		{
-			PLOG_INFO << "twisting by " << c;
 			auto val = twister();
-			PLOG_INFO << val;
 			val += c;
-			PLOG_INFO << val;
 			twister(val);
 		}
 		MessagesGUI::addMessage(std::format("Config Signature: {:X}", twister()));
