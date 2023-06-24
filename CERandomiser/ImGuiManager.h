@@ -1,10 +1,11 @@
 #pragma once
 #include "D3D11Hook.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
 
-
+// imgui
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_stdlib.h"
 
 // Singleton: on construction, just subscribes to D3D11Hook's presentHookEvent. 
 // The callback function will initialize ImGui resources (and WndPrc hook) and invoke an ImGuiRenderEvent for other classes to listen to.

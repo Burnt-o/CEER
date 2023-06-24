@@ -12,9 +12,6 @@
     <Filter Include="Source Files\safetyhook">
       <UniqueIdentifier>{28d01c8b-228d-469b-8e49-2603aa8c101d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\imgui">
-      <UniqueIdentifier>{8d50ac2a-fcb1-4dc7-b3fc-bd8d4a09c12b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Global">
       <UniqueIdentifier>{43cfbde5-1ac8-47f1-904f-288926581f9d}</UniqueIdentifier>
     </Filter>
@@ -25,38 +22,11 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Source Files\pugixml">
-      <UniqueIdentifier>{f38b1629-57dc-45e1-bee7-b812ac91fd53}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Services">
       <UniqueIdentifier>{140bc533-6f2c-4451-9138-701beae435a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\imgui\imconfig.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imgui.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imgui_impl_dx11.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imgui_impl_win32.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imgui_internal.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imstb_rectpack.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imstb_textedit.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imstb_truetype.h">
-      <Filter>Source Files\imgui</Filter>
-    </ClInclude>
     <ClInclude Include="includes\safetyhook\safetyhook.hpp">
       <Filter>Source Files\safetyhook</Filter>
     </ClInclude>
@@ -120,12 +90,6 @@
     <ClInclude Include="PointerManager.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="includes\pugixml\src\pugiconfig.hpp">
-      <Filter>Source Files\pugixml</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\pugixml\src\pugixml.hpp">
-      <Filter>Source Files\pugixml</Filter>
-    </ClInclude>
     <ClInclude Include="ExportedFunctions.h">
       <Filter>Global</Filter>
     </ClInclude>
@@ -143,9 +107,6 @@
     </ClInclude>
     <ClInclude Include="SetSeed.h">
       <Filter>Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\imgui\imgui_stdlib.h">
-      <Filter>Source Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="EnemyRule.h">
       <Filter>Classes</Filter>
@@ -194,24 +155,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="includes\imgui\imgui.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_demo.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_draw.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_impl_dx11.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_impl_win32.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_widgets.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="includes\safetyhook\safetyhook.cpp">
       <Filter>Source Files\safetyhook</Filter>
     </ClCompile>
@@ -263,9 +206,6 @@
     <ClCompile Include="PointerManager.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="includes\pugixml\src\pugixml.cpp">
-      <Filter>Source Files\pugixml</Filter>
-    </ClCompile>
     <ClCompile Include="ExportedFunctions.cpp">
       <Filter>Global</Filter>
     </ClCompile>
@@ -283,12 +223,6 @@
     </ClCompile>
     <ClCompile Include="MidhookContextInterpreter.cpp">
       <Filter>Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_stdlib.cpp">
-      <Filter>Source Files\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\imgui\imgui_tables.cpp">
-      <Filter>Source Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="EnemyRule.cpp">
       <Filter>Classes</Filter>

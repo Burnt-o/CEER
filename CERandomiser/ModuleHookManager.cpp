@@ -120,9 +120,9 @@ void ModuleHookManager::postModuleLoad_UpdateHooks(std::wstring_view libPath)
 
 std::set<std::wstring> gameDLLNames{ L"halo1.dll", L"halo2.dll", L"halo3.dll", L"halo3odst.dll", L"haloreach.dll", L"halo4.dll" };
 
-#define printGameDLL(callingfunc, dllname) if (gameDLLNames.contains(dllname)) \
+#define printGameDLL(dllname) if (gameDLLNames.contains(dllname)) \
 						{	\
-							PLOG_INFO << callingfunc << dllname;	\
+							PLOG_INFO << wstr_to_str(dllname);	\
 						}	\
 
 #endif // CEER_DEBUG
@@ -136,7 +136,7 @@ HMODULE ModuleHookManager::newLoadLibraryA(LPCSTR lpLibFileName) {
 	auto wLibFileName = str_to_wstr(lpLibFileName);
 
 #ifdef CEER_DEBUG
-	printGameDLL(L"LoadLibraryA: ", wLibFileName)
+	printGameDLL(wLibFileName)
 #endif
 
 	ModuleCache::addModuleToCache(wLibFileName, result);
@@ -149,7 +149,7 @@ HMODULE ModuleHookManager::newLoadLibraryW(LPCWSTR lpLibFileName) {
 	auto result = instance->mHook_LoadLibraryW.call<HMODULE, LPCWSTR>(lpLibFileName);
 
 #ifdef CEER_DEBUG
-	printGameDLL(L"LoadLibraryW: ", lpLibFileName)
+	printGameDLL(lpLibFileName)
 #endif
 
 	ModuleCache::addModuleToCache(lpLibFileName, result);
@@ -164,7 +164,7 @@ HMODULE ModuleHookManager::newLoadLibraryExA(LPCSTR lpLibFileName, HANDLE hFile,
 	auto wLibFileName = str_to_wstr(lpLibFileName);
 
 #ifdef CEER_DEBUG
-	printGameDLL(L"LoadLibraryExA: ", wLibFileName)
+	printGameDLL(wLibFileName)
 #endif
 ;
 	ModuleCache::addModuleToCache(wLibFileName, result);
@@ -177,7 +177,7 @@ HMODULE ModuleHookManager::newLoadLibraryExW(LPCWSTR lpLibFileName, HANDLE hFile
 	auto result = instance->mHook_LoadLibraryExW.call<HMODULE, LPCWSTR, HANDLE, DWORD>(lpLibFileName, hFile, dwFlags);
 
 #ifdef CEER_DEBUG
-	printGameDLL(L"LoadLibraryExW: ", lpLibFileName)
+	printGameDLL(lpLibFileName)
 #endif
 	ModuleCache::addModuleToCache(lpLibFileName, result);
 	postModuleLoad_UpdateHooks(lpLibFileName);
@@ -196,7 +196,7 @@ BOOL ModuleHookManager::newFreeLibrary(HMODULE hLibModule) {
 	auto filename = path.filename().generic_wstring();
 
 #ifdef CEER_DEBUG
-	printGameDLL(L"FreeLibrary: ", filename)
+	printGameDLL(filename)
 #endif
 
 	preModuleUnload_UpdateHooks(filename);
