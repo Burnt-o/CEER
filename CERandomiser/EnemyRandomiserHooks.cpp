@@ -6,7 +6,7 @@
 
 
 
-std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
+
 faction EnemyRandomiser::hookData_currentUnitsFaction = faction::Undefined;
 datum EnemyRandomiser::hookData_currentUnitDatum = nullDatum;
 int EnemyRandomiser::hookData_currentSquadUnitIndex = 0;
@@ -235,6 +235,8 @@ void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
 	enum class param
 	{
 		pUnitObjectInstance,
+		hideFlag,
+		killFlag,
 	};
 	auto* ctxInterpreter = instance->killVehicleOverflowFunctionContext.get();
 
@@ -245,8 +247,9 @@ void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
 		return;
 	}
 
-	*(pUnitInstance + 0x1FB) = 1; // kill the unit
-	*(pUnitInstance - 1) = 1; // hide the unit model
+	// note: the pointer to the unit instance is +0x70 of the end of the header
+	*(byte*)ctxInterpreter->getParameterRef(ctx, (int)param::killFlag) = 1; // kill the unit
+	*(byte*)ctxInterpreter->getParameterRef(ctx, (int)param::hideFlag) = 1; // hide the unit model
 
 }
 

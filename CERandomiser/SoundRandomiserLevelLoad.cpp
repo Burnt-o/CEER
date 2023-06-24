@@ -193,7 +193,6 @@ void SoundRandomiser::evaluateSounds()
 
 	// Setup the shuffled sounds
 	SetSeed64 gen(ourSeed); // will increment this as we process each sound so we get a different random number each time
-	std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 }; // to roll against % of sounds to randomise
 	double randomiseChance = OptionsState::SoundRandomiserPercent.GetValue() / 100.;
 	for (auto& [thisSoundDatum, thisSoundInfo] : soundMap)
 	{

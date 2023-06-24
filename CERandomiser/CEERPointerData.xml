@@ -258,11 +258,15 @@
 		<Version Version="1.3073.0.0">
 			<Parameters>
 				<pUnitObjectInstance>rcx</pUnitObjectInstance>
+				<hideFlag>rcx-1</hideFlag>
+				<killFlag>rcx+0x1FB</killFlag>
 			</Parameters>
 		</Version>
 		<Version Version="1.2645.0.0">
 			<Parameters>
 				<pUnitObjectInstance>rcx</pUnitObjectInstance>
+				<hideFlag>rcx-1</hideFlag>
+				<killFlag>rcx+0x1EF</killFlag>
 			</Parameters>
 		</Version>
 	</VersionedEntry>

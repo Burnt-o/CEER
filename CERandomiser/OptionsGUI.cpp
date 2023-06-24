@@ -413,8 +413,8 @@ void OptionsGUI::renderAboutWindow()
 		
 		renderHyperLinkText("Source code", "https://github.com/Burnt-o/CEER");
 		renderHyperLinkText("Latest release", "https://github.com/Burnt-o/CEER/releases");
+		renderHyperLinkText("Youtube video", "https://youtu.be/KikdwMUtx1Q");
 
-		ImGui::Text("TODO: add more here");
 
 		if (ImGui::Button("Close"))
 		{
