@@ -103,6 +103,8 @@ void RealMain(HMODULE dllHandle)
         auto snd = std::make_unique<SoundRandomiser>(lvl->levelLoadEvent, map.get());
         auto csl = std::make_unique<CEERStateLogger>(lvl->levelLoadEvent);
 
+
+
         OptionSerialisation::deserialiseFromFile();
 
         PLOG_INFO << "All services succesfully initialized! Entering main loop";
@@ -111,35 +113,15 @@ void RealMain(HMODULE dllHandle)
         // If an initialization error occurs before this point, console will be left up so user can look at it.
         MessagesGUI::addMessage("CEER successfully initialised!");
 
-
-
-
-
-
 #ifndef CEER_DEBUG
+        PLOG_DEBUG << "Closing console";
         Logging::closeConsole();
-        Logging::SetConsoleLoggingLevel(plog::info);
-        Logging::SetFileLoggingLevel(plog::info);
-#else
-
-#endif // !CEER_DEBUG
+#endif 
 
 
         // We live in this loop 99% of the time
         while (!GlobalKill::isKillSet()) {
 
-#ifdef CEER_DEBUG
-            if (GetKeyState(0x23) & 0x8000) // 'End' key
-            {
-                PLOG_INFO << "Killing internal dll";
-                GlobalKill::killMe();
-            }
-
-            if (GetKeyState(0x21) & 0x8000) // 'Page Up' key
-            {
-                ImGuiManager::debugInput();
-            }
-#endif // !CEER_DEBUG
             Sleep(10);
 
         }
@@ -159,19 +141,16 @@ void RealMain(HMODULE dllHandle)
     }
 
     // Auto managed resources have fallen out of scope
-    std::cout << "CEER singletons succesfully shut down";
+    PLOG_INFO << "CEER singletons successfully shut down";
 
-    curl_global_cleanup();
-    release_global_unhandled_exception_handler();
+    curl_global_cleanup(); PLOG_INFO << "Curl cleaned up";
+    release_global_unhandled_exception_handler(); PLOG_INFO << "Released exception handler";
 
-#ifdef CEER_DEBUG
-    while (!GetKeyState(0x23) & 0x8000) // 'End' key
-    {
-        Sleep(100);
-    }
-#endif // !CEER_DEBUG
+#ifndef CEER_DEBUG
     PLOG_DEBUG << "Closing console";
     Logging::closeConsole();
+#endif 
+
 
 
 }

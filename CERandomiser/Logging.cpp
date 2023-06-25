@@ -18,7 +18,7 @@ enum AppenderID {
 
      // Setup console appender
      static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
-     plog::init<ConsoleAppender>(plog::info, &consoleAppender);
+     plog::init<ConsoleAppender>(plog::verbose, &consoleAppender);
 
      // Setup file appender
      // Get log file path
@@ -30,7 +30,7 @@ enum AppenderID {
 
      // rolling behaviour disabled by setting maxSize to 0
      static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(logFileDestination.c_str(), 0, 0);
-     plog::init<FileAppender>(plog::info, &fileAppender);
+     plog::init<FileAppender>(plog::verbose, &fileAppender);
 
     // log using both appenders
      // Always set this to verbose, the appenders will filter according to their own severity

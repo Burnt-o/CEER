@@ -70,12 +70,12 @@ int main()
 		GetModuleFileNameA(NULL, buffer, MAX_PATH); 
 		std::wstring::size_type pos = std::string(buffer).find_last_of("\\/");
 		auto currentDirectory = std::string(buffer).substr(0, pos);
-		if (currentDirectory.ends_with('\\'))
-			currentDirectory = currentDirectory.substr(0, currentDirectory.length() - 1);
+		if (!currentDirectory.ends_with('\\'))
+			currentDirectory += '\\';
 
 		PLOG_DEBUG << "CEER path: " << currentDirectory;
 
-		auto dllFilePath = std::string(currentDirectory + "\\" + dllName + ".dll");
+		auto dllFilePath = std::string(currentDirectory + dllName + ".dll");
 
 		// test if dll exists and can be read
 		std::ifstream inFile(dllFilePath.c_str());
@@ -399,10 +399,9 @@ void SendInitCommand(HMODULE dll, DWORD pid, std::string injectorDirectory)
 	if (!mcc.get()) throw MissingPermissionException(std::format("SendInitCommand: Couldn't open MCC with createRemoteThread permissions: {}", GetLastError()).c_str());
 
 	// Setup init param
-	if (injectorDirectory.size() > MAX_PATH) throw std::exception("injector Path too large. Try running from somewhere with a shorter filePath");
+	if (injectorDirectory.size() >= MAX_PATH) throw std::exception("injector Path too large. Try running from somewhere with a shorter filePath");
 	InitParameter initParam;
 	strncpy_s<MAX_PATH>(initParam.injectorPath, injectorDirectory.c_str(), injectorDirectory.size());
-	//initParam.injectorPath[injectorDirectory.size()] = '\0';
 
 	// Allocate some memory on the target process, enough to store the init parameter
 	auto initAlloc = VirtualAllocEx(mcc.get(), 0, sizeof(initParam), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
