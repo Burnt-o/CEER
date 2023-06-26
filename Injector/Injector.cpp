@@ -96,7 +96,11 @@ int main()
 			mccPID = findMCCProcessID();
 			if (mccPID) 
 			{ 
-				if (!processOldEnough(mccPID)) mccPID = 0;
+				if (!processOldEnough(mccPID))
+				{
+					mccPID = 0;
+					PLOG_INFO << "Waiting for MCC to finish booting up..";
+				}
 			}
 		}
 		PLOG_INFO << "Found MCC process! ID: 0x" << std::hex << mccPID;
@@ -117,22 +121,22 @@ int main()
 	catch (MissingPermissionException ex)
 	{
 		PLOG_FATAL << "CEER didn't have appropiate permissions to modify MCC. If MCC or steam are running as admin, CEER needs to be run as admin too.\nNerdy details: " << ex.what();
-		std::string dontcare;
-		std::cin >> dontcare;
+		std::cin.ignore();
 	}
 	catch (std::exception ex)
 	{
 		PLOG_FATAL << "An error occured: " << ex.what();
-		std::string dontcare;
-		std::cin >> dontcare;
+		std::cin.ignore();
 	}
 	catch (...)
 	{
 		PLOG_FATAL << "An unknown error occured.";
-		std::string dontcare;
-		std::cin >> dontcare;
+		std::cin.ignore();
 	}
 
+#ifdef _DEBUG
+	std::cin.ignore();
+#endif // _DEBUG
 
 
 
@@ -180,18 +184,27 @@ bool processOldEnough(DWORD pid)
 	try
 	{
 		if (pid == 0) return false;
-		constexpr auto MCCBootWaitTime = 3;
+		constexpr auto MCCBootWaitTime = 2;
 		HandlePtr mcc(OpenProcess(PROCESS_QUERY_INFORMATION, TRUE, pid));
 		if (!mcc.get()) throw MissingPermissionException("missing perm PROCESS_QUERY_LIMITED_INFORMATION");
 
+
+		FILETIME lpCreationTime;
+		FILETIME lpExitTime;
 		FILETIME lpKernelTime;
-		auto gptResult = GetProcessTimes(mcc.get(), NULL, NULL, &lpKernelTime, NULL);
-		if (gptResult == 0) return false;
+		FILETIME lpUserTime;
+		auto gptResult = GetProcessTimes(mcc.get(), &lpCreationTime, &lpExitTime, &lpKernelTime, &lpUserTime);
+		if (gptResult == 0)
+		{
+			PLOG_ERROR << "GetProcessTimes Failed: " << GetLastError();
+			return false;
+		}
 
-		auto kernelTimeInSeconds = ULARGE_INTEGER{ lpKernelTime.dwLowDateTime, lpKernelTime.dwHighDateTime }.QuadPart;
-		kernelTimeInSeconds /= 10000000; // filetime stores 100-nanosecond intervals. Ten million of these in a second.
+		auto userTimeInSeconds = ULARGE_INTEGER{ lpUserTime.dwLowDateTime, lpUserTime.dwHighDateTime }.QuadPart;
+		userTimeInSeconds /= 10000000; // filetime stores 100-nanosecond intervals. Ten million of these in a second.
 
-		return kernelTimeInSeconds > MCCBootWaitTime;
+
+		return userTimeInSeconds > MCCBootWaitTime;
 	}
 	catch (...)
 	{
