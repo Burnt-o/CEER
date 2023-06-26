@@ -153,6 +153,9 @@
     <ClInclude Include="ControlDefs.h">
       <Filter>Global</Filter>
     </ClInclude>
+    <ClInclude Include="CEERVersioning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\safetyhook\safetyhook.cpp">
@@ -265,6 +268,9 @@
     </ClCompile>
     <ClCompile Include="CEERStateLogger.cpp">
       <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="CEERVersioning.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

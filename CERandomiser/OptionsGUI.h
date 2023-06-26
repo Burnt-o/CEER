@@ -35,6 +35,7 @@ private:
 	void renderErrorDialog();
 	void renderAboutWindow();
 
+	void renderHyperLinkText(std::string text, std::string url);
 
 	void renderAddSpawnMultiplierRulePopup();
 
@@ -46,12 +47,15 @@ private:
 	void renderHighMultiplierWarning();
 	void renderEmptySeedWarning();
 	void renderMissingRulesWarning();
+	void renderNewVersionWarning();
 
 	// GUI data
 	ImGuiWindowFlags windowFlags;
 	static bool m_WindowOpen;
 	ImVec2 mWindowSize{ 500, 500 };
 	ImVec2 mWindowPos{ 10, 25 };
+
+	bool newVersionPopupQueued = false;
 
 public:
 
@@ -72,7 +76,7 @@ public:
 
 	static void addError(CEERExceptionBase error) { if (instance->errorsToDisplay.size() < 5) instance->errorsToDisplay.push_back(error); }
 	static bool isWindowOpen() { return m_WindowOpen; };
-
+	static void newVersionAvailable(VersionInfo curVer, VersionInfo newVer);
 	static float getOptionsGUIHeight() { return instance->mWindowSize.y; };
 };
 

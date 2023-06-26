@@ -23,7 +23,7 @@
 #include "TextureRandomiser.h"
 #include "SoundRandomiser.h"
 #include "CEERStateLogger.h"
-
+#include "CEERVersioning.h"
 
 /* GENERAL TODO:: 
  
@@ -103,9 +103,26 @@ void RealMain(HMODULE dllHandle)
         auto snd = std::make_unique<SoundRandomiser>(lvl->levelLoadEvent, map.get());
         auto csl = std::make_unique<CEERStateLogger>(lvl->levelLoadEvent);
 
+        
+
 
 
         OptionSerialisation::deserialiseFromFile();
+
+        auto curVer = CEERVersioning::GetCurrentVersion();
+        PLOG_DEBUG << "CEER Current version: " << curVer;
+
+        if (OptionsState::CheckForUpdates.GetValue())
+        {
+            auto latVer = CEERVersioning::GetLatestVersion();
+            PLOG_DEBUG << "CEER Latest version: " << latVer;
+
+            if (!(curVer == latVer))
+            {
+               OptionsGUI::newVersionAvailable(curVer, latVer);
+            }
+        }
+
 
         PLOG_INFO << "All services succesfully initialized! Entering main loop";
         Sleep(100);
@@ -136,8 +153,7 @@ void RealMain(HMODULE dllHandle)
         PLOG_FATAL << "Please send Burnt the log file located at: " << std::endl << Logging::GetLogFileDestination();
         std::cout << "Enter any command to shutdown CEER";
         GlobalKill::killMe();
-        std::string dontcare;
-        std::cin >> dontcare;
+        std::cin.ignore();
     }
 
     // Auto managed resources have fallen out of scope
@@ -146,7 +162,7 @@ void RealMain(HMODULE dllHandle)
     curl_global_cleanup(); PLOG_INFO << "Curl cleaned up";
     release_global_unhandled_exception_handler(); PLOG_INFO << "Released exception handler";
 
-#ifndef CEER_DEBUG
+#ifdef CEER_DEBUG
     PLOG_DEBUG << "Closing console";
     Logging::closeConsole();
 #endif 

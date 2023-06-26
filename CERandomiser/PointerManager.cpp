@@ -4,8 +4,9 @@
 #include <winver.h> // to get version string of MCC
 #include <pugixml.hpp>
 #include "InitParameter.h"
+#include "CEERVersioning.h"
 #define useDevPointerData 1
-#define debugPointerManager 0
+#define debugPointerManager 1
 
 PointerManager* PointerManager::instance = nullptr;
 
@@ -25,9 +26,10 @@ class PointerManager::PointerManagerImpl {
         // Functions run by constructor, in order of execution
         void downloadXML(std::string url);
         std::string readLocalXML();
-        std::string getCurrentMCCVersion();
+        VersionInfo getCurrentMCCVersion();
         MCCProcessType getCurrentMCCType();
         void parseXML(std::string& xml);
+        VersionInfo processLatestCEERVersion(pugi::xml_node entry);
         void processVersionedEntry(pugi::xml_node entry);
         void instantiateMultilevelPointer(pugi::xml_node entry, std::string entryType, std::string entryName);
         void instantiateMidhookContextInterpreter(pugi::xml_node entry, std::string entryName);
@@ -86,7 +88,8 @@ PointerManager::PointerManagerImpl::PointerManagerImpl()
 
 
     std::string pointerData = readLocalXML();
-    this->currentGameVersion = getCurrentMCCVersion();
+    std::stringstream buf; buf << getCurrentMCCVersion();
+    this->currentGameVersion = buf.str();
     this->currentProcessType = getCurrentMCCType();
     PLOG_INFO << "MCC Version: " << currentGameVersion;
 
@@ -274,59 +277,24 @@ void PointerManager::PointerManagerImpl::downloadXML(std::string url)
 
 
 
-std::string getFileVersion(const char* filename)
+
+VersionInfo PointerManager::PointerManagerImpl::getCurrentMCCVersion()
 {
-    DWORD dwHandle, size = GetFileVersionInfoSizeA(filename, &dwHandle);
-    if (size == 0)
-    {
-        throw InitException(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
-
-    }
-
-    std::vector<char> buffer;
-    buffer.reserve(size);
-
-
-    if (!GetFileVersionInfoA(filename, dwHandle, size, buffer.data()))
-    {
-        throw InitException(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
-    }
-
-    VS_FIXEDFILEINFO* pvi;
-    size = sizeof(VS_FIXEDFILEINFO);
-    if (!VerQueryValueA(buffer.data(), "\\", (LPVOID*)&pvi, (unsigned int*)&size))
-    {
-        throw InitException(std::format("VerQueryValueA failed, error: {}", GetLastError()));
-    }
-    std::string outVersionInfo = std::format("{}.{}.{}.{}",
-        pvi->dwProductVersionMS >> 16,
-        pvi->dwFileVersionMS & 0xFFFF,
-        pvi->dwFileVersionLS >> 16,
-        pvi->dwFileVersionLS & 0xFFFF
-    );
-
-    return outVersionInfo;
-
-}
-
-std::string PointerManager::PointerManagerImpl::getCurrentMCCVersion()
-{
-    std::string outCurrentMCCVersion;
+    VersionInfo outCurrentMCCVersion;
     HMODULE mccProcess = GetModuleHandle(NULL);
     char mccProcessPath[MAX_PATH];
     GetModuleFileNameA(mccProcess, mccProcessPath, sizeof(mccProcessPath));
 
+    PLOG_DEBUG << "Getting file version info of mcc at: " << mccProcessPath;
     outCurrentMCCVersion = getFileVersion(mccProcessPath);
 
     PLOG_DEBUG << "mccVersionInfo: " << outCurrentMCCVersion;
-    PLOG_DEBUG << "size: " << outCurrentMCCVersion.size();
-    if (outCurrentMCCVersion.size() != 10)
+
+    if (outCurrentMCCVersion.major != 1)
     {
-        throw InitException("mccVersionInfo was incorrect size!");
-    }
-    if (!outCurrentMCCVersion.starts_with("1."))
-    {
-        throw InitException("mccVersionInfo did not start with \"1.\"!");
+        std::stringstream buf;
+        buf << outCurrentMCCVersion;
+        throw InitException(std::format("mccVersionInfo did not start with \"1.\"! Actual read version: {}", buf.str()).c_str());
     }
 
     return outCurrentMCCVersion;
@@ -388,11 +356,35 @@ void PointerManager::PointerManagerImpl::parseXML(std::string& xml)
         {
                 processVersionedEntry(entry);
         }
+        else if (entryName == "LatestCEERVersion")
+        {
+            CEERVersioning::SetLatestVersion(processLatestCEERVersion(entry));
+        }
+        else
+        {
+            PLOG_ERROR << "Unexpected item in pointer data: " << entry.name();
+        }
 
     }
 
 
 
+}
+
+VersionInfo PointerManager::PointerManagerImpl::processLatestCEERVersion(pugi::xml_node entry)
+{
+    using namespace pugi;
+    VersionInfo latestVer{0,0,0,0};
+
+
+    latestVer.major = entry.child("Major").text().as_int();
+    latestVer.minor = entry.child("Minor").text().as_int();
+    latestVer.build = entry.child("Build").text().as_int();
+    latestVer.revision = entry.child("Revision").text().as_int();
+
+    if (latestVer == VersionInfo{0, 0, 0, 0})
+        throw InitException("Could not read latest version info");
+    return latestVer;
 }
 
 void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node entry)

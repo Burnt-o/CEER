@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
 
+	<!--TODO: Is there a way I can autopopulate this with the version resource? Something like a macro? -->
+	<LatestCEERVersion>
+		<Major>2</Major>
+		<Minor>0</Minor>
+		<Build>1</Build>
+		<Revision>0</Revision>
+	</LatestCEERVersion>
+
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
-		<Version Version="1.3073.0.0" ProcessType="Steam">
+		<Version Version="1.3074.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FD8E99</Offset>
 			</Offsets>

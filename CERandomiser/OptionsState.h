@@ -46,6 +46,7 @@ namespace OptionsState
 
 #pragma endregion SoundRandomiser
 	extern Option<bool> VerboseLogging;
+	extern Option<bool> CheckForUpdates;
 
 
 	extern std::vector<SerialisableOption*> allSerialisableOptions;

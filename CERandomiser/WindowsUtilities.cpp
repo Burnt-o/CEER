@@ -135,3 +135,39 @@ std::string getShortName(std::string in)
 	return out;
 }
 
+
+
+
+VersionInfo getFileVersion(const char* filename)
+{
+	DWORD dwHandle, size = GetFileVersionInfoSizeA(filename, &dwHandle);
+	if (size == 0)
+	{
+		throw InitException(std::format("fileInfoVersionSize was zero, error: {}", GetLastError()));
+
+	}
+
+	std::vector<char> buffer;
+	buffer.reserve(size);
+
+
+	if (!GetFileVersionInfoA(filename, dwHandle, size, buffer.data()))
+	{
+		throw InitException(std::format("GetFileVersionInfoA failed, error: {}", GetLastError()));
+	}
+
+	VS_FIXEDFILEINFO* pvi;
+	size = sizeof(VS_FIXEDFILEINFO);
+	if (!VerQueryValueA(buffer.data(), "\\", (LPVOID*)&pvi, (unsigned int*)&size))
+	{
+		throw InitException(std::format("VerQueryValueA failed, error: {}", GetLastError()));
+	}
+
+	return VersionInfo{ pvi->dwProductVersionMS >> 16,
+		pvi->dwFileVersionMS & 0xFFFF,
+			pvi->dwFileVersionLS >> 16,
+			pvi->dwFileVersionLS & 0xFFFF
+	};
+
+
+}

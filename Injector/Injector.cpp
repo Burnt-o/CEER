@@ -135,7 +135,7 @@ int main()
 	}
 
 #ifdef _DEBUG
-	std::cin.ignore();
+	//std::cin.ignore();
 #endif // _DEBUG
 
 

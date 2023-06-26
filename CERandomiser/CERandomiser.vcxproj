@@ -151,7 +151,7 @@
       <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>"C:\Program Files\LockHunter\LockHunter.exe" -u -sm C:\Users\mauri\source\repos\CERandomiser\CERandomiser\x64\Debug\net6.0\CERandomiser.pdb</Command>
+      <Command>"C:\Program Files\LockHunter\LockHunter.exe" -u -sm C:\Users\mauri\source\repos\CERandomiser\CERandomiser\x64\Debug\CERandomiser.pdb</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,10 +182,11 @@
       <AdditionalLibraryDirectories>$(VcpkgRoot)\installed\x64-windows-static\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>"C:\Program Files\LockHunter\LockHunter.exe" -u -sm C:\Users\mauri\source\repos\CERandomiser\CERandomiser\x64\Release\net6.0\CERandomiser.pdb</Command>
+      <Command>"C:\Program Files\LockHunter\LockHunter.exe" -u -sm C:\Users\mauri\source\repos\CERandomiser\CERandomiser\x64\Release\CERandomiser.pdb</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CEERVersioning.h" />
     <ClInclude Include="ControlDefs.h" />
     <ClInclude Include="D3D11Hook.h" />
     <ClInclude Include="Datum.h" />
@@ -230,6 +231,7 @@
     <ClInclude Include="WindowsUtilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CEERVersioning.cpp" />
     <ClCompile Include="D3D11Hook.cpp" />
     <ClCompile Include="Datum.cpp" />
     <ClCompile Include="dllmain.cpp" />

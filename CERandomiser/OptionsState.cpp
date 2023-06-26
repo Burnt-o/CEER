@@ -185,6 +185,14 @@ namespace OptionsState
 
 	);
 
+	Option<bool> CheckForUpdates(
+		true,
+		[](bool newValue) { return true; },
+		nameof(CheckForUpdates),
+		false // not included in clipboard 
+
+	);
+
 
 	std::vector<SerialisableOption*> allSerialisableOptions{ &SeedString,  
 #if includeFlamethrowerFloodOption == 1
@@ -195,6 +203,7 @@ namespace OptionsState
 	
 	// main toggles last as they will fire onChange events
 		& EnemyRandomiser, &EnemySpawnMultiplier, &TextureRandomiser, & SoundRandomiser,
+		&VerboseLogging, &CheckForUpdates
 	};
 }
 

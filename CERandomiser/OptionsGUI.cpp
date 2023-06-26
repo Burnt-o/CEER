@@ -8,6 +8,7 @@
 #include <shellapi.h>
 
 #include "Logging.h"
+#include "CEERVersioning.h"
 #define addTooltip(x) if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) ImGui::SetTooltip(x)
 
 ImVec2 minimumWindowSize{ 500, 500 };
@@ -168,6 +169,61 @@ void pasteSettings()
 		RuntimeExceptionHandler::handlePopup(ex);
 	}
 }
+
+
+
+
+std::string curVerString = "NULL";
+std::string newVerString = "NULL";
+void OptionsGUI::renderNewVersionWarning()
+{
+
+	ImVec2 size = ImVec2(300, 0);
+	ImVec2 pos = ImVec2(ImGuiManager::getScreenSize() / 2.f) - (size / 2.f);
+
+	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowPos(pos);
+
+	if (ImGui::BeginPopupModal("New CEER Version", NULL, ImGuiWindowFlags_NoResize))
+	{
+		ImGui::TextWrapped("A new version of CEER is available!");
+		ImGui::TextWrapped(curVerString.c_str());
+		ImGui::Dummy;
+		ImGui::TextWrapped(newVerString.c_str());
+		ImGui::Dummy;
+		ImGui::Dummy;
+		ImGui::Dummy;
+		renderHyperLinkText("Download it here.", "https://github.com/Burnt-o/CEER/releases");
+		ImGui::Dummy;
+		ImGui::Dummy;
+		if (ImGui::Checkbox("Notify me of new updates", &OptionsState::CheckForUpdates.GetValueDisplay()))
+		{
+			OptionsState::CheckForUpdates.UpdateValueWithInput();
+		}
+		ImGui::Dummy;		ImGui::Dummy;
+
+		if (ImGui::Button("Continue"))
+		{
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+}
+
+void OptionsGUI::newVersionAvailable(VersionInfo c, VersionInfo n)
+{
+
+	std::stringstream buf;
+	buf << c;
+	curVerString = std::format("Current Version: {}", buf.str());
+	buf.str("");
+	buf << n;
+	newVerString = std::format("Latest Version:  {}", buf.str());
+
+	instance->newVersionPopupQueued = true;
+
+}
+
 
 void OptionsGUI::renderMissingRulesWarning()
 {
@@ -387,7 +443,7 @@ void OptionsGUI::renderErrorDialog()
 
 
 bool debugme = true;
-void renderHyperLinkText(std::string text, std::string url)
+void OptionsGUI::renderHyperLinkText(std::string text, std::string url)
 {
 	if (ImGui::Selectable(text.c_str(), true, ImGuiSelectableFlags_DontClosePopups, ImVec2(text.length() * 7, 15)))
 	{
@@ -409,6 +465,10 @@ void OptionsGUI::renderAboutWindow()
 
 	if (ImGui::BeginPopupModal("AboutWindow", NULL, ImGuiWindowFlags_NoResize))
 	{
+		std::stringstream buf;
+		buf << CEERVersioning::GetCurrentVersion();
+		ImGui::TextWrapped(std::format("CEER Version: {}", buf.str()).c_str());
+
 		ImGui::TextWrapped("Created by Burnt with much help from Scales");
 		
 		renderHyperLinkText("Source code", "https://github.com/Burnt-o/CEER");
@@ -781,6 +841,12 @@ void OptionsGUI::renderOptionsGUI()
 	// Dialogs
 	renderErrorDialog();
 
+	if (newVersionPopupQueued)
+	{
+		ImGui::OpenPopup("New CEER Version"); 
+		newVersionPopupQueued = false;
+	}
+	renderNewVersionWarning();
 
 
 
@@ -810,7 +876,7 @@ void OptionsGUI::renderOptionsGUI()
 	static bool sndSettingsExpanded = false;
 
 
-	float totalContentHeight = 400.f + 40.f
+	float totalContentHeight = 400.f + 60.f
 		+ (ranSettingsExpanded ? randomiserSettingsChildHeight : 0.f)
 		+ (mulSettingsExpanded ? multiplierSettingsChildHeight : 0.f)
 		+ (texSettingsExpanded ? 265.f : 0.f)
@@ -1369,6 +1435,14 @@ void OptionsGUI::renderOptionsGUI()
 		Logging::SetConsoleLoggingLevel(OptionsState::VerboseLogging.GetValue() ? plog::verbose : plog::info);
 		Logging::SetFileLoggingLevel(OptionsState::VerboseLogging.GetValue() ? plog::verbose : plog::info);
 	}
+	addTooltip("Puts more info in the log file so Burnt can diagnose issues/crashes better, but reduces performance.");
+
+	if (ImGui::Checkbox("Check for updates on startup", &OptionsState::CheckForUpdates.GetValueDisplay()))
+	{
+		OptionsState::CheckForUpdates.UpdateValueWithInput();
+	}
+
+
 	addTooltip("Puts more info in the log file so Burnt can diagnose issues/crashes better, but reduces performance.");
 	ImGui::End(); // end main window
 
