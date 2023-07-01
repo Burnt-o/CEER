@@ -20,3 +20,19 @@ Supports current patch (v3073) as of 18th of June 2023, as well as Season 8 (v26
 
 COOP:
 To play coop, both players must use identical settings (and with a set seed, not an empty one). The copy & paste functions can help you set this up. You also want to get all your settings set while in the pre-game lobby, as changing settings mid-game is likely to cause desync.
+
+**Building from source:**
+To build the source yourself you'll need the following libraries from vcpkg. 
+ * plog:x64-windows
+ * plog:x64-windows-static
+ * eventpp:x64-windows-static
+ * imgui\[dx11-binding,win32-binding\]:x64-windows-static
+ * pugixml:x64-windows-static
+ * curl\[non-http,schannel,ssl,sspi\]:x64-windows-static
+ * boost-stacktrace:x64-windows-static
+ * boost-algorithm:x64-windows-static
+ * boost-stacktrace:x64-windows-static
+ * boost-stacktrace:x64-windows-static
+ 
+This project also makes heavy use of the amazing [SafetyHook](https://github.com/cursey/safetyhook) by cursey. You can think of it as like "Microsoft Detours but if it didn't suck". I've included the release I'm using in the solution files. 
+You'll also need the Windows 10 SDK.
