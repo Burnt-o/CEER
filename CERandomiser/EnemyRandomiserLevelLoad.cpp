@@ -44,8 +44,10 @@ void EnemyRandomiser::lazyInit()
 		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
 
 		auto fixWinstoreBipedCrashFunction = PointerManager::getMultilevelPointer("fixWinstoreBipedCrashFunction");
-		auto fixWinstoreBipedCrashPatchBytes = PointerManager::getVector<byte>("fixWinstoreBipedCrashPatchBytes");
-
+		std::vector<byte> fixWinstoreBipedCrashPatchBytes;
+		PLOG_VERBOSE << "hm";
+		PointerManager::getVector<byte>("fixWinstoreBipedCrashPatchBytes", fixWinstoreBipedCrashPatchBytes);
+		PLOG_VERBOSE << "yes";
 		for (auto b : fixWinstoreBipedCrashPatchBytes)
 		{
 			PLOG_VERBOSE << "b: " << std::hex << b;
@@ -71,7 +73,9 @@ void EnemyRandomiser::lazyInit()
 		spawnPositionFuzzFunctionContext = PointerManager::getMidhookContextInterpreter("spawnPositionFuzzFunctionContext");
 		spawnPositionFuzzHook = ModuleMidHook::make(L"halo1.dll", spawnPositionFuzzFunction, spawnPositionFuzzHookFunction, false);
 
-
+		PLOG_VERBOSE << "hm2";
+		PointerManager::getVector<std::string>("BadUnitNames", badUnitNames);
+		PLOG_VERBOSE << "yes2";
 
 	}
 	catch (InitException& ex)
@@ -152,10 +156,9 @@ void EnemyRandomiser::onEnemySpawnMultiplierToggleChange(bool& newValue)
 
 
 
-template<size_t n>
-bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
+bool isValidUnit(UnitInfo& info, std::vector<std::string>& badNames)
 {
-	for (auto badName : badNames)
+	for (auto& badName : badNames)
 	{
 		if (info.getFullName().contains(badName))
 		{
@@ -182,7 +185,6 @@ bool isValidUnit(UnitInfo& info, const std::array<const char*, n> badNames)
 }
 
 
-constexpr std::array badUnitNames = { "monitor", "captain", "engineer", "wounded", "cyborg", "cortana", "pilot", "detector", "gunner", "nopop", "cd_gun", "suicidal", "special", "greeny", "purpy", "airdef"};
 
 UnitInfo EnemyRandomiser::readActorInfo(const datum actorDatum)
 {

@@ -83,7 +83,7 @@ private:
 	// Pointers
 	std::shared_ptr<MultilevelPointer> gameSpawnRNG;
 	std::shared_ptr<MultilevelPointer> gameRNG;
-
+	std::vector<std::string> badUnitNames;
 	// Hooks
 
 

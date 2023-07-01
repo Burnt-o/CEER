@@ -11,7 +11,7 @@
 class PointerManager
 {
 
-private:	
+private:
 	// singleton
 	//static PointerManager& get() {
 	//	static PointerManager instance;
@@ -21,7 +21,9 @@ private:
 
 
 	template <typename T>
-	static std::vector<T> getVectorImpl(std::string dataName);
+	static void getVectorImpl(std::string dataName, std::vector<T>& out);
+
+
 
 	class PointerManagerImpl;
 	std::unique_ptr<PointerManagerImpl> impl;
@@ -34,6 +36,6 @@ public:
 
 
 
-	template <typename T> 
-	static std::vector<T> getVector(std::string dataName);
+	template <typename T>
+	static void getVector(std::string dataName, std::vector<T>& out);
 };

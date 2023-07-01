@@ -10,6 +10,45 @@
 	</LatestCEERVersion>
 
 
+	<!--Any actor or biped with one of these strings within it's name will not be randomised/multiplied.
+	(to prevent softlocks, crashes, gameplay weirdness etc)-->
+	<VersionedEntry Name="BadUnitNames" Type="Vector" Typename="std::string">
+		<Version Version="All">
+		<!--Vanilla-->
+		<Entry>vehicles</Entry>
+		<Entry>monitor</Entry>
+		<Entry>captain</Entry>
+		<Entry>engineer</Entry>
+		<Entry>wounded</Entry>
+		<Entry>cyborg</Entry>
+		<Entry>cortana</Entry>
+		<Entry>pilot</Entry>
+		<Entry>detector</Entry>
+		<Entry>gunner</Entry>
+		<Entry>nopop</Entry>
+		<Entry>cd_gun</Entry>
+		<Entry>suicidal</Entry>
+		<Entry>airdef</Entry>
+
+		<!--Cursed Halo Again-->
+		<Entry>special</Entry>
+		<Entry>greeny</Entry>
+		<Entry>purpy</Entry>
+		
+		<!--Rubys Rebalanced Halo CE-->
+		<Entry>butterfly</Entry>
+		<Entry>bird</Entry>
+
+		<!--Silent Cartographer Evolved-->
+		<Entry>fish</Entry>
+		<Entry>_egg</Entry>
+		
+		<!--Lumoria-->
+		<Entry>lumoria_boss</Entry>
+		</Version>
+	</VersionedEntry>
+	
+
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
 		<Version Version="1.3074.0.0" ProcessType="Steam">

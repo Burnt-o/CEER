@@ -165,9 +165,6 @@ void ModulePatch::attach()
 
 void ModulePatch::detach()
 {
-	std::stringstream buffer;
-	buffer << boost::stacktrace::stacktrace();
-	PLOG_DEBUG << buffer.str();
 
 	PLOG_VERBOSE << " ModulePatch::detach()";
 #define logErrorReturn(x, y) if (x) { PLOG_ERROR << y; return; }

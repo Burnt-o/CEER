@@ -37,6 +37,7 @@ class PointerManager::PointerManagerImpl {
         void instantiateVectorFloat(pugi::xml_node entry, std::string entryName);
         template <typename T>
         void instantiateVectorInteger(pugi::xml_node entry, std::string entryName);
+        void instantiateVectorString(pugi::xml_node entry, std::string entryName);
 
 
         std::string currentGameVersion;
@@ -133,26 +134,38 @@ std::shared_ptr<MidhookContextInterpreter> PointerManager::getMidhookContextInte
     return instance->impl.get()->mMidhookContextInterpreterData.at(dataName);
 }
 
-template <>
-std::vector<byte> PointerManager::getVectorImpl<byte>(std::string dataName)
+
+
+
+
+
+
+template <typename T>
+void PointerManager::getVectorImpl(std::string dataName, std::vector<T>& out)
 {
+    // Can you tell I was having issues here? Templates can eat my shorts
+    PLOG_DEBUG << "aye";
+    out.clear();
+    PLOG_DEBUG << "ayeb";
     auto anyVec = instance->impl.get()->mVectorData.at(dataName);
     PLOG_VERBOSE << "a";
-    std::vector<byte> out;
     out.reserve(anyVec.size());
     PLOG_VERBOSE << "b";
     for (int i = 0; i < anyVec.size(); i++)
     {
-        out.push_back(std::any_cast<byte>(anyVec.at(i)));
+        PLOG_DEBUG << "c";
+        out.push_back(std::any_cast<T>(anyVec.at(i)));
+        PLOG_DEBUG << "d";
     }
-    PLOG_VERBOSE << "c";
-    return out;
+    PLOG_VERBOSE << "e";
+    return;
 }
 
 
-template <>
-std::vector<byte> PointerManager::getVector<byte>(std::string dataName)
+template <typename T>
+void PointerManager::getVector(std::string dataName, std::vector<T>& out)
 {
+    PLOG_DEBUG << "yeah";
     if (!instance->impl.get()->mVectorData.contains(dataName))
     {
         PLOG_ERROR << "no valid pointer data for " << dataName;
@@ -161,13 +174,15 @@ std::vector<byte> PointerManager::getVector<byte>(std::string dataName)
 
     try
     {
-        return getVectorImpl<byte>(dataName);
+        PLOG_DEBUG << "okay";
+        getVectorImpl(dataName, out);
     }
     catch (const std::bad_any_cast& e)
     {
         throw InitException(std::format("Bad typecast of vector data with name {}: {}", dataName, e.what()));
     }
 }
+
 
 std::map<std::string, std::shared_ptr<MultilevelPointer>> PointerManager::PointerManagerImpl::mMultilevelPointerData{};
 std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager::PointerManagerImpl::mMidhookContextInterpreterData{};
@@ -398,10 +413,10 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
     {
 
 
-        if (strcmp(versionEntry.attribute("Version").value(), currentGameVersion.c_str())) // We only want the versionEntries of the current MCC version
+        if (strcmp(versionEntry.attribute("Version").value(), currentGameVersion.c_str()) != 0 &&(strcmp(versionEntry.attribute("Version").value(), "All") != 0)) // We only want the versionEntries of the current MCC version
         {
-            PLOG_VERBOSE << "No version match";
-            continue;
+                PLOG_VERBOSE << "No version match";
+                continue;
         }
         PLOG_DEBUG << "Matching version found";
 
@@ -453,6 +468,8 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
                 instantiateVectorFloat<double>(versionEntry, entryName);
             else if (typeName == nameof(long double))
                 instantiateVectorFloat<long double>(versionEntry, entryName);
+            else if (typeName == nameof(std::string))
+                instantiateVectorString(versionEntry, entryName);
             else
                 throw InitException(std::format("Unsupported typename passed to instantiateVector {}: {}", entryName, typeName));
 
@@ -661,3 +678,34 @@ void PointerManager::PointerManagerImpl::instantiateVectorFloat(pugi::xml_node v
 
 
 }
+
+
+void PointerManager::PointerManagerImpl::instantiateVectorString(pugi::xml_node versionEntry, std::string entryName)
+{
+    std::vector < std::any > out;
+
+
+    for (pugi::xml_node stringEntry = versionEntry.first_child(); stringEntry; stringEntry = stringEntry.next_sibling())
+    {
+        std::string s = stringEntry.text().as_string();
+        out.push_back(s);
+    }
+
+    mVectorData.try_emplace(entryName, out);
+
+
+
+}
+
+
+
+
+// explicit instantions to get around stupid cpp linkage weirdness https://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
+template
+void PointerManager::getVectorImpl(std::string dataName, std::vector<byte>& out);
+template
+void PointerManager::getVectorImpl(std::string dataName, std::vector<std::string>& out);
+template
+void PointerManager::getVector(std::string dataName, std::vector<byte>& out);
+template
+void PointerManager::getVector(std::string dataName, std::vector<std::string>& out);
