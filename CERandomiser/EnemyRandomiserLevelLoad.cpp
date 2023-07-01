@@ -125,8 +125,7 @@ void EnemyRandomiser::onEitherOptionChange()
 
 	if (shouldEnable)
 	{
-		// Get rng seed
-		ourSeed = UserSeed::GetCurrentSeed();
+
 
 		// check if a level is already loaded, if so call onLevelLoad
 		HaloLevel currentLevel;
@@ -449,6 +448,9 @@ void EnemyRandomiser::evaluateBipeds()
 
 void EnemyRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 {
+	// Get rng seed
+	instance->ourSeed = UserSeed::GetCurrentSeed();
+
 	if (OptionsState::EnemyRandomiser.GetValue() || OptionsState::EnemySpawnMultiplier.GetValue())
 	{
 

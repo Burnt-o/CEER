@@ -106,7 +106,7 @@ namespace OptionSerialisation
 	//}
 
 
-	void deserialiseAllOptions(pugi::xml_document& doc)
+	void deserialiseAllOptions(pugi::xml_document& doc, bool clipboardOnly)
 	{
 
 		// rules must be deserialised before options, so that the rules are loaded in before any of the options actually turn on.
@@ -171,6 +171,7 @@ namespace OptionSerialisation
 		if (optionArray.type() == pugi::node_null) throw SerialisationException("Could not find OptionArray node");
 		for (auto option : OptionsState::allSerialisableOptions)
 		{
+			if (clipboardOnly && !option->isIncludedInClipboard()) continue;
 			auto optionXML = optionArray.child(getShortName(option->getOptionName()).c_str());
 			if (optionXML.type() == pugi::node_null) throw SerialisationException(std::format("Could not find Option node {}", option->getOptionName()));
 			option->deserialise(optionXML);
@@ -212,7 +213,7 @@ namespace OptionSerialisation
 		{
 			try
 			{
-				deserialiseAllOptions(doc);
+				deserialiseAllOptions(doc, false);
 			}
 			catch (SerialisationException& ex)
 			{

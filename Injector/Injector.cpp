@@ -121,16 +121,19 @@ int main()
 	catch (MissingPermissionException ex)
 	{
 		PLOG_FATAL << "CEER didn't have appropiate permissions to modify MCC. If MCC or steam are running as admin, CEER needs to be run as admin too.\nNerdy details: " << ex.what();
+		PLOG_INFO << "Press Enter to shutdown CEER";
 		std::cin.ignore();
 	}
 	catch (std::exception ex)
 	{
 		PLOG_FATAL << "An error occured: " << ex.what();
+		PLOG_INFO << "Press Enter to shutdown CEER";
 		std::cin.ignore();
 	}
 	catch (...)
 	{
 		PLOG_FATAL << "An unknown error occured.";
+		PLOG_INFO << "Press Enter to shutdown CEER";
 		std::cin.ignore();
 	}
 

@@ -162,7 +162,7 @@ void pasteSettings()
 		));
 	}
 
-		OptionSerialisation::deserialiseAllOptions(doc);
+		OptionSerialisation::deserialiseAllOptions(doc, true);
 	}
 	catch (SerialisationException& ex)
 	{
@@ -978,6 +978,10 @@ void OptionsGUI::renderOptionsGUI()
 				OptionsState::SoundRandomiser.UpdateValueWithInput();
 			}
 			addTooltip("Update CEERs internal state with your inputted changed settings.");
+		}
+		else
+		{
+			changesPending_Seed = false;
 		}
 
 #pragma endregion Seed

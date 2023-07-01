@@ -199,7 +199,8 @@ namespace OptionsState
 		&RandomiserIncludesFlameThrowers, 
 #endif
 		&TextureRandomiserPercent, &TextureRestrictToCategory, &TextureIncludeCharacter, &TextureIncludeWeapVehi, &TextureIncludeEffect, &TextureIncludeLevel, &TextureIncludeUI, &TextureSeizureMode, &TextureFramesBetweenSeizures,
-	 & SoundRestrictToCategory, & SoundIncludeDialog, & SoundIncludeMusic, & SoundIncludeAnimations, & SoundIncludeEffects, & SoundIncludeWeapVehi,
+
+		&SoundRandomiserPercent, &SoundRestrictToCategory, & SoundIncludeDialog, & SoundIncludeMusic, & SoundIncludeAnimations, & SoundIncludeEffects, & SoundIncludeWeapVehi,
 	
 	// main toggles last as they will fire onChange events
 		& EnemyRandomiser, &EnemySpawnMultiplier, &TextureRandomiser, & SoundRandomiser,

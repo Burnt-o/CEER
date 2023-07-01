@@ -86,6 +86,11 @@ __int64 EnemyRandomiser::newPlaceObjectFunction(objectData* spawningObject, tagB
 		datum newUnitDatum = nullDatum;
 
 		uint64_t seed = instance->ourSeed ^ (((uint64_t)spawningObject->posX << 32) + ((uint64_t)spawningObject->posY)); // Create a seed from the specific enemy data & XOR with the user-input seed
+		PLOG_DEBUG << "ourSeed: " << std::hex << instance->ourSeed;
+		PLOG_DEBUG << "spawningObject->posX: " << spawningObject->posX << ", " << std::hex << (uint64_t)spawningObject->posX;
+		PLOG_DEBUG << "spawningObject->posY: " << spawningObject->posY << ", " << std::hex << (uint64_t)spawningObject->posY;
+		
+		
 		SetSeed64 generator(seed); // Needed to interact with <random>, also twists our number
 		PLOG_DEBUG << "seed set: " << std::hex << seed;
 
@@ -343,7 +348,11 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 	// Construct a seed
 	uint64_t seed = instance->ourSeed ^ (((uint64_t)encounterIndex << 32) + ((uint64_t)squadIndex << 24) + ((uint64_t)hookData_currentSquadUnitIndex << 16)) + ((uint64_t)nextSpawnPositionIndex << 8); // Create a seed from the specific enemy data & XOR with the user-input seed
-	
+	PLOG_DEBUG << "ourSeed: " << std::hex << instance->ourSeed;
+	PLOG_DEBUG << "encounterIndex: " << encounterIndex;
+	PLOG_DEBUG << "squadIndex: " << squadIndex;
+	PLOG_DEBUG << "hookData_currentSquadUnitIndex: " << hookData_currentSquadUnitIndex;
+	PLOG_DEBUG << "nextSpawnPositionIndex: " << nextSpawnPositionIndex;
 	// clear hookdata so data doesn't bleed over
 	hookData_currentSquadUnitIndex = 0;
 
@@ -353,11 +362,12 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 	PLOG_DEBUG << "seed set: " << std::hex << seed;
 	PLOG_DEBUG << "spawnMultiplierPreRando: " << originalActorInfo.spawnMultiplierPreRando;
 	// Apply pre-rando spawn multiplier
-	double zeroToOneRoll = zeroToOne(generator);
+	double zeroToOneRollPreRando = zeroToOne(generator);
+	PLOG_DEBUG << "zeroToOneRollPreRando: " << zeroToOneRollPreRando;
 	// A fun way to do a for loop. Use doubles!
 	// This ensures that if the spawn multiplier is, say, 2.5x, we're guarenteed to spawn 2 enemies and have a 50% chance to spawn a third.
 
-	for (double d = 0; d + zeroToOneRoll < originalActorInfo.spawnMultiplierPreRando; d++)
+	for (double d = 0; d + zeroToOneRollPreRando < originalActorInfo.spawnMultiplierPreRando; d++)
 	{
 
 		PLOG_DEBUG << "outer loop " << d;
@@ -370,7 +380,9 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 		datum newUnitDatum = originalActor;
 		PLOG_DEBUG << "probability of randomisze: " << originalActorInfo.probabilityOfRandomize;
-		if (zeroToOne(generator) < originalActorInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
+		double zeroToOneRollRandomise = zeroToOne(generator);
+		PLOG_DEBUG << "zeroToOneRollRandomise: " << zeroToOneRollRandomise;
+		if (zeroToOneRollRandomise < originalActorInfo.probabilityOfRandomize) // Roll against the original units randomize probability, if true then we randomise
 		{
 			hookData_unitRandomised = true;
 
@@ -398,6 +410,8 @@ bool EnemyRandomiser::newProcessSquadUnitFunction(uint16_t encounterIndex, __int
 
 		// Apply post-rando spawn multiplier
 		double zeroToOneRollPostRando = zeroToOne(generator);
+		PLOG_DEBUG << "zeroToOneRollPostRando: " << zeroToOneRollPostRando;
+		PLOG_DEBUG << "newUnit->spawnMultiplierPostRando: " << newUnit->spawnMultiplierPostRando;
 		for (double e = 0; e + zeroToOneRollPostRando < newUnit->spawnMultiplierPostRando; e++) // Important that we're checking the postRando multiplier of the NEW unit, not the original (ofc they will be the same if no randomisation occured, no biggie)
 		{
 

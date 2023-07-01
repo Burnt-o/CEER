@@ -14,8 +14,13 @@ public:
 		// Generate a string if it's blank
 		if(OptionsState::SeedString.GetValue().find_first_not_of(' ') == std::string::npos)
 		{
+			PLOG_DEBUG << "Generating string";
 			OptionsState::SeedString.GetValue() = generateString();
 			OptionsState::SeedString.UpdateValueWithInput();
+		}
+		else
+		{
+			PLOG_DEBUG << "Returning seedValue for seedString: " << OptionsState::SeedString.GetValue();
 		}
 
 		return hashString(OptionsState::SeedString.GetValue());

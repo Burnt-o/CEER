@@ -151,7 +151,7 @@ void RealMain(HMODULE dllHandle)
     {
         PLOG_FATAL << "Failed initializing: " << ex.what();
         PLOG_FATAL << "Please send Burnt the log file located at: " << std::endl << Logging::GetLogFileDestination();
-        std::cout << "Enter any command to shutdown CEER";
+        std::cout << "Press Enter to shutdown CEER";
         GlobalKill::killMe();
         std::cin.ignore();
     }

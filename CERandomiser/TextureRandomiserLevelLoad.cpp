@@ -71,9 +71,6 @@ void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
 
 	if (newValue)
 	{
-		// Get rng seed
-		instance->ourSeed = UserSeed::GetCurrentSeed();
-
 		// check if a level is already loaded, if so call onLevelLoad
 		HaloLevel currentLevel;
 		if (LevelLoadHook::isLevelAlreadyLoaded(currentLevel))
@@ -94,6 +91,9 @@ void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
 
 void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 {
+	// Get rng seed
+	instance->ourSeed = UserSeed::GetCurrentSeed();
+
 	if (OptionsState::TextureRandomiser.GetValue())
 	{
 		try

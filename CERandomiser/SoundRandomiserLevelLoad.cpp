@@ -46,8 +46,7 @@ void SoundRandomiser::onSoundRandomiserToggleChange(bool& newValue)
 
 	if (newValue)
 	{
-		// Get rng seed
-		instance->ourSeed = UserSeed::GetCurrentSeed();
+
 
 		// check if a level is already loaded, if so call onLevelLoad
 		HaloLevel currentLevel;
@@ -66,6 +65,9 @@ void SoundRandomiser::onSoundRandomiserToggleChange(bool& newValue)
 
 void SoundRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 {
+	// Get rng seed
+	instance->ourSeed = UserSeed::GetCurrentSeed();
+
 	if (OptionsState::SoundRandomiser.GetValue())
 	{
 		try
