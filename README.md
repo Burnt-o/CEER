@@ -31,8 +31,6 @@ To build the source yourself you'll need the following libraries from vcpkg.
  * curl\[non-http,schannel,ssl,sspi\]:x64-windows-static
  * boost-stacktrace:x64-windows-static
  * boost-algorithm:x64-windows-static
- * boost-stacktrace:x64-windows-static
- * boost-stacktrace:x64-windows-static
  
 This project also makes heavy use of the amazing [SafetyHook](https://github.com/cursey/safetyhook) by cursey. You can think of it as like "Microsoft Detours but if it didn't suck". I've included the release I'm using in the solution files. 
 You'll also need the Windows 10 SDK.
