@@ -28,11 +28,17 @@
 // logging
 #include <plog\Log.h>
 #include <plog/Initializers/ConsoleInitializer.h>
+#include <plog/Initializers/RollingFileInitializer.h>
 #include <plog\Formatters\TxtFormatter.h>
 
 #include "WinHandle.h"
 
+enum AppenderID {
+	ConsoleAppender = 1,
+	FileAppender = 2
+};
 
+#define LogToFile 0
 
 
 class MissingPermissionException : public std::exception {
@@ -58,22 +64,45 @@ uintptr_t findFunction(std::string funcName, HMODULE dll, DWORD pid);
 
 int main()
 {
+
+
+
 	// Logging
 	plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
-	plog::init(plog::verbose, &consoleAppender);
+	plog::init<ConsoleAppender>(plog::verbose, &consoleAppender);
+
+
+	CHAR buffer[MAX_PATH] = { 0 };
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	std::wstring::size_type pos = std::string(buffer).find_last_of("\\/");
+	auto currentDirectory = std::string(buffer).substr(0, pos);
+	if (!currentDirectory.ends_with('\\'))
+		currentDirectory += '\\';
+
+
+#if LogToFile == 1
+	std::string fileLogLocation(currentDirectory + "CEER_injectorlog.txt");
+	// Delete the file if it already exists
+	//remove(fileLogLocation.c_str());
+
+	plog::RollingFileAppender<plog::TxtFormatter> fileAppender(fileLogLocation.c_str(), 0, 0);
+	plog::init<FileAppender>(plog::verbose, &fileAppender);
+
+	// log using both appenders
+	// Always set this to verbose, the appenders will filter according to their own severity
+	plog::init(plog::verbose).addAppender(plog::get<ConsoleAppender>()).addAppender(plog::get<FileAppender>());
+#else
+	// log with just the console
+	plog::init(plog::verbose).addAppender(plog::get<ConsoleAppender>());
+#endif
+
 	PLOG_INFO << "CEER starting up";
 
 	try
 	{
 
-		CHAR buffer[MAX_PATH] = { 0 };
-		GetModuleFileNameA(NULL, buffer, MAX_PATH); 
-		std::wstring::size_type pos = std::string(buffer).find_last_of("\\/");
-		auto currentDirectory = std::string(buffer).substr(0, pos);
-		if (!currentDirectory.ends_with('\\'))
-			currentDirectory += '\\';
-
 		PLOG_DEBUG << "CEER path: " << currentDirectory;
+
 
 		auto dllFilePath = std::string(currentDirectory + dllName + ".dll");
 
@@ -264,6 +293,21 @@ void SendShutdownCommand(HMODULE dll, DWORD pid)
 	auto threadHandle = CreateRemoteThread(mcc.get(), NULL, NULL, (LPTHREAD_START_ROUTINE)shutdownFunc, NULL, NULL, NULL);
 	if (!threadHandle) throw std::exception(std::format("Failed to create remote thread in MCC process: {}", GetLastError()).c_str());
 
+	// need to wait on the result before we can inject / send startup
+		// Check if thread completed successfully
+	auto waitResult = WaitForSingleObject(threadHandle, 3000);
+
+	switch (waitResult)
+	{
+	case 0x00000080:
+		throw std::exception("SendShutdownCommand:: Remote thread failed unexpectedly (WAIT_ABANDONED)");
+	case 0x00000102:
+		throw std::exception("SendShutdownCommand:: Remote thread timed out (WAIT_TIMEOUT)");
+	default:
+		break;
+	}
+
+	PLOG_INFO << "Sucessfully sent shutdown command";
 }
 
 
@@ -384,9 +428,9 @@ HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 	switch (waitResult)
 	{
 	case 0x00000080:
-		throw std::exception("Remote thread failed unexpectedly (WAIT_ABANDONED)");
+		throw std::exception("InjectCEER:: Remote thread failed unexpectedly (WAIT_ABANDONED)");
 	case 0x00000102:
-		throw std::exception("Remote thread timed out (WAIT_TIMEOUT)");
+		throw std::exception("InjectCEER:: Remote thread timed out (WAIT_TIMEOUT)");
 	default:
 		break;
 	}
@@ -396,7 +440,7 @@ HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 	GetExitCodeThread(tHandle, &exitCode);
 	if (exitCode == 0) throw std::exception(std::format("LoadLibraryA failed: {}", GetLastError()).c_str());
 
-	PLOG_INFO << "Success!";
+	PLOG_INFO << "Successfully injected CEER!";
 	return GetCEERModuleHandle(pid);
 }
 
@@ -446,9 +490,9 @@ void SendInitCommand(HMODULE dll, DWORD pid, std::string injectorDirectory)
 	switch (waitResult)
 	{
 	case 0x00000080:
-		throw std::exception("Remote thread failed unexpectedly (WAIT_ABANDONED)");
+		throw std::exception("SendInitCommand:: Remote thread failed unexpectedly (WAIT_ABANDONED)");
 	case 0x00000102:
-		throw std::exception("Remote thread timed out (WAIT_TIMEOUT)");
+		throw std::exception("SendInitCommand:: Remote thread timed out (WAIT_TIMEOUT)");
 	default:
 		break;
 	}
@@ -458,5 +502,5 @@ void SendInitCommand(HMODULE dll, DWORD pid, std::string injectorDirectory)
 	GetExitCodeThread(tHandle, &exitCode);
 	if (exitCode == 0) throw std::exception(std::format("LoadLibraryA failed: {}", GetLastError()).c_str());
 
-	PLOG_INFO << "Success!";
+	PLOG_INFO << "Successfully sent init command!";
 }

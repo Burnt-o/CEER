@@ -4,6 +4,7 @@
 
 extern "C" __declspec(dllexport) void Shutdown()
 {
+	PLOG_INFO << "Shutdown called from external";
 	GlobalKill::killMe();
 }
 

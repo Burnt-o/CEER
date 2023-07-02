@@ -319,12 +319,17 @@ void D3D11Hook::initializeD3Ddevice(IDXGISwapChain* pSwapChain)
 HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
 	auto d3d = instance;
-	
+	if (!instance)
+	{
+		PLOG_FATAL << "d3d instance was null at newDX11Present";
+	}
+
 	std::scoped_lock<std::mutex> lock(d3d->mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
 
 
 	if (!d3d->isD3DdeviceInitialized)
 	{
+		PLOG_DEBUG << "Initializing d3d device @ present";
 		try
 		{
 			d3d->initializeD3Ddevice(pSwapChain);
@@ -360,8 +365,39 @@ HRESULT D3D11Hook::newDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval,
 HRESULT D3D11Hook::newDX11ResizeBuffers(IDXGISwapChain* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
 	auto d3d = instance;
+	if (!instance)
+	{
+		PLOG_FATAL << "d3d instance was null at newDX11ResizeBuffers";
+	}
+
 
 	std::scoped_lock<std::mutex> lock(d3d->mDestructionGuard); // Protects against D3D11Hook singleton destruction while hooks are executing
+
+	if (!d3d->isD3DdeviceInitialized)
+	{
+		PLOG_DEBUG << "Initializing d3d device @ resizeBuffers";
+		try
+		{
+			d3d->initializeD3Ddevice(pSwapChain);
+			d3d->isD3DdeviceInitialized = true;
+			PLOG_DEBUG << "D3D device initialized";
+		}
+		catch (InitException& ex)
+		{
+			PLOG_FATAL << "Failed to initialize d3d device, info: " << std::endl
+				<< ex.what() << std::endl
+				<< "CEER will now automatically close down";
+			GlobalKill::killMe();
+
+			// Call original resize buffers
+			return d3d->m_pOriginalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+
+
+		}
+
+	}
+
+
 
 	// Need to release mainRenderTargetView before calling ResizeBuffers
 	if (d3d->m_pMainRenderTargetView != nullptr)
