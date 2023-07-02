@@ -48,9 +48,9 @@ the game sometimes freezes if you shutdown CEER while on the first part of the m
 // Main Execution Loop
 void RealMain(HMODULE dllHandle) 
 {
-
-
     acquire_global_unhandled_exception_handler();
+
+    GlobalKill::reviveMe();
 
     // wait for init parameters from the injector
     auto startTime = GetTickCount64();
@@ -202,6 +202,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
     case DLL_THREAD_ATTACH:
+        break;
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
         break;

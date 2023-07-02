@@ -138,11 +138,13 @@ int main()
 		if (oldCEER)
 		{
 			SendShutdownCommand(oldCEER, mccPID);
-			Sleep(100);
+			PLOG_INFO << "Waiting for shutdown command to execute..";
+			Sleep(1000);
 		}
 
 		auto newCEER = InjectCEER(mccPID, dllFilePath);
 		if (!newCEER) throw std::exception("Error finding dll after injection");
+
 		SendInitCommand(newCEER, mccPID, currentDirectory);
 
 		PLOG_INFO << "Success!";
@@ -307,6 +309,13 @@ void SendShutdownCommand(HMODULE dll, DWORD pid)
 		break;
 	}
 
+	// Get thread exit code 
+	DWORD exitCode;
+	GetExitCodeThread(threadHandle, &exitCode);
+	// returns TRUE on success
+	if (exitCode != 1) throw std::exception(std::format("SendShutdownCommand failed: {}", GetLastError()).c_str());
+
+
 	PLOG_INFO << "Sucessfully sent shutdown command";
 }
 
@@ -438,6 +447,7 @@ HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 	// Get thread exit code 
 	DWORD exitCode;
 	GetExitCodeThread(tHandle, &exitCode);
+	// LoadLibrary returns a (32-bit truncated) handle to the module, or NULL on failure
 	if (exitCode == 0) throw std::exception(std::format("LoadLibraryA failed: {}", GetLastError()).c_str());
 
 	PLOG_INFO << "Successfully injected CEER!";
@@ -500,7 +510,8 @@ void SendInitCommand(HMODULE dll, DWORD pid, std::string injectorDirectory)
 	// Get thread exit code 
 	DWORD exitCode;
 	GetExitCodeThread(tHandle, &exitCode);
-	if (exitCode == 0) throw std::exception(std::format("LoadLibraryA failed: {}", GetLastError()).c_str());
+	// returns TRUE on success
+	if (exitCode != 1) throw std::exception(std::format("SendInitCommand failed: {}", GetLastError()).c_str());
 
 	PLOG_INFO << "Successfully sent init command!";
 }

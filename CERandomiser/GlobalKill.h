@@ -28,4 +28,11 @@ public:
 	{
 		return GlobalKill::get().mKillFlag;
 	}
+
+	// Only called in dllmain init
+	static void reviveMe()
+	{
+		PLOG_DEBUG << "GlobalKill::reviveMe";
+		GlobalKill::get().mKillFlag = false;
+	}
 };

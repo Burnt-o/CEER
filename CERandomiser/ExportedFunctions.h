@@ -3,6 +3,6 @@
 
 
 
-extern "C" __declspec(dllexport) void Shutdown();
+extern "C" __declspec(dllexport) BOOL Shutdown();
 
-extern "C" __declspec(dllexport) void Startup(InitParameter);
+extern "C" __declspec(dllexport) BOOL Startup(InitParameter);
