@@ -1,12 +1,19 @@
 #pragma once
 
 
+
+
 class CEERExceptionBase : public std::exception
 {
 private:
 	std::string message = "error message not set";
 	std::string sourceLocation;
 	std::string stackTrace;
+
+	void MandatoryLogging()
+	{
+		PLOG_ERROR << this->sourceLocation << std::endl << this->message << std::endl << this->stackTrace;
+	}
 
 public:
 	explicit CEERExceptionBase(const char* msg,
@@ -16,6 +23,7 @@ public:
 		std::stringstream buffer;
 		buffer << boost::stacktrace::stacktrace();
 		stackTrace = buffer.str();
+		MandatoryLogging();
 	}
 
 	explicit CEERExceptionBase(std::string msg,
@@ -25,6 +33,7 @@ public:
 		std::stringstream buffer;
 		buffer << boost::stacktrace::stacktrace();
 		stackTrace = buffer.str();
+		MandatoryLogging();
 	}
 
 	std::string what()
@@ -47,6 +56,8 @@ public:
 	}
 
 };
+
+
 
 
 

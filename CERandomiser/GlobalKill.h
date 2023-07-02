@@ -18,6 +18,10 @@ public:
 
 	static void killMe()
 	{
+		// For logging purposes, we want to know what called killMe
+		std::stringstream buffer;
+		buffer << boost::stacktrace::stacktrace();
+		PLOG_INFO << "GlobalKill::killMe (aka program shutdown) called, stacktrace: " << std::endl << buffer.str();
 		GlobalKill::get().mKillFlag = true;
 	}
 	static bool isKillSet()

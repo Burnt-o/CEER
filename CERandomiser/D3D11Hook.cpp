@@ -37,6 +37,15 @@ enum class IDXGISwapChainVMT {
 };
 
 
+const std::map<D3D_DRIVER_TYPE, std::string> driverToString
+{
+	{ D3D_DRIVER_TYPE_HARDWARE, "D3D_DRIVER_TYPE_HARDWARE"},
+	{ D3D_DRIVER_TYPE_WARP, "D3D_DRIVER_TYPE_WARP"},
+	{ D3D_DRIVER_TYPE_REFERENCE, "D3D_DRIVER_TYPE_REFERENCE"},
+	{ D3D_DRIVER_TYPE_SOFTWARE, "D3D_DRIVER_TYPE_SOFTWARE"},
+	{ D3D_DRIVER_TYPE_UNKNOWN, "D3D_DRIVER_TYPE_UNKNOWN"},
+
+};
 
 
 void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Device*& pDummyDevice)
@@ -65,63 +74,75 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 	// the following attempts at D3D11CreateDeviceAndSwapChain differ in the driver_type param
 	// https://learn.microsoft.com/en-us/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_driver_type
 
-	// use D3D_DRIVER_TYPE_WARP
-	// Seems to be the most consistent
+
+
+	// use D3D_DRIVER_TYPE_HARDWARE
+	// works for me
 	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		auto driverToTry = D3D_DRIVER_TYPE_HARDWARE;
+		PLOG_DEBUG << "Attempting to create dummy swap chain with driver type: " << driverToString.at(driverToTry);
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, driverToTry, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
 		if (SUCCEEDED(hr))
 		{
-			PLOG_INFO << "2: Succesfully created dummy swapchain";
+			PLOG_INFO << "Succesfully created dummy swapchain with driver type " << driverToString.at(driverToTry);
 			return;
 		}
 		else
 		{
-			logSwapChainFailure(std::format("2: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain with driver type {}, error: {:x}", driverToString.at(driverToTry), (ULONG)hr));
+		}
+	}
+
+	// use D3D_DRIVER_TYPE_WARP
+	// Seems to be the most consistent
+	{
+		auto driverToTry = D3D_DRIVER_TYPE_WARP;
+		PLOG_DEBUG << "Attempting to create dummy swap chain with driver type: " << driverToString.at(driverToTry);
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, driverToTry, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		if (SUCCEEDED(hr))
+		{
+			PLOG_INFO << "Succesfully created dummy swapchain with driver type " << driverToString.at(driverToTry);
+			return;
+		}
+		else
+		{
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain with driver type {}, error: {:x}", driverToString.at(driverToTry), (ULONG)hr));
 		}
 	}
 
 	// use D3D_DRIVER_TYPE_REFERENCE. The original code I used.
 	// works for me but not gronchy
 	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_REFERENCE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		auto driverToTry = D3D_DRIVER_TYPE_REFERENCE;
+		PLOG_DEBUG << "Attempting to create dummy swap chain with driver type: " << driverToString.at(driverToTry);
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, driverToTry, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
 		if (SUCCEEDED(hr))
 		{
-			PLOG_INFO << "1: Succesfully created dummy swapchain";
+			PLOG_INFO << "Succesfully created dummy swapchain with driver type " << driverToString.at(driverToTry);
 			return;
 		}
 		else
 		{
-			logSwapChainFailure(std::format("1: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain with driver type {}, error: {:x}", driverToString.at(driverToTry), (ULONG)hr));
 		}
 	}
 
-	// use D3D_DRIVER_TYPE_HARDWARE
-	// works for me
-	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
-		if (SUCCEEDED(hr))
-		{
-			PLOG_INFO << "6: Succesfully created dummy swapchain";
-			return;
-		}
-		else
-		{
-			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
-		}
-	}
+
 
 	// use D3D_DRIVER_TYPE_SOFTWARE
 	// does not work for me (E_INVALIDARG)
 	{
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_SOFTWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
+		auto driverToTry = D3D_DRIVER_TYPE_SOFTWARE;
+		PLOG_DEBUG << "Attempting to create dummy swap chain with driver type: " << driverToString.at(driverToTry);
+		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, driverToTry, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
 		if (SUCCEEDED(hr))
 		{
-			PLOG_INFO << "5: Succesfully created dummy swapchain";
+			PLOG_INFO << "Succesfully created dummy swapchain with driver type " << driverToString.at(driverToTry);
 			return;
 		}
 		else
 		{
-			logSwapChainFailure(std::format("5: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+			logSwapChainFailure(std::format("6: failed to create dummy d3d device and swapchain with driver type {}, error: {:x}", driverToString.at(driverToTry), (ULONG)hr));
 		}
 	}
 
@@ -167,6 +188,7 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 	// use D3D_DRIVER_TYPE_UNKNOWN
 	// works if I pass it the adapter manually
 	// tries each adapter
+	PLOG_DEBUG << "Attempting to create dummy swapchain with driver type " << driverToString.at(D3D_DRIVER_TYPE_UNKNOWN);
 	for (auto adapter : vAdapters)
 	{
 		PLOG_INFO << "Attemtping D3D11CreateDeviceAndSwapChain with adapter: " << std::hex << adapter;
@@ -174,12 +196,12 @@ void D3D11Hook::CreateDummySwapchain(IDXGISwapChain*& pDummySwapchain, ID3D11Dev
 			HRESULT hr = D3D11CreateDeviceAndSwapChain(adapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &sd, &pDummySwapchain, &pDummyDevice, &featLevel, nullptr);
 			if (SUCCEEDED(hr))
 			{
-				PLOG_INFO << "4: Succesfully created dummy swapchain";
+				PLOG_INFO << "Succesfully created dummy swapchain with " << driverToString.at(D3D_DRIVER_TYPE_UNKNOWN);
 				return;
 			}
 			else
 			{
-				logSwapChainFailure(std::format("4: failed to create dummy d3d device and swapchain, error: {:x}", (ULONG)hr));
+				logSwapChainFailure(std::format("4: failed to create dummy d3d device and swapchain with driver type {}, error: {:x}", driverToString.at(D3D_DRIVER_TYPE_UNKNOWN), (ULONG)hr));
 			}
 
 	}
