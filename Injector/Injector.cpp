@@ -81,7 +81,7 @@ int main()
 
 
 #if LogToFile == 1
-	std::string fileLogLocation(currentDirectory + "CEER_injectorlog.txt");
+	std::string fileLogLocation(currentDirectory + "CEER_inlog.txt");
 	// Delete the file if it already exists
 	//remove(fileLogLocation.c_str());
 
@@ -143,7 +143,7 @@ int main()
 		}
 
 		auto newCEER = InjectCEER(mccPID, dllFilePath);
-		if (!newCEER) throw std::exception("Error finding dll after injection");
+		if (!newCEER) throw std::exception("Error finding dll after loading");
 
 		SendInitCommand(newCEER, mccPID, currentDirectory);
 
@@ -404,7 +404,7 @@ uintptr_t findFunction(std::string funcName, HMODULE dll, DWORD pid)
 HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 {
 	HandlePtr mcc (OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ, TRUE, pid));
-	if (!mcc) throw MissingPermissionException(std::format("InjectCEER: Couldn't open MCC with createRemoteThread permissions: {}", GetLastError()).c_str());
+	if (!mcc) throw MissingPermissionException(std::format("LoadCEER: Couldn't open MCC with createRemoteThread permissions: {}", GetLastError()).c_str());
 
 	// Get the address of our own Kernel32's loadLibraryA (it will be the same in the target process because Kernel32 is loaded in the same virtual memory in all processes)
 	auto loadLibraryAddr = GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
@@ -437,9 +437,9 @@ HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 	switch (waitResult)
 	{
 	case 0x00000080:
-		throw std::exception("InjectCEER:: Remote thread failed unexpectedly (WAIT_ABANDONED)");
+		throw std::exception("LoadCEER:: Remote thread failed unexpectedly (WAIT_ABANDONED)");
 	case 0x00000102:
-		throw std::exception("InjectCEER:: Remote thread timed out (WAIT_TIMEOUT)");
+		throw std::exception("LoadCEER:: Remote thread timed out (WAIT_TIMEOUT)");
 	default:
 		break;
 	}
@@ -448,9 +448,9 @@ HMODULE InjectCEER(DWORD pid, std::string dllFilePath)
 	DWORD exitCode;
 	GetExitCodeThread(tHandle, &exitCode);
 	// LoadLibrary returns a (32-bit truncated) handle to the module, or NULL on failure
-	if (exitCode == 0) throw std::exception(std::format("LoadLibraryA failed: {}", GetLastError()).c_str());
+	if (exitCode == 0) throw std::exception(std::format("LoadCEER failed: {}", GetLastError()).c_str());
 
-	PLOG_INFO << "Successfully injected CEER!";
+	PLOG_INFO << "Successfully loaded CEER!";
 	return GetCEERModuleHandle(pid);
 }
 
@@ -469,7 +469,7 @@ void SendInitCommand(HMODULE dll, DWORD pid, std::string injectorDirectory)
 	if (!mcc.get()) throw MissingPermissionException(std::format("SendInitCommand: Couldn't open MCC with createRemoteThread permissions: {}", GetLastError()).c_str());
 
 	// Setup init param
-	if (injectorDirectory.size() >= MAX_PATH) throw std::exception("injector Path too large. Try running from somewhere with a shorter filePath");
+	if (injectorDirectory.size() >= MAX_PATH) throw std::exception("CEER filePath too large. Try running from somewhere with a shorter filePath");
 	InitParameter initParam;
 	strncpy_s<MAX_PATH>(initParam.injectorPath, injectorDirectory.c_str(), injectorDirectory.size());
 
