@@ -51,7 +51,7 @@
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
-		<Version Version="1.3074.0.0" ProcessType="Steam">
+		<Version Version="1.3073.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FD8E99</Offset>
 			</Offsets>
