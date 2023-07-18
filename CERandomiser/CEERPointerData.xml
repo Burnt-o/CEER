@@ -735,6 +735,23 @@ The func with the most acccesses.. IS the function we want.
 		</Version>
 	</VersionedEntry>
 
+	<VersionedEntry Name="regularTextureDatumCrashFixContext" Type="MidhookContextInterpreter">
+		<Version Version="1.3232.0.0">
+			<Parameters>
+				<badNull>rax</badNull>
+			</Parameters>
+		</Version>
+	</VersionedEntry>
+
+	<VersionedEntry Name="regularTextureDatumCrashFixFunction" Type="MultilevelPointer::ModuleOffset">
+		<Version Version="1.3232.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xAE133D</Offset>
+			</Offsets>
+		</Version>
+	</VersionedEntry>
+
 	<VersionedEntry Name="loadDecalTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3232.0.0">
 			<Parameters>

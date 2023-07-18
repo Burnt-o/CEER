@@ -2,6 +2,11 @@
 #include "WindowsUtilities.h"
 #include "InitParameter.h"
 
+#ifdef CEER_DEBUG
+#include "TextureRandomiserDatum.h"
+#include "TextureRandomiserOffset.h"
+#endif
+
 
 std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
 
@@ -88,6 +93,11 @@ void make_minidump(EXCEPTION_POINTERS* e)
 		nullptr);
 	PLOG_FATAL << "Dumped crash information to " << dumpFilePath;
 	CloseHandle(hFile);
+
+#ifdef CEER_DEBUG
+	TextureRandomiserDatum::DebugLastTextureDatum();
+	TextureRandomiserOffset::DebugLastTextureOffset();
+#endif
 
 	return;
 }

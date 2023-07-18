@@ -22,7 +22,7 @@ void TextureRandomiserDatum::DebugLastTextureDatum()
 }
 #endif
 
-
+uintptr_t someSafeTexture = 0;
 
 // re-randomises textures
 void TextureRandomiserDatum::induceSeizure(datum* datumRef)
@@ -317,5 +317,42 @@ void TextureRandomiserDatum::loadHudTextureDatumHookFunction(SafetyHookContext& 
 #endif
 
 	* datumRef = instance->shuffledTextures.at(*datumRef);
+
+}
+
+void TextureRandomiserDatum::regularTextureDatumCrashFixHookFunction(SafetyHookContext& ctx)
+{
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
+	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+	enum class param
+	{
+		nullBad,
+	};
+
+	static MidhookContextInterpreter* ctxInterpreter = instance->regularTextureDatumCrashFixFunctionContext.get();
+
+	auto checkRef = ctxInterpreter->getParameterRef(ctx, (int)param::nullBad);
+
+	if (*checkRef != 0)
+	{
+		someSafeTexture = *checkRef;
+		return;
+	}
+	else
+	{
+		if (someSafeTexture == 0)
+		{
+			PLOG_FATAL << "fuck";
+		}
+		*checkRef = someSafeTexture;
+
+#ifdef CEER_DEBUG
+		PLOG_VERBOSE << "problem solved :)";
+#endif
+	}
+
+
+
+
 
 }

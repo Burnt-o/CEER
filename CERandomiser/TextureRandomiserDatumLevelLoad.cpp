@@ -24,6 +24,10 @@ void TextureRandomiserDatum::lazyInit()
 		loadRegularTextureDatumFunctionContext = PointerManager::getMidhookContextInterpreter("loadRegularTextureDatumFunctionContext");
 		loadRegularTextureDatumHook = ModuleMidHook::make(L"halo1.dll", loadRegularTextureDatumFunction, loadRegularTextureDatumHookFunction, false);
 
+		auto regularTextureDatumCrashFixFunction = PointerManager::getMultilevelPointer("regularTextureDatumCrashFixFunction");
+		regularTextureDatumCrashFixFunctionContext = PointerManager::getMidhookContextInterpreter("regularTextureDatumCrashFixContext");
+		regularTextureDatumCrashFixHook = ModuleMidHook::make(L"halo1.dll", regularTextureDatumCrashFixFunction, regularTextureDatumCrashFixHookFunction, false);
+
 		auto loadDecalTextureDatumFunction = PointerManager::getMultilevelPointer("loadDecalTextureDatumFunction");
 		loadDecalTextureDatumFunctionContext = PointerManager::getMidhookContextInterpreter("loadDecalTextureDatumFunctionContext");
 		loadDecalTextureDatumHook = ModuleMidHook::make(L"halo1.dll", loadDecalTextureDatumFunction, loadDecalTextureDatumHookFunction, false);
@@ -51,6 +55,8 @@ void TextureRandomiserDatum::lazyInit()
 			PLOG_ERROR << "Could not find loadHudTexture hooks";
 			hudTexAvailable = false;
 		}
+
+
 
 	}
 	catch (InitException& ex)
@@ -95,6 +101,8 @@ void TextureRandomiserDatum::onTextureRandomiserToggleChange(bool& newValue)
 
 	// set hook state
 	instance->loadRegularTextureDatumHook.get()->setWantsToBeAttached(newValue);
+	instance->regularTextureDatumCrashFixHook.get()->setWantsToBeAttached(newValue);
+
 	instance->loadDecalTextureDatumHook.get()->setWantsToBeAttached(newValue);
 	instance->loadParticleTextureDatumHook.get()->setWantsToBeAttached(newValue);
 	instance->loadContrailTextureDatumHook.get()->setWantsToBeAttached(newValue);

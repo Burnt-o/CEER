@@ -59,6 +59,10 @@ private:
 	static void loadHudTextureDatumHookFunction(SafetyHookContext& ctx);
 	std::shared_ptr<MidhookContextInterpreter> loadHudTextureDatumFunctionContext;
 
+	std::shared_ptr<ModuleMidHook> regularTextureDatumCrashFixHook;
+	static void regularTextureDatumCrashFixHookFunction(SafetyHookContext& ctx);
+	std::shared_ptr<MidhookContextInterpreter> regularTextureDatumCrashFixFunctionContext;
+
 
 	std::vector<datum> seizureModeVector;
 	std::map<datum, TextureInfo> textureMap;

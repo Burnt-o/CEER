@@ -7,7 +7,18 @@ TextureInfo* lastOriginalTextureOffset = nullptr;
 TextureInfo* lastReplacedTextureOffset = nullptr;
 void TextureRandomiserOffset::DebugLastTextureOffset()
 {
-	MessagesGUI::addMessage(std::format("og last: {}\n replaced with: {}", lastOriginalTextureOffset->getFullName(), lastReplacedTextureOffset->getFullName()));
+	if (lastOriginalTextureOffset && lastReplacedTextureOffset)
+	{
+		std::string message = std::format("og last: {}\n replaced with: {}", lastOriginalTextureOffset->getFullName(), lastReplacedTextureOffset->getFullName());
+		PLOG_VERBOSE << message;
+	}
+	else
+	{
+		PLOG_VERBOSE << "null textures";
+	}
+
+
+	//MessagesGUI::addMessage(message);
 }
 #endif
 
