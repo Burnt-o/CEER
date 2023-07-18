@@ -38,4 +38,8 @@ public:
 
 	template <typename T>
 	static void getVector(std::string dataName, std::vector<T>& out);
+
+	static std::shared_ptr<int>getInt(std::string dataName);
+
+	static VersionInfo getCurrentMCCVersion();
 };

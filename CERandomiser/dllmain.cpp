@@ -20,7 +20,8 @@
 #include "Logging.h"
 #include "MessagesGUI.h"
 #include "OptionSerialisation.h"
-#include "TextureRandomiser.h"
+#include "TextureRandomiserDatum.h"
+#include "TextureRandomiserOffset.h"
 #include "SoundRandomiser.h"
 #include "CEERStateLogger.h"
 #include "CEERVersioning.h"
@@ -99,12 +100,28 @@ void RealMain(HMODULE dllHandle)
         auto map = std::make_unique<MapReader>();
         // TODO: we should make the public events private and only allow public access by ref
         auto nme = std::make_unique<EnemyRandomiser>(lvl->levelLoadEvent, map.get());
-        auto tex = std::make_unique<TextureRandomiser>(lvl->levelLoadEvent, map.get());
+
+        std::shared_ptr<TextureRandomiserOffset> texOffset;
+        std::shared_ptr<TextureRandomiserDatum> texDatum;
+
+        VersionInfo needsTexDatumVersion{ 1,3232,0,0 };
+        if (ptr.get()->getCurrentMCCVersion() >= needsTexDatumVersion)
+        {
+            PLOG_INFO << "Constructing TextureRandomiserDatum";
+            texDatum = std::make_unique<TextureRandomiserDatum>(lvl->levelLoadEvent, map.get());
+        }
+        else
+        {
+            PLOG_INFO << "Constructing TextureRandomiserOffset";
+            texOffset = std::make_unique<TextureRandomiserOffset>(lvl->levelLoadEvent, map.get());
+        }
+        
+
+
         auto snd = std::make_unique<SoundRandomiser>(lvl->levelLoadEvent, map.get());
         auto csl = std::make_unique<CEERStateLogger>(lvl->levelLoadEvent);
 
         
-
 
 
         OptionSerialisation::deserialiseFromFile();

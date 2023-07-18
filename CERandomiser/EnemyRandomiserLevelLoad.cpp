@@ -30,7 +30,8 @@ void EnemyRandomiser::lazyInit()
 		auto aiLoadInVehicleFunction = PointerManager::getMultilevelPointer("aiLoadInVehicleFunction");
 		aiLoadInVehicleHook = ModuleMidHook::make(L"halo1.dll", aiLoadInVehicleFunction, aiLoadInVehicleHookFunction, false);
 
-		auto killVehicleOverflowFunction = PointerManager::getMultilevelPointer("killVehicleOverflowFunction");
+
+		auto killVehicleOverflowFunction = PointerManager::getMultilevelPointer("killVehicleOverflowFunction2");
 		killVehicleOverflowFunctionContext = PointerManager::getMidhookContextInterpreter("killVehicleOverflowFunctionContext");
 		killVehicleOverflowHook = ModuleMidHook::make(L"halo1.dll", killVehicleOverflowFunction, killVehicleOverflowHookFunction, false);
 
@@ -43,16 +44,6 @@ void EnemyRandomiser::lazyInit()
 		setBipedDatumFunctionContext = PointerManager::getMidhookContextInterpreter("setBipedDatumFunctionContext");
 		setBipedDatumHook = ModuleMidHook::make(L"halo1.dll", setBipedDatumFunction, setBipedDatumHookFunction, false);
 
-		auto fixWinstoreBipedCrashFunction = PointerManager::getMultilevelPointer("fixWinstoreBipedCrashFunction");
-		std::vector<byte> fixWinstoreBipedCrashPatchBytes;
-		PLOG_VERBOSE << "hm";
-		PointerManager::getVector<byte>("fixWinstoreBipedCrashPatchBytes", fixWinstoreBipedCrashPatchBytes);
-		PLOG_VERBOSE << "yes";
-		for (auto b : fixWinstoreBipedCrashPatchBytes)
-		{
-			PLOG_VERBOSE << "b: " << std::hex << b;
-		}
-		fixWinstoreBipedCrashPatch = ModulePatch::make(L"halo1.dll", fixWinstoreBipedCrashFunction, fixWinstoreBipedCrashPatchBytes, false);
 #endif
 		 //actors
 		auto processSquadUnitFunction = PointerManager::getMultilevelPointer("processSquadUnitFunction");
@@ -124,7 +115,7 @@ void EnemyRandomiser::onEitherOptionChange()
 #if bipedRandomisation == 1
 	placeObjectHook.get()->setWantsToBeAttached(shouldEnable);
 	setBipedDatumHook.get()->setWantsToBeAttached(shouldEnable);
-	fixWinstoreBipedCrashPatch.get()->setWantsToBeAttached(shouldEnable);
+
 #endif
 
 	if (shouldEnable)

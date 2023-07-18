@@ -26,7 +26,7 @@ class PointerManager::PointerManagerImpl {
         // Functions run by constructor, in order of execution
         void downloadXML(std::string url);
         std::string readLocalXML();
-        VersionInfo getCurrentMCCVersion();
+
         MCCProcessType getCurrentMCCType();
         void parseXML(std::string& xml);
         VersionInfo processLatestCEERVersion(pugi::xml_node entry);
@@ -38,6 +38,7 @@ class PointerManager::PointerManagerImpl {
         template <typename T>
         void instantiateVectorInteger(pugi::xml_node entry, std::string entryName);
         void instantiateVectorString(pugi::xml_node entry, std::string entryName);
+        void instantiateInt(pugi::xml_node entry, std::string entryName);
 
 
         std::string currentGameVersion;
@@ -52,7 +53,16 @@ class PointerManager::PointerManagerImpl {
         static std::map<std::string, std::shared_ptr<MultilevelPointer>> mMultilevelPointerData;
         static std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> mMidhookContextInterpreterData;
         static std::map<std::string, std::vector<std::any>> mVectorData;
+        static std::map<std::string, std::shared_ptr<int>> mIntData;
+
+        VersionInfo getCurrentMCCVersion();
 };
+
+
+VersionInfo PointerManager::getCurrentMCCVersion()
+{
+    return instance->impl.get()->getCurrentMCCVersion();
+}
 
 PointerManager::PointerManager() : impl(new PointerManagerImpl) 
 {
@@ -183,10 +193,21 @@ void PointerManager::getVector(std::string dataName, std::vector<T>& out)
     }
 }
 
+std::shared_ptr<int> PointerManager::getInt(std::string dataName)
+{
+    if (!instance->impl.get()->mIntData.contains(dataName))
+    {
+        PLOG_ERROR << "no valid pointer data for " << dataName;
+        throw InitException(std::format("pointerData was null for {0}", dataName));
+    }
+
+    return instance->impl.get()->mIntData.at(dataName);
+}
 
 std::map<std::string, std::shared_ptr<MultilevelPointer>> PointerManager::PointerManagerImpl::mMultilevelPointerData{};
 std::map<std::string, std::shared_ptr<MidhookContextInterpreter>> PointerManager::PointerManagerImpl::mMidhookContextInterpreterData{};
 std::map<std::string, std::vector<std::any>> PointerManager::PointerManagerImpl::mVectorData{};
+std::map<std::string, std::shared_ptr<int>> PointerManager::PointerManagerImpl::mIntData{};
 
 
 
@@ -474,6 +495,10 @@ void PointerManager::PointerManagerImpl::processVersionedEntry(pugi::xml_node en
                 throw InitException(std::format("Unsupported typename passed to instantiateVector {}: {}", entryName, typeName));
 
         }
+        else if (entryType.starts_with("int"))
+        {
+            instantiateInt(versionEntry, entryName);
+        }
     }
 }
 
@@ -695,6 +720,16 @@ void PointerManager::PointerManagerImpl::instantiateVectorString(pugi::xml_node 
 
 
 
+}
+
+
+void PointerManager::PointerManagerImpl::instantiateInt(pugi::xml_node versionEntry, std::string entryName)
+{
+    std::string intString = versionEntry.first_child().text().as_string();
+    int result = stringToInt(intString);
+
+    auto shr = std::make_shared<int>(result);
+    mIntData.try_emplace(entryName, shr);
 }
 
 

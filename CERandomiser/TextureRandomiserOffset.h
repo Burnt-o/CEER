@@ -8,10 +8,10 @@
 #include "TextureInfo.h"
 
 
-class TextureRandomiser
+class TextureRandomiserOffset
 {
 private:
-	static TextureRandomiser* instance; // Private Singleton instance so static hooks/callbacks can access
+	static TextureRandomiserOffset* instance; // Private Singleton instance so static hooks/callbacks can access
 	std::mutex mDestructionGuard; // Protects against Singleton destruction while callbacks are executing
 
 	// ref to MapReader for reading map stuff like actorPalettes and etc
@@ -84,7 +84,7 @@ private:
 
 
 public:
-	explicit TextureRandomiser(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent, MapReader* mapR)
+	explicit TextureRandomiserOffset(eventpp::CallbackList<void(HaloLevel)>& levelLoadEvent, MapReader* mapR)
 		: mLevelLoadEvent(levelLoadEvent), mapReader(mapR), mTextureRandomiserToggleEvent(OptionsState::TextureRandomiser.valueChangedEvent)
 	{
 		if (instance != nullptr)
@@ -100,7 +100,7 @@ public:
 
 	}
 
-	~TextureRandomiser()
+	~TextureRandomiserOffset()
 	{
 		std::scoped_lock<std::mutex> lock(mDestructionGuard);
 		// Unsubscribe events
@@ -115,13 +115,13 @@ public:
 		safe_destroy_hook(loadContrailTextureHook);
 		safe_destroy_hook(loadLensTextureHook);
 
-		
+
 		instance = nullptr;
 	}
 
 
 #if CEER_DEBUG
-	static void DebugLastTexture();
+	static void DebugLastTextureOffset();
 #endif
 
 };

@@ -104,6 +104,7 @@ private:
 	static void aiLoadInVehicleHookFunction(SafetyHookContext& ctx);
 	// doesn't have interpreter, just modifies r flags
 
+
 	std::shared_ptr<ModuleMidHook> killVehicleOverflowHook;
 	static void killVehicleOverflowHookFunction(SafetyHookContext& ctx);
 	std::shared_ptr<MidhookContextInterpreter> killVehicleOverflowFunctionContext;
@@ -127,7 +128,6 @@ private:
 	static placeObjectFunction newPlaceObjectFunction;
 	std::shared_ptr<ModuleInlineHook> placeObjectHook;
 
-	std::shared_ptr<ModulePatch> fixWinstoreBipedCrashPatch;
 #endif
 	static ProcessSquadUnitFunction newProcessSquadUnitFunction;
 	std::shared_ptr<ModuleInlineHook> processSquadUnitHook;
@@ -232,7 +232,6 @@ public:
 #if bipedRandomisation == 1
 		safe_destroy_hook(placeObjectHook);
 		safe_destroy_hook(setBipedDatumHook);
-		safe_destroy_hook(fixWinstoreBipedCrashPatch);
 #endif
 		safe_destroy_hook(processSquadUnitHook);
 		safe_destroy_hook(spawnPositionFuzzHook);

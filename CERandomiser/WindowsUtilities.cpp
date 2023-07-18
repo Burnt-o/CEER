@@ -2,6 +2,7 @@
 #include "WindowsUtilities.h"
 #include "InitParameter.h"
 
+
 std::uniform_real_distribution<double> zeroToOne{ 0.0, 1.0 };
 
 std::wstring str_to_wstr(const std::string str)
@@ -95,6 +96,8 @@ static LPTOP_LEVEL_EXCEPTION_FILTER OriginalUnhandledExceptionFilter;
 LONG CALLBACK unhandled_handler(EXCEPTION_POINTERS* e)
 {
 	PLOG_FATAL << "Unhandled exception, creating minidump!";
+	
+
 	make_minidump(e);
 	return EXCEPTION_CONTINUE_SEARCH;
 }

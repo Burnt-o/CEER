@@ -132,7 +132,7 @@
     <ClInclude Include="OptionSerialisation.h">
       <Filter>Services</Filter>
     </ClInclude>
-    <ClInclude Include="TextureRandomiser.h">
+    <ClInclude Include="TextureRandomiserDatum.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="TextureInfo.h">
@@ -155,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="CEERVersioning.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRandomiserOffset.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -251,10 +254,10 @@
     <ClCompile Include="OptionSerialisation.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="TextureRandomiserLevelLoad.cpp">
+    <ClCompile Include="TextureRandomiserDatumLevelLoad.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="TextureRandomiserHooks.cpp">
+    <ClCompile Include="TextureRandomiserDatumHooks.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="TagInfoBase.cpp">
@@ -271,6 +274,12 @@
     </ClCompile>
     <ClCompile Include="CEERVersioning.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRandomiserOffsetHooks.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRandomiserOffsetLevelLoad.cpp">
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

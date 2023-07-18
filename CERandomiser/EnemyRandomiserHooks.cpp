@@ -216,17 +216,8 @@ void EnemyRandomiser::aiGoToVehicleHookFunction(SafetyHookContext& ctx)
 
 }
 
-void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
-{
-	PLOG_VERBOSE << "aiLoadInVehicleHookFunction";
-	if (!instance) { PLOG_ERROR << "null instance!"; return; }
-	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
 
-	// All we do here is set the zeroflag and parityflag to zero (bits 6 and 2 respectively)
-	// (it'll be 1 if the ai trying to load into the vehicle isn't supposed to be in the vehicle)
 
-	ctx.rflags = ctx.rflags & ~(1UL << 6) & ~(1UL << 2);
-}
 
 // With the multiplied enabled, NPC's that can't fit inside a dropship will instead just spawn at a default location, usually out of reach of the player.
 // This causes softlocks as the player is unable to easily kill them and progress the game script.
@@ -245,6 +236,18 @@ void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
 	};
 	auto* ctxInterpreter = instance->killVehicleOverflowFunctionContext.get();
 
+
+	// need to check sign flag, it indicates if the vehicle was full (when it's false)
+	PLOG_VERBOSE << "rflags: " << ctx.rflags;
+	PLOG_VERBOSE << "signflag: " << (ctx.rflags & (1UL << 7));
+
+	if ((ctx.rflags & (1UL << 7)) != 0)
+	{
+		PLOG_VERBOSE << "signflag: " << (ctx.rflags & (1UL << 7));
+		PLOG_DEBUG << "returning from killVehicleOverflow early: vehicle was not overflowing: " << ctx.rflags;
+		return;
+	}
+
 	auto pUnitInstance = (byte*)*ctxInterpreter->getParameterRef(ctx, (int)param::pUnitObjectInstance);
 	if (IsBadWritePtr(pUnitInstance, 8))
 	{
@@ -257,6 +260,21 @@ void EnemyRandomiser::killVehicleOverflowHookFunction(SafetyHookContext& ctx)
 	*(byte*)ctxInterpreter->getParameterRef(ctx, (int)param::hideFlag) = 1; // hide the unit model
 
 }
+
+
+void EnemyRandomiser::aiLoadInVehicleHookFunction(SafetyHookContext& ctx)
+{
+	PLOG_VERBOSE << "aiLoadInVehicleHookFunction";
+	if (!instance) { PLOG_ERROR << "null instance!"; return; }
+	std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
+
+	// All we do here is set the zeroflag and parityflag to zero (bits 6 and 2 respectively)
+	// (it'll be 1 if the ai trying to load into the vehicle isn't supposed to be in the vehicle)
+
+	ctx.rflags = ctx.rflags & ~(1UL << 6) & ~(1UL << 2);
+}
+
+
 
 
 constexpr std::array badEncounterNames { "shoot_anti", "cryo_tech"};

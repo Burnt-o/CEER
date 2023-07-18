@@ -1,20 +1,20 @@
 #include "pch.h"
-#include "TextureRandomiser.h"
+#include "TextureRandomiserOffset.h"
 #include "MessagesGUI.h"
 
 #if CEER_DEBUG
-TextureInfo* lastOriginalTexture = nullptr;
-TextureInfo* lastReplacedTexture = nullptr;
-void TextureRandomiser::DebugLastTexture()
+TextureInfo* lastOriginalTextureOffset = nullptr;
+TextureInfo* lastReplacedTextureOffset = nullptr;
+void TextureRandomiserOffset::DebugLastTextureOffset()
 {
-	MessagesGUI::addMessage(std::format("og last: {}\n replaced with: {}", lastOriginalTexture->getFullName(), lastReplacedTexture->getFullName()));
+	MessagesGUI::addMessage(std::format("og last: {}\n replaced with: {}", lastOriginalTextureOffset->getFullName(), lastReplacedTextureOffset->getFullName()));
 }
 #endif
 
 
 
 // re-randomises textures
-void TextureRandomiser::induceSeizure(MemOffset* offsetRef)
+void TextureRandomiserOffset::induceSeizure(MemOffset* offsetRef)
 {
 
 	TextureCategory currentTextureCategory = instance->textureMap.at(*offsetRef).category;
@@ -46,7 +46,7 @@ void TextureRandomiser::induceSeizure(MemOffset* offsetRef)
 
 
 
-void TextureRandomiser::loadRegularTextureHookFunction(SafetyHookContext& ctx)
+void TextureRandomiserOffset::loadRegularTextureHookFunction(SafetyHookContext& ctx)
 {
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
@@ -67,17 +67,17 @@ void TextureRandomiser::loadRegularTextureHookFunction(SafetyHookContext& ctx)
 
 
 #if CEER_DEBUG
-	lastOriginalTexture = &instance->textureMap.at(*offsetRef);
-	lastReplacedTexture = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
+	lastOriginalTextureOffset = &instance->textureMap.at(*offsetRef);
+	lastReplacedTextureOffset = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
 #endif
 
-	*offsetRef = instance->shuffledTextures.at(*offsetRef);
+	* offsetRef = instance->shuffledTextures.at(*offsetRef);
 
 }
 
 
 
-void TextureRandomiser::loadDecalTextureHookFunction(SafetyHookContext& ctx)
+void TextureRandomiserOffset::loadDecalTextureHookFunction(SafetyHookContext& ctx)
 {
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
@@ -97,19 +97,19 @@ void TextureRandomiser::loadDecalTextureHookFunction(SafetyHookContext& ctx)
 
 
 #if CEER_DEBUG
-	lastOriginalTexture = &instance->textureMap.at(*offsetRef);
-	lastReplacedTexture = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
+	lastOriginalTextureOffset = &instance->textureMap.at(*offsetRef);
+	lastReplacedTextureOffset = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
 #endif
 
 	* offsetRef = instance->shuffledTextures.at(*offsetRef);
-	
+
 
 }
 
 
 
 
-void TextureRandomiser::loadParticleTextureHookFunction(SafetyHookContext& ctx)
+void TextureRandomiserOffset::loadParticleTextureHookFunction(SafetyHookContext& ctx)
 {
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
@@ -129,8 +129,8 @@ void TextureRandomiser::loadParticleTextureHookFunction(SafetyHookContext& ctx)
 
 
 #if CEER_DEBUG
-	lastOriginalTexture = &instance->textureMap.at(*offsetRef);
-	lastReplacedTexture = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
+	lastOriginalTextureOffset = &instance->textureMap.at(*offsetRef);
+	lastReplacedTextureOffset = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
 #endif
 
 	* offsetRef = instance->shuffledTextures.at(*offsetRef);
@@ -138,7 +138,7 @@ void TextureRandomiser::loadParticleTextureHookFunction(SafetyHookContext& ctx)
 }
 
 
-void TextureRandomiser::loadContrailTextureHookFunction(SafetyHookContext& ctx)
+void TextureRandomiserOffset::loadContrailTextureHookFunction(SafetyHookContext& ctx)
 {
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
@@ -158,8 +158,8 @@ void TextureRandomiser::loadContrailTextureHookFunction(SafetyHookContext& ctx)
 
 
 #if CEER_DEBUG
-	lastOriginalTexture = &instance->textureMap.at(*offsetRef);
-	lastReplacedTexture = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
+	lastOriginalTextureOffset = &instance->textureMap.at(*offsetRef);
+	lastReplacedTextureOffset = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
 #endif
 
 	* offsetRef = instance->shuffledTextures.at(*offsetRef);
@@ -167,7 +167,7 @@ void TextureRandomiser::loadContrailTextureHookFunction(SafetyHookContext& ctx)
 }
 
 
-void TextureRandomiser::loadLensTextureHookFunction(SafetyHookContext& ctx)
+void TextureRandomiserOffset::loadLensTextureHookFunction(SafetyHookContext& ctx)
 {
 	if (!instance) { PLOG_ERROR << "null instance!"; return; }
 	//std::scoped_lock<std::mutex> lock(instance->mDestructionGuard);
@@ -187,8 +187,8 @@ void TextureRandomiser::loadLensTextureHookFunction(SafetyHookContext& ctx)
 
 
 #if CEER_DEBUG
-	lastOriginalTexture = &instance->textureMap.at(*offsetRef);
-	lastReplacedTexture = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
+	lastOriginalTextureOffset = &instance->textureMap.at(*offsetRef);
+	lastReplacedTextureOffset = &instance->textureMap.at(instance->shuffledTextures.at(*offsetRef));
 #endif
 
 	* offsetRef = instance->shuffledTextures.at(*offsetRef);

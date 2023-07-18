@@ -1,20 +1,20 @@
 #include "pch.h"
-#include "TextureRandomiser.h"
+#include "TextureRandomiserOffset.h"
 #include "UserSeed.h"
 #include "LevelLoadHook.h"
 #include "MessagesGUI.h"
 
-TextureRandomiser* TextureRandomiser::instance = nullptr;
+TextureRandomiserOffset* TextureRandomiserOffset::instance = nullptr;
 
-bool TextureRandomiser::SMseizureModeEnabled = false;
-std::map<TextureCategory, bool> TextureRandomiser::SMcategoryIsEnabled{};
-std::map<TextureCategory, std::vector<MemOffset>> TextureRandomiser::SMallTexturePools{};
-std::mt19937 TextureRandomiser::SMseizureRNG; // generator needed to grab numbers from the int distributions
-std::uniform_int_distribution<> TextureRandomiser::SMseizureWillRandomiseRNG{ 0, 100 }; // used to determine whether a texture will be re-randomised on any given frame
-std::uniform_int_distribution<> TextureRandomiser::SMseizureWhatRandomiseRNG{ 0, 100 }; // if re-randomised, used to select which texture to rando into 
+bool TextureRandomiserOffset::SMseizureModeEnabled = false;
+std::map<TextureCategory, bool> TextureRandomiserOffset::SMcategoryIsEnabled{};
+std::map<TextureCategory, std::vector<MemOffset>> TextureRandomiserOffset::SMallTexturePools{};
+std::mt19937 TextureRandomiserOffset::SMseizureRNG; // generator needed to grab numbers from the int distributions
+std::uniform_int_distribution<> TextureRandomiserOffset::SMseizureWillRandomiseRNG{ 0, 100 }; // used to determine whether a texture will be re-randomised on any given frame
+std::uniform_int_distribution<> TextureRandomiserOffset::SMseizureWhatRandomiseRNG{ 0, 100 }; // if re-randomised, used to select which texture to rando into 
 
 
-void TextureRandomiser::lazyInit()
+void TextureRandomiserOffset::lazyInit()
 {
 	PLOG_DEBUG << "TextureRandomiser::lazyInit()";
 	// Set up our hooks and get our pointers
@@ -49,12 +49,12 @@ void TextureRandomiser::lazyInit()
 		throw ex;
 	}
 }
-std::mutex textureToggleChangeMutex;
-void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
+std::mutex textureOffsetToggleChangeMutex;
+void TextureRandomiserOffset::onTextureRandomiserToggleChange(bool& newValue)
 {
-	
 
-	std::scoped_lock<std::mutex> lock(textureToggleChangeMutex);
+
+	std::scoped_lock<std::mutex> lock(textureOffsetToggleChangeMutex);
 	//lazy init (getting pointerData, creating hook objects)
 	try
 	{
@@ -89,7 +89,7 @@ void TextureRandomiser::onTextureRandomiserToggleChange(bool& newValue)
 	instance->loadLensTextureHook.get()->setWantsToBeAttached(newValue);
 }
 
-void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
+void TextureRandomiserOffset::onLevelLoadEvent(HaloLevel newLevel)
 {
 	// Get rng seed
 	instance->ourSeed = UserSeed::GetCurrentSeed();
@@ -116,7 +116,7 @@ void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 		catch (CEERRuntimeException& ex)
 		{
 			PLOG_ERROR << "exception in TextureRandomiser onLevelLoadEvent: " << ex.what();
-			RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::TextureRandomiser}); // tell user, disable options
+			RuntimeExceptionHandler::handleMessage(ex, { &OptionsState::TextureRandomiser }); // tell user, disable options
 		}
 		catch (...) // MCC is probably about to imminently crash, let's see if we can find out what went wrong tho
 		{
@@ -132,7 +132,7 @@ void TextureRandomiser::onLevelLoadEvent(HaloLevel newLevel)
 
 
 
-void TextureRandomiser::evaluateTextures()
+void TextureRandomiserOffset::evaluateTextures()
 {
 	assert(OptionsState::TextureRandomiser.GetValue());
 	textureMap.clear();
@@ -167,9 +167,9 @@ void TextureRandomiser::evaluateTextures()
 	std::pair<TextureCategory, std::vector<MemOffset>>texturePool_UI{ TextureCategory::UI, {} };
 	std::map<TextureCategory, std::vector<MemOffset>> allTexturePools{ texturePool_Character, texturePool_WeapVehi, texturePool_Effect, texturePool_Level, texturePool_UI };
 
-	std::map<TextureCategory, bool> categoryIsEnabled{ 
+	std::map<TextureCategory, bool> categoryIsEnabled{
 		{TextureCategory::Invalid, false},
-		{TextureCategory::Character, OptionsState::TextureIncludeCharacter.GetValue()}, 
+		{TextureCategory::Character, OptionsState::TextureIncludeCharacter.GetValue()},
 		{TextureCategory::WeapVehi, OptionsState::TextureIncludeWeapVehi.GetValue()},
 		{TextureCategory::Effect, OptionsState::TextureIncludeEffect.GetValue()},
 		{TextureCategory::Level, OptionsState::TextureIncludeLevel.GetValue()},
@@ -199,7 +199,7 @@ void TextureRandomiser::evaluateTextures()
 					texturePool.emplace_back(thistextureOffset); // put it in all the texture pools!
 				}
 			}
-		}	
+		}
 	}
 
 	// log how many textures found in each category
@@ -276,7 +276,7 @@ void TextureRandomiser::evaluateTextures()
 }
 
 
-TextureInfo TextureRandomiser::readTextureInfo(const tagElement& textureTag)
+TextureInfo TextureRandomiserOffset::readTextureInfo(const tagElement& textureTag)
 {
 	TextureInfo thisTextureInfo(instance->mapReader->getTagName(textureTag.tagDatum));
 	thisTextureInfo.dat = textureTag.tagDatum;
@@ -287,37 +287,37 @@ TextureInfo TextureRandomiser::readTextureInfo(const tagElement& textureTag)
 
 
 
-TextureCategory TextureRandomiser::sortIntoCategory(const TextureInfo& textureInfo)
+TextureCategory TextureRandomiserOffset::sortIntoCategory(const TextureInfo& textureInfo)
 {
 	PLOG_VERBOSE << textureInfo.getFullName();
 	if (textureInfo.getFullName().starts_with("rasterizer")
 		|| textureInfo.getFullName().contains("angle_ticks_black") // sniper hud element that looks dumb if rando'd
 		) return TextureCategory::Invalid;
-		
+
 
 	if (textureInfo.getFullName().starts_with("character")
 		) return TextureCategory::Character;
-		
+
 
 	if (textureInfo.getFullName().starts_with("weapons")
 		|| textureInfo.getFullName().starts_with("powerups")
 		|| textureInfo.getFullName().starts_with("vehicles")
 		) return TextureCategory::WeapVehi;
-		
+
 
 	if (textureInfo.getFullName().starts_with("effects")
 		) return TextureCategory::Effect;
-		
+
 
 	if (textureInfo.getFullName().starts_with("scenery")
 		|| textureInfo.getFullName().starts_with("sky")
 		|| textureInfo.getFullName().starts_with("levels")
 		) return TextureCategory::Level;
-		
+
 
 	if (textureInfo.getFullName().starts_with("ui")
 		) return TextureCategory::UI;
-		
+
 	// fall-through
 	return TextureCategory::Invalid;
 }

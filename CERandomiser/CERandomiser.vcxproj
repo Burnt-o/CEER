@@ -142,6 +142,8 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableModules>
+      </EnableModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,7 +227,8 @@
     <ClInclude Include="SoundRandomiser.h" />
     <ClInclude Include="TagInfoBase.h" />
     <ClInclude Include="TextureInfo.h" />
-    <ClInclude Include="TextureRandomiser.h" />
+    <ClInclude Include="TextureRandomiserDatum.h" />
+    <ClInclude Include="TextureRandomiserOffset.h" />
     <ClInclude Include="UnitInfo.h" />
     <ClInclude Include="UserSeed.h" />
     <ClInclude Include="WindowsUtilities.h" />
@@ -271,8 +274,10 @@
     <ClCompile Include="SoundRandomiserHooks.cpp" />
     <ClCompile Include="SoundRandomiserLevelLoad.cpp" />
     <ClCompile Include="TagInfoBase.cpp" />
-    <ClCompile Include="TextureRandomiserHooks.cpp" />
-    <ClCompile Include="TextureRandomiserLevelLoad.cpp" />
+    <ClCompile Include="TextureRandomiserDatumHooks.cpp" />
+    <ClCompile Include="TextureRandomiserDatumLevelLoad.cpp" />
+    <ClCompile Include="TextureRandomiserOffsetLevelLoad.cpp" />
+    <ClCompile Include="TextureRandomiserOffsetHooks.cpp" />
     <ClCompile Include="UserSeed.cpp" />
     <ClCompile Include="WindowsUtilities.cpp" />
   </ItemGroup>

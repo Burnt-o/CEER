@@ -18,6 +18,13 @@ struct datum
 		os << std::hex << "0x" << (uint32_t)dt;
 		return os;
 	}
+
+	datum(uint32_t in)
+	{
+		this->index = (uint16_t)(in);
+		this->salt = (uint16_t)(in >> 16);
+	}
+
 };
 
 constexpr datum nullDatum{};
