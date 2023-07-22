@@ -225,7 +225,17 @@ std::string PointerManager::PointerManagerImpl::readLocalXML()
 {
     std::string pathToFile;
 #if CEER_DEBUG
-    pathToFile = "C:\\Users\\mauri\\source\\repos\\CERandomiser\\CERandomiser\\CEERPointerData.xml";
+    std::string projName = "CERandomiser";
+    // we're probably running in ap ath that looks like CERandomiser\\x64\\Debug. dev pointer data should be in CERandomiser\\CEERPointerData.xml.
+    pathToFile = g_ourInitParameters->injectorPath;
+    auto projdirpos = pathToFile.rfind(projName);
+
+    if (projdirpos == std::string::npos)
+        throw InitException(std::format("Could not find \"CERandomiser\" in path: {}", pathToFile));
+
+    pathToFile.erase(projdirpos + projName.size(), pathToFile.size());
+    pathToFile += "\\CEERPointerData.xml";
+  
 #else
     pathToFile = pointerDataLocation;
 #endif

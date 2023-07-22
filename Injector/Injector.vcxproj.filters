@@ -36,5 +36,8 @@
     <Image Include="..\CERandomiser\CEER.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="CEER.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
