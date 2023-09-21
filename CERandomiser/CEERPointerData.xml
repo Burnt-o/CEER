@@ -51,7 +51,7 @@
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
-		<Version Version="1.3271.0.0" ProcessType="Steam">
+		<Version Version="1.3272.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FBB499</Offset>
 			</Offsets>
@@ -90,7 +90,7 @@
 
 	<!--load keyes, scan wr "00 00 64 32 30 00 00". Second of two results. --> 
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3271.0.0">
+		<Version Version="1.3272.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2B22764</Offset>
