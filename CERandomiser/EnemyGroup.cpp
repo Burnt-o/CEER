@@ -66,7 +66,7 @@ namespace builtInGroups
 		[](UnitInfo& checkEnemy) { return checkEnemy.getShortName().contains("hunter") == true; });
 
 	const EnemyGroup RaceElite("Race: Elite", "All kinds of elite",
-		[](UnitInfo& checkEnemy) { return checkEnemy.getShortName().contains("elite") == true; });
+		[](UnitInfo& checkEnemy) { return checkEnemy.getShortName().contains("elite") == true && checkEnemy.getShortName().contains("flood") == false; });
 
 	const EnemyGroup RaceGrunt("Race: Grunt", "All kinds of grunt",
 		[](UnitInfo& checkEnemy) { return checkEnemy.getShortName().contains("grunt") == true; });
