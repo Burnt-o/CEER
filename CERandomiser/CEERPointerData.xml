@@ -14,40 +14,40 @@
 	(to prevent softlocks, crashes, gameplay weirdness etc)-->
 	<VersionedEntry Name="BadUnitNames" Type="Vector" Typename="std::string">
 		<Version Version="All">
-		<!--Vanilla-->
-		<Entry>vehicles</Entry>
-		<Entry>monitor</Entry>
-		<Entry>captain</Entry>
-		<Entry>engineer</Entry>
-		<Entry>wounded</Entry>
-		<Entry>cyborg</Entry>
-		<Entry>cortana</Entry>
-		<Entry>pilot</Entry>
-		<Entry>detector</Entry>
-		<Entry>gunner</Entry>
-		<Entry>nopop</Entry>
-		<Entry>cd_gun</Entry>
-		<Entry>suicidal</Entry>
-		<Entry>airdef</Entry>
+			<!--Vanilla-->
+			<Entry>vehicles</Entry>
+			<Entry>monitor</Entry>
+			<Entry>captain</Entry>
+			<Entry>engineer</Entry>
+			<Entry>wounded</Entry>
+			<Entry>cyborg</Entry>
+			<Entry>cortana</Entry>
+			<Entry>pilot</Entry>
+			<Entry>detector</Entry>
+			<Entry>gunner</Entry>
+			<Entry>nopop</Entry>
+			<Entry>cd_gun</Entry>
+			<Entry>suicidal</Entry>
+			<Entry>airdef</Entry>
 
-		<!--Cursed Halo Again-->
-		<Entry>special</Entry>
-		<Entry>greeny</Entry>
-		<Entry>purpy</Entry>
-		
-		<!--Rubys Rebalanced Halo CE-->
-		<Entry>butterfly</Entry>
-		<Entry>bird</Entry>
+			<!--Cursed Halo Again-->
+			<Entry>special</Entry>
+			<Entry>greeny</Entry>
+			<Entry>purpy</Entry>
 
-		<!--Silent Cartographer Evolved-->
-		<Entry>fish</Entry>
-		<Entry>_egg</Entry>
-		
-		<!--Lumoria-->
-		<Entry>lumoria_boss</Entry>
+			<!--Rubys Rebalanced Halo CE-->
+			<Entry>butterfly</Entry>
+			<Entry>bird</Entry>
+
+			<!--Silent Cartographer Evolved-->
+			<Entry>fish</Entry>
+			<Entry>_egg</Entry>
+
+			<!--Lumoria-->
+			<Entry>lumoria_boss</Entry>
 		</Version>
 	</VersionedEntry>
-	
+
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
@@ -57,7 +57,7 @@
 				<Offset>0x3FBE549</Offset>
 			</Offsets>
 		</Version>
-		
+
 		<Version Version="1.3385.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FBA2E9</Offset>
@@ -89,9 +89,15 @@
 		</Version>
 	</VersionedEntry>
 
-	<!--load keyes, scan wr "00 00 64 32 30 00 00". Second of two results. --> 
+	<!--load keyes, scan wr "00 00 64 32 30 00 00". Second of two results. -->
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2B22764</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2B22764</Offset>
@@ -116,15 +122,21 @@
 			</Offsets>
 		</Version>
 	</VersionedEntry>
-	
-	
-	
+
+
+
 	<!--scan wr "64 61 65 68 0D 00 00 00"
 	check what accesses it on loading into level. a cmp should be there, that's the top of the function.
 	near the bottom will be "bad_tag_data"
 		-->
 	<VersionedEntry Name="levelLoadFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xA9B0B0</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xA9B0B0</Offset>
@@ -150,7 +162,7 @@
 		</Version>
 	</VersionedEntry>
 
-	
+
 	<!--#region EnemyRandomiser-->
 	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": top of function-->
 	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
@@ -161,10 +173,18 @@
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB3C6C8</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB3C6C8</Offset> <!--+0x30-->
+				<Offset>0xB3C6C8</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -184,6 +204,11 @@
 
 	<VersionedEntry Name="setBipedDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<unitIndex>rdx</unitIndex>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<unitIndex>rdx</unitIndex>
 			</Parameters>
@@ -215,10 +240,18 @@
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBA4DA8</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xBA4DA8</Offset> <!--+0x50-->
+				<Offset>0xBA4DA8</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -271,10 +304,18 @@
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xAFBC05</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xAFBC05</Offset> <!--+0x30-->
+				<Offset>0xAFBC05</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -293,6 +334,11 @@
 
 	<VersionedEntry Name="fixUnitFactionFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<currentlySpawningUnitsFaction>rbx+0x74</currentlySpawningUnitsFaction>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<currentlySpawningUnitsFaction>rbx+0x74</currentlySpawningUnitsFaction>
 			</Parameters>
@@ -327,10 +373,18 @@
 				<!--+0x30 from 3232-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB07D8E</Offset>
+				<!--+0x30 from 3232-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB07D8E</Offset> <!--+0x30 from 3232-->
+				<Offset>0xB07D8E</Offset>
+				<!--+0x30 from 3232-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -349,6 +403,11 @@
 
 	<VersionedEntry Name="vehicleExitFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<vehicleExitAnimationIndex>rsi</vehicleExitAnimationIndex>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<vehicleExitAnimationIndex>rsi</vehicleExitAnimationIndex>
 			</Parameters>
@@ -384,10 +443,18 @@
 				<!--+0x50 from 3232-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCE0192</Offset>
+				<!--+0x50 from 3232-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xCE0192</Offset> <!--+0x50 from 3232-->
+				<Offset>0xCE0192</Offset>
+				<!--+0x50 from 3232-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -412,9 +479,17 @@
 				<unknownFixParam>rbp</unknownFixParam>
 			</Parameters>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Parameters>
+				<unknownCheckParam>rcx</unknownCheckParam>
+				<!--unchecked-->
+				<unknownFixParam>rbp</unknownFixParam>
+			</Parameters>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Parameters>
-				<unknownCheckParam>rcx</unknownCheckParam> <!--unchecked-->
+				<unknownCheckParam>rcx</unknownCheckParam>
+				<!--unchecked-->
 				<unknownFixParam>rbp</unknownFixParam>
 			</Parameters>
 		</Version>
@@ -449,10 +524,18 @@
 				<!--or at 9BF, not sure. -->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB06935</Offset>
+				<!--or at 9BF, not sure. -->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB06935</Offset> <!--or at 9BF, not sure. -->
+				<Offset>0xB06935</Offset>
+				<!--or at 9BF, not sure. -->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -483,10 +566,18 @@
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB069BD</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB069BD</Offset> <!--+0x30-->
+				<Offset>0xB069BD</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -527,6 +618,13 @@
 				<killFlag>rcx+0x1FB</killFlag>
 			</Parameters>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Parameters>
+				<pUnitObjectInstance>rcx</pUnitObjectInstance>
+				<hideFlag>rcx-1</hideFlag>
+				<killFlag>rcx+0x1FB</killFlag>
+			</Parameters>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Parameters>
 				<pUnitObjectInstance>rcx</pUnitObjectInstance>
@@ -552,6 +650,11 @@
 
 	<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<unitIndex>rcx</unitIndex>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<unitIndex>rcx</unitIndex>
 			</Parameters>
@@ -583,10 +686,18 @@
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBE28C1</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xBE28C1</Offset> <!--+0x50-->
+				<Offset>0xBE28C1</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -603,7 +714,7 @@
 		</Version>
 	</VersionedEntry>
 
-	
+
 	<!--use assembly to get addy of actor pallete (+0x420 of scnr tag). check what acceses.
 The func with the most acccesses.. IS the function we want.
 	also double check the signature in IDA-->
@@ -615,10 +726,18 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBE272C</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xBE272C</Offset> <!--+0x50-->
+				<Offset>0xBE272C</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
@@ -641,6 +760,12 @@ The func with the most acccesses.. IS the function we want.
 	Nearish the top is a cmp [rsp+180], bl. The je immed after is our hook location-->
 	<VersionedEntry Name="fixMajorUpgradeFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC021E0</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC021E0</Offset>
@@ -672,6 +797,11 @@ The func with the most acccesses.. IS the function we want.
 				<positionVec3>rsp+0x8C</positionVec3>
 			</Parameters>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Parameters>
+				<positionVec3>rsp+0x8C</positionVec3>
+			</Parameters>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Parameters>
 				<positionVec3>rsp+0x8C</positionVec3>
@@ -692,6 +822,12 @@ The func with the most acccesses.. IS the function we want.
 	<!--approx 0x6E bytes ahead of fixMajorUpgrade (put it on the call immediately after mov [rsp+90], eax-->
 	<VersionedEntry Name="spawnPositionFuzzFunction" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC0222B</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC0222B</Offset>
@@ -718,7 +854,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 
-	
+
 	<!--scan writeable "48 61 6C 6F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 61 6C 6F"
 	go back 0x40 bytes. There's a pointer there, pointing to 00 00 00 00 FF FF FF FF
 	with that as the first offset, 0x764 ahead should be spawn position rng. Will be accessed on spawns.
@@ -726,6 +862,13 @@ The func with the most acccesses.. IS the function we want.
 	-->
 	<VersionedEntry Name="gameSpawnRNG" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x29E0820</Offset>
+				<Offset>0x764</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x29E0820</Offset>
@@ -763,6 +906,12 @@ The func with the most acccesses.. IS the function we want.
 				<Offset>0x2EA74F4</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2EA74F4</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -783,11 +932,18 @@ The func with the most acccesses.. IS the function we want.
 		</Version>
 	</VersionedEntry>
 	<!--#endregion EnemyRandomiser-->
-	
+
 	<!--#region MapReader-->
 	<!--go to top of levelLoadHook function. Head down for where it compares to daeh & toof, inbetween it loads the address.-->
 	<VersionedEntry Name="currentCacheAddress" Type="MultilevelPointer::ModuleOffset">
 		<Version Version="1.3495.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x2D9CE10</Offset>
+				<Offset>0x0</Offset>
+			</Offsets>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2D9CE10</Offset>
@@ -826,6 +982,13 @@ The func with the most acccesses.. IS the function we want.
 				<Offset>0x0</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x029E0810</Offset>
+				<Offset>0x0</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -858,6 +1021,13 @@ The func with the most acccesses.. IS the function we want.
 				<Offset>0x0</Offset>
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0x029E0820</Offset>
+				<Offset>0x0</Offset>
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
@@ -880,7 +1050,7 @@ The func with the most acccesses.. IS the function we want.
 			</Offsets>
 		</Version>
 	</VersionedEntry>
-	
+
 
 
 	<!--#endregion MapReader-->
@@ -891,6 +1061,11 @@ The func with the most acccesses.. IS the function we want.
 
 	<VersionedEntry Name="loadRegularTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<textureOffset>rcx</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -910,16 +1085,29 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xAE1368</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xAE1368</Offset> <!--+0x30-->
+				<Offset>0xAE1368</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="regularTextureDatumCrashFixContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<badNull>rax</badNull>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<badNull>rax</badNull>
 			</Parameters>
@@ -939,16 +1127,29 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xAE136D</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xAE136D</Offset> <!--+0x30-->
+				<Offset>0xAE136D</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadDecalTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<textureOffset>r9</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<textureOffset>r9</textureOffset>
 			</Parameters>
@@ -968,16 +1169,29 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xBE49DF</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xBE49DF</Offset> <!--+0x50-->
+				<Offset>0xBE49DF</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadParticleTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<textureOffset>rcx</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -997,16 +1211,29 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC7F4C6</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xC7F4C6</Offset> <!--+0x50-->
+				<Offset>0xC7F4C6</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadLensTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<textureOffset>r9</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<textureOffset>r9</textureOffset>
 			</Parameters>
@@ -1026,16 +1253,29 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xC106F7</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xC106F7</Offset> <!--+0x50-->
+				<Offset>0xC106F7</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadContrailTextureDatumFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<textureOffset>rcx</textureOffset>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -1055,10 +1295,18 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x50-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xCAAEB6</Offset>
+				<!--+0x50-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xCAAEB6</Offset> <!--+0x50-->
+				<Offset>0xCAAEB6</Offset>
+				<!--+0x50-->
 			</Offsets>
 		</Version>
 	</VersionedEntry>
@@ -1231,12 +1479,17 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--#endregion TextureRandomiserOffset-->
 
-	
+
 	<!--#region SoundRandomiser-->
 
 	<!--contains the datum-->
 	<VersionedEntry Name="loadSoundAFunctionContext" Type="MidhookContextInterpreter">
 		<Version Version="1.3495.0.0">
+			<Parameters>
+				<soundDatum>rcx</soundDatum>
+			</Parameters>
+		</Version>
+		<Version Version="1.3498.0.0">
 			<Parameters>
 				<soundDatum>rcx</soundDatum>
 			</Parameters>
@@ -1267,10 +1520,18 @@ The func with the most acccesses.. IS the function we want.
 				<!--+0x30-->
 			</Offsets>
 		</Version>
+		<Version Version="1.3498.0.0">
+			<Module>halo1.dll</Module>
+			<Offsets>
+				<Offset>0xB4ABFC</Offset>
+				<!--+0x30-->
+			</Offsets>
+		</Version>
 		<Version Version="1.3251.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
-				<Offset>0xB4ABFC</Offset> <!--+0x30-->
+				<Offset>0xB4ABFC</Offset>
+				<!--+0x30-->
 			</Offsets>
 		</Version>
 		<Version Version="1.3073.0.0">
