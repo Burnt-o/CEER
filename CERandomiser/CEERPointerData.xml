@@ -51,46 +51,47 @@
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
+
+		<Version Version="1.3495.0.0" ProcessType="Steam">
+			<Offsets>
+				<Offset>0x3FBE549</Offset>
+			</Offsets>
+		</Version>
+		
 		<Version Version="1.3385.0.0" ProcessType="Steam">
 			<Offsets>
-				<Offset>0x3FBA489</Offset>
+				<Offset>0x3FBA2E9</Offset>
 			</Offsets>
 		</Version>
-		<Version Version="1.3385.0.0" ProcessType="WinStore">
-			<Offsets>
-				<Offset>0x3E089E9</Offset>
-			</Offsets>
-		</Version>
+
 		<Version Version="1.3251.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FBA369</Offset>
 			</Offsets>
 		</Version>
-		<Version Version="1.3251.0.0" ProcessType="WinStore">
-			<Offsets>
-				<Offset>0x3E08969</Offset>
-			</Offsets>
-		</Version>
+
 		<Version Version="1.3073.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3FD8E99</Offset>
 			</Offsets>
 		</Version>
-		<Version Version="1.3073.0.0" ProcessType="WinStore">
-			<Offsets>
-				<Offset>0x3E28465</Offset>
-			</Offsets>
-		</Version>
-		<Version Version="1.2645.0.0">
+
+		<Version Version="1.2645.0.0" ProcessType="Steam">
 			<Offsets>
 				<Offset>0x3b40d69</Offset>
+			</Offsets>
+		</Version>
+
+		<Version Version="1.3498.0.0" ProcessType="WinStore">
+			<Offsets>
+				<Offset>0x3E0CAE9</Offset>
 			</Offsets>
 		</Version>
 	</VersionedEntry>
 
 	<!--load keyes, scan wr "00 00 64 32 30 00 00". Second of two results. --> 
 	<VersionedEntry Name="currentLevelName" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2B22764</Offset>
@@ -123,7 +124,7 @@
 	near the bottom will be "bad_tag_data"
 		-->
 	<VersionedEntry Name="levelLoadFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xA9B0B0</Offset>
@@ -153,7 +154,7 @@
 	<!--#region EnemyRandomiser-->
 	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": top of function-->
 	<VersionedEntry Name="placeObjectFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB3C6C8</Offset>
@@ -182,7 +183,7 @@
 
 
 	<VersionedEntry Name="setBipedDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<unitIndex>rdx</unitIndex>
 			</Parameters>
@@ -207,7 +208,7 @@
 	<!--scan nw "48 8d 0c 40 48 03 c9 8b 54 ca 0c": on the cmp edx, -01 (cmp edx, r15d in 3251)
 		-->
 	<VersionedEntry Name="setBipedDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xBA4DA8</Offset>
@@ -263,7 +264,7 @@
 
 	<!--scan nw "66 89 43 74 48 8b 15": on mov [rbx+74], ax (actually put a couple instr below, on mov r9l, 01)-->
 	<VersionedEntry Name="fixUnitFactionFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xAFBC05</Offset>
@@ -291,7 +292,7 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="fixUnitFactionFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<currentlySpawningUnitsFaction>rbx+0x74</currentlySpawningUnitsFaction>
 			</Parameters>
@@ -319,7 +320,7 @@
 	scroll down that function a bit til you find it
 -->
 	<VersionedEntry Name="vehicleExitFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB07D8E</Offset>
@@ -347,7 +348,7 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="vehicleExitFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<vehicleExitAnimationIndex>rsi</vehicleExitAnimationIndex>
 			</Parameters>
@@ -376,7 +377,7 @@
 	try scanning for nw float "1.200000048". several results. check what accesses them. go up to calling func. go back ~0x129 bytes.
 	-->
 	<VersionedEntry Name="aiGoToVehicleFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xCE0192</Offset>
@@ -404,7 +405,7 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="aiGoToVehicleFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<unknownCheckParam>rcx</unknownCheckParam>
 				<!--unchecked-->
@@ -441,7 +442,7 @@
 		-->
 
 	<VersionedEntry Name="aiLoadInVehicleFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB06935</Offset>
@@ -475,7 +476,7 @@
 	search wr "list object reference". find a pointer to it. check what accesses this pointer as you load dropship. func with 7 accesses should be right next to it.
 	-->
 	<VersionedEntry Name="killVehicleOverflowFunction2" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB069BD</Offset>
@@ -519,7 +520,7 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="killVehicleOverflowFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<pUnitObjectInstance>rcx</pUnitObjectInstance>
 				<hideFlag>rcx-1</hideFlag>
@@ -550,7 +551,7 @@
 	</VersionedEntry>
 
 	<VersionedEntry Name="setActorDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<unitIndex>rcx</unitIndex>
 			</Parameters>
@@ -575,7 +576,7 @@
 	<!--setActorDatum is a  very near the bottom of processSquadUnitFunction
 	make sure it's after the datum gets set-->
 	<VersionedEntry Name="setActorDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xBE28C1</Offset>
@@ -607,7 +608,7 @@
 The func with the most acccesses.. IS the function we want.
 	also double check the signature in IDA-->
 	<VersionedEntry Name="processSquadUnitFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xBE272C</Offset>
@@ -639,7 +640,7 @@ The func with the most acccesses.. IS the function we want.
 	<!--go to end of processSquadUnitFunction. The last call takes us to the right place.
 	Nearish the top is a cmp [rsp+180], bl. The je immed after is our hook location-->
 	<VersionedEntry Name="fixMajorUpgradeFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC021E0</Offset>
@@ -666,7 +667,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="spawnPositionFuzzFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<positionVec3>rsp+0x8C</positionVec3>
 			</Parameters>
@@ -690,7 +691,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--approx 0x6E bytes ahead of fixMajorUpgrade (put it on the call immediately after mov [rsp+90], eax-->
 	<VersionedEntry Name="spawnPositionFuzzFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC0222B</Offset>
@@ -724,7 +725,7 @@ The func with the most acccesses.. IS the function we want.
 	Note: the "0x40 bytes" hint changed to 0x58 in 3251.
 	-->
 	<VersionedEntry Name="gameSpawnRNG" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x29E0820</Offset>
@@ -756,7 +757,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--scan nw "69 15 ** ** ** ** 0d 66 19 00". but which one? a pair will be much more common-->
 	<VersionedEntry Name="gameRNG" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2EA74F4</Offset>
@@ -786,7 +787,7 @@ The func with the most acccesses.. IS the function we want.
 	<!--#region MapReader-->
 	<!--go to top of levelLoadHook function. Head down for where it compares to daeh & toof, inbetween it loads the address.-->
 	<VersionedEntry Name="currentCacheAddress" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x2D9CE10</Offset>
@@ -818,7 +819,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--scan wr "65 6e 63 6f 75 6e 74 65 72 00 00 00 00 00 00 00", first result. needs pointer -->
 	<VersionedEntry Name="encounterMetadata" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x029E0810</Offset>
@@ -850,7 +851,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--+0x10 base of prev pointer. "00 00 00 00 FF FF FF FF" -->
 	<VersionedEntry Name="encounterSquadData" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0x029E0820</Offset>
@@ -889,7 +890,7 @@ The func with the most acccesses.. IS the function we want.
 
 
 	<VersionedEntry Name="loadRegularTextureDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -902,7 +903,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadRegularTextureDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xAE1368</Offset>
@@ -918,7 +919,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="regularTextureDatumCrashFixContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<badNull>rax</badNull>
 			</Parameters>
@@ -931,7 +932,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="regularTextureDatumCrashFixFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xAE136D</Offset>
@@ -947,7 +948,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadDecalTextureDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<textureOffset>r9</textureOffset>
 			</Parameters>
@@ -960,7 +961,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadDecalTextureDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xBE49DF</Offset>
@@ -976,7 +977,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadParticleTextureDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -989,7 +990,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadParticleTextureDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC7F4C6</Offset>
@@ -1005,7 +1006,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadLensTextureDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<textureOffset>r9</textureOffset>
 			</Parameters>
@@ -1018,7 +1019,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadLensTextureDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xC106F7</Offset>
@@ -1034,7 +1035,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadContrailTextureDatumFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<textureOffset>rcx</textureOffset>
 			</Parameters>
@@ -1047,7 +1048,7 @@ The func with the most acccesses.. IS the function we want.
 	</VersionedEntry>
 
 	<VersionedEntry Name="loadContrailTextureDatumFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xCAAEB6</Offset>
@@ -1235,7 +1236,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--contains the datum-->
 	<VersionedEntry Name="loadSoundAFunctionContext" Type="MidhookContextInterpreter">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Parameters>
 				<soundDatum>rcx</soundDatum>
 			</Parameters>
@@ -1259,7 +1260,7 @@ The func with the most acccesses.. IS the function we want.
 
 	<!--set a breakpoint on memoffset of a sound in tag table. go up a func or so until you see lea "aussie", "painminor". start of that func.-->
 	<VersionedEntry Name="loadSoundAFunction" Type="MultilevelPointer::ModuleOffset">
-		<Version Version="1.3385.0.0">
+		<Version Version="1.3495.0.0">
 			<Module>halo1.dll</Module>
 			<Offsets>
 				<Offset>0xB4ABFC</Offset>
