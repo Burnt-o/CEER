@@ -51,37 +51,38 @@
 
 
 	<VersionedEntry Name="stateIndicator" Type="MultilevelPointer::ExeOffset">
-		<Version Version="1.3495.0.0" ProcessType="Steam">
+		<Version Version="1.3495.0.0">
 			<Offsets>
 				<Offset>0x3FBE549</Offset>
 			</Offsets>
 		</Version>
 
-		<Version Version="1.3385.0.0" ProcessType="Steam">
+		<Version Version="1.3385.0.0">
 			<Offsets>
 				<Offset>0x3FBA2E9</Offset>
 			</Offsets>
 		</Version>
 
-		<Version Version="1.3251.0.0" ProcessType="Steam">
+		<Version Version="1.3251.0.0">
 			<Offsets>
 				<Offset>0x3FBA369</Offset>
 			</Offsets>
 		</Version>
 
-		<Version Version="1.3073.0.0" ProcessType="Steam">
+		<Version Version="1.3073.0.0">
 			<Offsets>
 				<Offset>0x3FD8E99</Offset>
 			</Offsets>
 		</Version>
 
-		<Version Version="1.2645.0.0" ProcessType="Steam">
+		<Version Version="1.2645.0.0">
 			<Offsets>
 				<Offset>0x3b40d69</Offset>
 			</Offsets>
 		</Version>
 
-		<Version Version="1.3498.0.0" ProcessType="WinStore">
+		<Version Version="1.3498.0.0">
+			<!--WinStore-->
 			<Offsets>
 				<Offset>0x3E0CAE9</Offset>
 			</Offsets>
