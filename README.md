@@ -14,7 +14,7 @@ Custom Campaign files if you want to play with every enemy on every level [here]
 
 Remember to run MCC with anticheat disabled.
 
-Supports current patch (v3495) as of Feb 2025, as well as Season 8 (v2645).
+Supports current patch (v3528) as of Sep 2025, as well as Season 8 (v2645).
 
 
 COOP:
